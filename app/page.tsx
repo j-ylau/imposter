@@ -44,7 +44,8 @@ export default function HomePage() {
 
       router.push(`/room/${room.id}`);
     } catch (err) {
-      setError(t.home.errors.createFailed);
+      console.error('Failed to create room:', err);
+      setError(err instanceof Error ? err.message : t.home.errors.createFailed);
       setLoading(false);
     }
   };
