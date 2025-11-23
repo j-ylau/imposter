@@ -4,6 +4,7 @@ import { Button } from '@/components/UI/Button';
 import { Card, CardBody, CardHeader } from '@/components/UI/Card';
 import { useTranslation } from '@/lib/i18n';
 import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
+import { AdSense } from '@/components/Ads/AdSense';
 
 interface ResultsProps {
   room: Room;
@@ -33,6 +34,13 @@ export function Results({
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      {/* Ad - Top Banner */}
+      <AdSense
+        slot="RESULTS_TOP_SLOT"
+        format="horizontal"
+        className="mb-4"
+      />
+
       {/* Game Result */}
       <Card variant="elevated">
         <CardBody className="text-center py-8">
@@ -151,6 +159,13 @@ export function Results({
           </Button>
         </CardBody>
       </Card>
+
+      {/* Ad - Bottom Banner */}
+      <AdSense
+        slot="RESULTS_BOTTOM_SLOT"
+        format="horizontal"
+        className="mt-6"
+      />
     </div>
   );
 }

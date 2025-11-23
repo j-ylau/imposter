@@ -2,6 +2,7 @@ import { Room } from '@/schema';
 import { Button } from '@/components/UI/Button';
 import { Card, CardBody, CardHeader } from '@/components/UI/Card';
 import { useTranslation } from '@/lib/i18n';
+import { AdSense } from '@/components/Ads/AdSense';
 
 interface RoleRevealProps {
   room: Room;
@@ -66,6 +67,13 @@ export function RoleReveal({ room, isImposter, word, onContinue }: RoleRevealPro
               </div>
             </>
           )}
+
+          {/* Ad - In-between Rounds */}
+          <AdSense
+            slot="INTERSTITIAL_SLOT"
+            format="auto"
+            className="my-4"
+          />
 
           <Button onClick={onContinue} className="w-full" size="lg">
             {t.roleReveal.continueButton}

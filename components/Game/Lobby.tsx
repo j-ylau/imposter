@@ -6,6 +6,7 @@ import { Button } from '@/components/UI/Button';
 import { Card, CardBody, CardHeader } from '@/components/UI/Card';
 import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
 import { useTranslation } from '@/lib/i18n';
+import { AdSense } from '@/components/Ads/AdSense';
 
 interface LobbyProps {
   room: Room;
@@ -149,6 +150,13 @@ export function Lobby({ room, currentPlayerId, onStartGame }: LobbyProps) {
           </CardBody>
         </Card>
       )}
+
+      {/* Ad - Bottom Banner */}
+      <AdSense
+        slot="LOBBY_BOTTOM_SLOT"
+        format="horizontal"
+        className="mt-6"
+      />
     </div>
   );
 }
