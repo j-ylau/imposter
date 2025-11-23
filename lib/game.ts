@@ -141,7 +141,12 @@ export function startGame(room: Room): Room {
 
 // Move to next phase
 export function nextPhase(room: Room): Room {
-  const phaseOrder: GamePhase[] = ['lobby', 'role', 'vote', 'results'];
+  // Different phase flow for online vs pass-and-play
+  const phaseOrder: GamePhase[] =
+    room.gameMode === 'pass-and-play'
+      ? ['lobby', 'role', 'in-person-round', 'result']
+      : ['lobby', 'role', 'vote', 'result'];
+
   const currentIndex = phaseOrder.indexOf(room.phase);
   const nextPhaseValue = phaseOrder[currentIndex + 1] || room.phase;
 

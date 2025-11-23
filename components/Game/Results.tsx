@@ -11,9 +11,9 @@ import confetti from 'canvas-confetti';
 
 interface ResultsProps {
   room: Room;
-  mostVotedPlayerId: string;
-  voteCounts: Record<string, number>;
-  imposterWon: boolean;
+  mostVotedPlayerId?: string; // Optional for pass-and-play
+  voteCounts?: Record<string, number>; // Optional for pass-and-play
+  imposterWon?: boolean; // Optional for pass-and-play
   onPlayAgain: () => void;
   onPlayAgainWithTheme: (theme: Theme) => void;
   onGoHome: () => void;
@@ -30,7 +30,8 @@ export function Results({
 }: ResultsProps) {
   const { t } = useTranslation();
   const [showThemes, setShowThemes] = useState(false);
-  const mostVotedPlayer = room.players.find((p) => p.id === mostVotedPlayerId);
+  const isPassAndPlay = room.gameMode === 'pass-and-play';
+  const mostVotedPlayer = mostVotedPlayerId ? room.players.find((p) => p.id === mostVotedPlayerId) : null;
   const imposter = room.players.find((p) => p.id === room.imposterId);
 
   const themes: Theme[] = ['default', 'pokemon', 'nba', 'memes', 'movies', 'countries'];
@@ -108,15 +109,22 @@ export function Results({
       <Card variant="elevated">
         <CardBody className="text-center py-8">
           <div className="text-6xl mb-4">
-            {imposterWon ? '🕵️' : '🎉'}
+            {isPassAndPlay ? '🎉' : imposterWon ? '🕵️' : '🎉'}
           </div>
-          <h2 className="text-3xl font-bold mb-2">
-            {imposterWon ? (
-              <span className="text-danger transition-colors">{t.results.imposterWins}</span>
-            ) : (
-              <span className="text-success transition-colors">{t.results.playersWin}</span>
-            )}
-          </h2>
+          {!isPassAndPlay && (
+            <h2 className="text-3xl font-bold mb-2">
+              {imposterWon ? (
+                <span className="text-danger transition-colors">{t.results.imposterWins}</span>
+              ) : (
+                <span className="text-success transition-colors">{t.results.playersWin}</span>
+              )}
+            </h2>
+          )}
+          {isPassAndPlay && (
+            <h2 className="text-3xl font-bold mb-2 text-fg transition-colors">
+              {t.results.gameOver}
+            </h2>
+          )}
           <p className="text-xl text-fg mb-4 transition-colors">
             {t.results.secretWord} <strong>{room.word}</strong>
           </p>
@@ -126,8 +134,9 @@ export function Results({
         </CardBody>
       </Card>
 
-      {/* Vote Results */}
-      <Card variant="elevated">
+      {/* Vote Results - Only for online mode */}
+      {!isPassAndPlay && voteCounts && (
+        <Card variant="elevated">
         <CardHeader>
           <h3 className="text-xl font-bold text-fg transition-colors">{t.results.voteResults}</h3>
         </CardHeader>
@@ -169,6 +178,7 @@ export function Results({
           })}
         </CardBody>
       </Card>
+      )}
 
       {/* Restart Options */}
       <Card variant="elevated">

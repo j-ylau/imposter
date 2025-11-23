@@ -212,6 +212,22 @@ export const en = {
     ready: 'Ready?',
   },
 
+  // In-Person Round (Pass & Play)
+  inPersonRound: {
+    title: 'In-Person Round',
+    subtitle: 'Everyone now knows their roles.',
+    instructions: {
+      title: 'What to do now:',
+      steps: [
+        'Discuss clues and hints in person',
+        'Ask questions to find the imposter',
+        'When ready, vote together on who the imposter is',
+        'Tap the button below to reveal the answer',
+      ],
+    },
+    revealButton: 'Reveal Imposter',
+  },
+
   // Submit Clue
   submitClue: {
     title: 'Submit Your Clue',
@@ -253,6 +269,7 @@ export const en = {
 
   // Results
   results: {
+    gameOver: 'Game Over!',
     imposterWins: 'Imposter Wins!',
     playersWin: 'Players Win!',
     secretWord: 'The secret word was:',

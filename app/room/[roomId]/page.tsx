@@ -19,6 +19,7 @@ import {
 import type { Theme } from '@/schema';
 import { Lobby } from '@/components/Game/Lobby';
 import { RoleReveal } from '@/components/Game/RoleReveal';
+import { InPersonRound } from '@/components/Game/InPersonRound';
 import { Vote } from '@/components/Game/Vote';
 import { Results } from '@/components/Game/Results';
 import { useThrottle } from '@/lib/hooks/useThrottle';
@@ -179,6 +180,10 @@ export default function RoomPage() {
         />
       )}
 
+      {room.phase === 'in-person-round' && (
+        <InPersonRound room={room} onRevealImposter={handleContinue} />
+      )}
+
       {room.phase === 'vote' && (
         <Vote
           room={room}
@@ -187,12 +192,14 @@ export default function RoomPage() {
         />
       )}
 
-      {room.phase === 'results' && voteResults && (
+      {room.phase === 'result' && (
         <Results
           room={room}
-          mostVotedPlayerId={voteResults.mostVotedPlayerId}
-          voteCounts={voteResults.voteCounts}
-          imposterWon={checkImposterWin(room, voteResults.mostVotedPlayerId)}
+          mostVotedPlayerId={voteResults?.mostVotedPlayerId}
+          voteCounts={voteResults?.voteCounts}
+          imposterWon={
+            voteResults ? checkImposterWin(room, voteResults.mostVotedPlayerId) : undefined
+          }
           onPlayAgain={handlePlayAgain}
           onPlayAgainWithTheme={handlePlayAgainWithTheme}
           onGoHome={handleGoHome}

@@ -5,8 +5,9 @@ export type GameMode = 'online' | 'pass-and-play';
 export type GamePhase =
   | 'lobby'
   | 'role'
-  | 'vote'
-  | 'results';
+  | 'in-person-round' // For pass-and-play: IRL discussion phase
+  | 'vote' // For online mode: digital voting
+  | 'result';
 
 export type Theme =
   | 'default'
