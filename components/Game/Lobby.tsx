@@ -35,10 +35,10 @@ export function Lobby({ room, currentPlayerId, onStartGame }: LobbyProps) {
       }
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-      toast.success('Code copied!');
+      toast.success(t.lobby.success.codeCopiedToast);
     } catch (err) {
       logger.error('Failed to copy:', err);
-      toast.error('Failed to copy code');
+      toast.error(t.lobby.errors.copyFailed);
     }
   };
 

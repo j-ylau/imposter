@@ -348,47 +348,47 @@ export function handleError(error: unknown): AppError {
   return new AppError(ErrorCode.UNKNOWN, 'An unknown error occurred');
 }
 
-// Get user-friendly error message from error code
-export function getErrorMessage(code: ErrorCode): string {
+// Map error code to translation key in en.errors.*
+export function getErrorTranslationKey(code: ErrorCode): keyof typeof import('@/lib/i18n/en').en.errors {
   switch (code) {
     case ErrorCode.ROOM_NOT_FOUND:
-      return 'Room not found';
+      return 'roomNotFound';
     case ErrorCode.ROOM_CREATION_FAILED:
-      return 'Failed to create room';
+      return 'roomCreationFailed';
     case ErrorCode.ROOM_UPDATE_FAILED:
-      return 'Failed to update room';
+      return 'roomUpdateFailed';
     case ErrorCode.ROOM_FULL:
-      return 'Room is full';
+      return 'roomFull';
     case ErrorCode.ROOM_GAME_IN_PROGRESS:
-      return 'Game already in progress';
+      return 'roomGameInProgress';
     case ErrorCode.ROOM_LOCKED:
-      return 'Room is locked: game has started';
+      return 'roomLocked';
     case ErrorCode.ROOM_EXPIRED:
-      return 'Room has expired';
+      return 'roomExpired';
     case ErrorCode.INVALID_PLAYER_NAME:
-      return 'Invalid player name';
+      return 'invalidPlayerName';
     case ErrorCode.PLAYER_NOT_FOUND:
-      return 'Player not found';
+      return 'playerNotFound';
     case ErrorCode.PLAYER_ALREADY_EXISTS:
-      return 'Player already exists';
+      return 'playerAlreadyExists';
     case ErrorCode.NOT_HOST:
-      return 'Only the host can perform this action';
+      return 'notHost';
     case ErrorCode.INVALID_GAME_PHASE:
-      return 'Invalid game phase';
+      return 'invalidGamePhase';
     case ErrorCode.INSUFFICIENT_PLAYERS:
-      return 'Not enough players';
+      return 'insufficientPlayers';
     case ErrorCode.INVALID_VOTE_TARGET:
-      return 'Invalid vote target';
+      return 'invalidVoteTarget';
     case ErrorCode.DB_READ_FAILED:
-      return 'Failed to read from database';
+      return 'dbReadFailed';
     case ErrorCode.DB_WRITE_FAILED:
-      return 'Failed to write to database';
+      return 'dbWriteFailed';
     case ErrorCode.DB_CONNECTION_FAILED:
-      return 'Database connection failed';
+      return 'dbConnectionFailed';
     case ErrorCode.VALIDATION_FAILED:
-      return 'Validation failed';
+      return 'validationFailed';
     case ErrorCode.UNKNOWN:
     default:
-      return 'An unexpected error occurred';
+      return 'unknown';
   }
 }

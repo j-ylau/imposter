@@ -1,4 +1,27 @@
 export const en = {
+  // Error Messages
+  errors: {
+    roomNotFound: "Room code doesn't exist. Check the code and try again.",
+    roomCreationFailed: 'Could not create room. Please try again.',
+    roomUpdateFailed: 'Could not update room. Please try again.',
+    roomFull: 'This room is full. Ask the host to start a new game.',
+    roomGameInProgress: "Can't join - game already started. Ask for a new room code.",
+    roomLocked: "Can't join - game already started. Ask for a new room code.",
+    roomExpired: 'This room has expired. Create a new room to play.',
+    invalidPlayerName: 'Name must be 2-20 characters.',
+    playerNotFound: 'Player not found in this room.',
+    playerAlreadyExists: 'Someone in this room already has that name. Choose a different name.',
+    notHost: 'Only the host can do this.',
+    invalidGamePhase: 'Action not available right now.',
+    insufficientPlayers: 'Need at least 3 players to start.',
+    invalidVoteTarget: 'Invalid vote. Please select a player.',
+    dbReadFailed: 'Connection issue. Check your internet and try again.',
+    dbWriteFailed: 'Could not save changes. Check your internet and try again.',
+    dbConnectionFailed: 'Connection lost. Check your internet and try again.',
+    validationFailed: 'Invalid input. Please check and try again.',
+    unknown: 'Something went wrong. Please try again.',
+  },
+
   // Common
   common: {
     close: 'Close',
@@ -20,6 +43,9 @@ export const en = {
     yourName: 'Your name',
     randomTheme: 'Play Random Theme',
     chooseTheme: 'Choose Theme',
+    success: {
+      roomCreated: 'Room created! 🎉',
+    },
     errors: {
       invalidName: 'Name must be 2-20 characters',
       createFailed: 'Failed to create room',
@@ -80,11 +106,16 @@ export const en = {
       message: "This game room doesn't exist or has ended.",
       createNew: 'Create New Game',
     },
+    success: {
+      joined: 'Joined room! 🎮',
+    },
     errors: {
-      roomNotFound: 'Room not found',
-      gameInProgress: 'Game already in progress',
+      enterName: 'Please enter your name',
       invalidName: 'Name must be 2-20 characters',
-      joinFailed: 'Failed to join room',
+      invalidCode: 'Please enter a complete 6-character room code',
+      roomNotFound: "Room code doesn't exist. Check the code and try again.",
+      gameInProgress: "Can't join - game already started. Ask for a new room code.",
+      joinFailed: 'Could not join room. Please try again.',
     },
   },
 
@@ -106,6 +137,12 @@ export const en = {
     startGame: 'Start Game',
     needMorePlayers: 'Need {count} more players',
     waitingForHost: 'Waiting for host to start...',
+    success: {
+      codeCopiedToast: 'Code copied!',
+    },
+    errors: {
+      copyFailed: 'Failed to copy code',
+    },
   },
 
   // Role Reveal

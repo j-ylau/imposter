@@ -11,11 +11,13 @@ import { roomApi } from '@/lib/realtime';
 import { addPlayer } from '@/lib/game';
 import { isValidPlayerName, isValidRoomId } from '@/lib/util';
 import { ROOM_ID_LENGTH } from '@/lib/constants';
-import { RoomExpiredError, handleError, getErrorMessage } from '@/lib/error';
+import { RoomExpiredError, handleError, getErrorTranslationKey } from '@/lib/error';
 import { toast } from 'react-toastify';
+import { useTranslation } from '@/lib/i18n';
 
 export default function JoinPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [playerName, setPlayerName] = useState('');
   const [roomCode, setRoomCode] = useState(Array(ROOM_ID_LENGTH).fill(''));
   const [loading, setLoading] = useState(false);
@@ -75,17 +77,17 @@ export default function JoinPage() {
     const trimmedCode = code || roomCode.join('');
 
     if (!trimmedName) {
-      toast.error('Please enter your name');
+      toast.error(t.join.errors.enterName);
       return;
     }
 
     if (!isValidPlayerName(trimmedName)) {
-      toast.error('Name must be 2-20 characters');
+      toast.error(t.join.errors.invalidName);
       return;
     }
 
     if (!isValidRoomId(trimmedCode)) {
-      toast.error('Please enter a complete 6-character room code');
+      toast.error(t.join.errors.invalidCode);
       return;
     }
 
@@ -108,11 +110,12 @@ export default function JoinPage() {
       localStorage.setItem('currentPlayerId', newPlayer.id);
       localStorage.setItem('currentPlayerName', trimmedName);
 
-      toast.success('Joined room! 🎮');
+      toast.success(t.join.success.joined);
       router.push(`/room/${trimmedCode}`);
     } catch (err) {
       const appError = handleError(err);
-      toast.error(getErrorMessage(appError.code));
+      const errorKey = getErrorTranslationKey(appError.code);
+      toast.error(t.errors[errorKey]);
       setLoading(false);
     }
   };

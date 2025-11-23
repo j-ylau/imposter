@@ -15,7 +15,7 @@ import { useTranslation } from '@/lib/i18n';
 import { ThemeToggle } from '@/components/UI/ThemeToggle';
 import { PageTransition } from '@/components/Animations/PageTransition';
 import { toast } from 'react-toastify';
-import { handleError, getErrorMessage } from '@/lib/error';
+import { handleError, getErrorTranslationKey } from '@/lib/error';
 
 export default function HomePage() {
   const router = useRouter();
@@ -46,11 +46,12 @@ export default function HomePage() {
       localStorage.setItem('currentPlayerId', room.hostId);
       localStorage.setItem('currentPlayerName', playerName);
 
-      toast.success('Room created! 🎉');
+      toast.success(t.home.success.roomCreated);
       router.push(`/room/${room.id}`);
     } catch (err) {
       const appError = handleError(err);
-      toast.error(getErrorMessage(appError.code));
+      const errorKey = getErrorTranslationKey(appError.code);
+      toast.error(t.errors[errorKey]);
       setLoading(false);
     }
   };

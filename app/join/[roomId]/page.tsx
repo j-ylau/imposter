@@ -95,10 +95,10 @@ export default function QuickJoinPage() {
         <Card variant="elevated" className="max-w-md w-full">
           <CardBody className="text-center py-8">
             <div className="text-6xl mb-4">😕</div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl font-bold text-fg mb-2">
               {t.join.notFound.title}
             </h1>
-            <p className="text-gray-600 mb-6">
+            <p className="text-fg-muted mb-6">
               {t.join.notFound.message}
             </p>
             <Button onClick={() => router.push('/')} className="w-full">
@@ -115,10 +115,10 @@ export default function QuickJoinPage() {
       <div className="max-w-md w-full space-y-6">
         <div className="text-center">
           <div className="text-6xl mb-4">🎮</div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-bold text-fg mb-2">
             {t.join.title}
           </h1>
-          <p className="text-gray-600">{t.join.subtitle}</p>
+          <p className="text-fg-muted">{t.join.subtitle}</p>
         </div>
 
         <Card variant="elevated">
@@ -132,7 +132,7 @@ export default function QuickJoinPage() {
               maxLength={20}
               autoFocus
             />
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-sm text-danger-fg">{error}</p>}
 
             <Button
               onClick={handleJoin}
@@ -145,7 +145,7 @@ export default function QuickJoinPage() {
           </CardBody>
         </Card>
 
-        <p className="text-center text-sm text-gray-500">
+        <p className="text-center text-sm text-fg-subtle">
           {t.common.roomCode} <span className="font-mono font-bold">{roomId}</span>
         </p>
       </div>

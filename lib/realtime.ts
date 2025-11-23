@@ -56,6 +56,10 @@ export const roomApi = {
       .single();
 
     if (error) {
+      // PGRST116 = no rows returned by Supabase
+      if (error.code === 'PGRST116') {
+        throw new RoomNotFoundError(roomId);
+      }
       throw new DatabaseReadError('getRoom', error.message);
     }
 
