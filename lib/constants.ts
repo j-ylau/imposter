@@ -16,7 +16,7 @@ export const PLAYER_NAME_MAX_LENGTH = 20;
 // Room constants
 export const ROOM_ID_LENGTH = 6;
 export const MIN_PLAYERS_TO_START = 3;
-export const ROOM_ID_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed similar-looking chars
+export const ROOM_ID_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // Letters only, removed similar-looking chars (I, O)
 
 // Game constants
 export const CLUE_MAX_LENGTH = 20;

@@ -49,8 +49,30 @@ export function formatTime(timestamp: number): string {
 
 // Validate room ID format
 export function isValidRoomId(roomId: string): boolean {
-  const pattern = new RegExp(`^[A-Z0-9]{${ROOM_ID_LENGTH}}$`);
+  const pattern = new RegExp(`^[A-Z]{${ROOM_ID_LENGTH}}$`);
   return pattern.test(roomId);
+}
+
+// Get base URL dynamically based on environment
+export function getBaseUrl(): string {
+  // Check if we're on the client side
+  if (typeof window !== 'undefined') {
+    return `${window.location.protocol}//${window.location.host}`;
+  }
+
+  // Server-side: check environment variables
+  // Vercel automatically sets VERCEL_URL
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  // Check for custom domain in production
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL;
+  }
+
+  // Fallback to localhost for development
+  return 'http://localhost:3002';
 }
 
 // Validate player name

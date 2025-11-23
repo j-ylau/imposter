@@ -1,11 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { SITE_URL } from '@/lib/constants';
+import { getBaseUrl } from '@/lib/util';
 import { useTranslation } from '@/lib/i18n';
 
 export function Footer() {
   const { t } = useTranslation();
+  const baseUrl = getBaseUrl();
+  const displayUrl = baseUrl.replace(/^https?:\/\//, ''); // Remove protocol for display
 
   return (
     <footer className="fixed bottom-0 left-0 right-0 py-3 bg-card/80 backdrop-blur-sm border-t border-border transition-colors">
@@ -14,12 +16,12 @@ export function Footer() {
           <p className="text-xs text-fg-muted">
             {t.footer.madeWith}{' '}
             <a
-              href={`https://${SITE_URL}`}
+              href={baseUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-primary hover:text-primary-hover underline"
             >
-              {SITE_URL}
+              {displayUrl}
             </a>
           </p>
           <div className="flex gap-4 text-xs">
