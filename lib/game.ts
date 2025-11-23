@@ -1,16 +1,13 @@
 // ALL game logic in one file
 
-import type { Room, Player, GamePhase, Theme, Clue, Vote } from '@/schema';
+import type { Room, Player, GamePhase, Theme, Vote } from '@/schema';
 import { THEMES } from '@/data/themes';
 import { randomItem, shuffle, generateRoomId, generatePlayerId } from './util';
-import { MIN_PLAYERS_TO_START, CLUE_MAX_LENGTH, CLUE_MAX_WORDS } from './constants';
+import { MIN_PLAYERS_TO_START } from './constants';
 import {
   InsufficientPlayersError,
   PlayerNotFoundError,
   InvalidGamePhaseError,
-  ClueAlreadySubmittedError,
-  VoteAlreadySubmittedError,
-  InvalidClueError,
   InvalidVoteTargetError,
   PlayerAlreadyExistsError,
   RoomGameInProgressError,
@@ -66,7 +63,6 @@ export function createRoom(hostName: string, theme: Theme): Room {
     theme,
     phase: 'lobby',
     players: [host],
-    clues: [],
     votes: [],
     imposterId: null,
     createdAt: Date.now(),
@@ -133,7 +129,7 @@ export function startGame(room: Room): Room {
 
 // Move to next phase
 export function nextPhase(room: Room): Room {
-  const phaseOrder: GamePhase[] = ['lobby', 'role', 'clue', 'reveal', 'vote', 'results'];
+  const phaseOrder: GamePhase[] = ['lobby', 'role', 'vote', 'results'];
   const currentIndex = phaseOrder.indexOf(room.phase);
   const nextPhaseValue = phaseOrder[currentIndex + 1] || room.phase;
 
@@ -141,54 +137,6 @@ export function nextPhase(room: Room): Room {
     ...room,
     phase: nextPhaseValue,
   };
-}
-
-// Submit a clue
-export function submitClue(room: Room, playerId: string, clueText: string): Room {
-  if (room.phase !== 'clue') {
-    throw new InvalidGamePhaseError(room.phase, 'clue');
-  }
-
-  const player = room.players.find((p) => p.id === playerId);
-  if (!player) {
-    throw new PlayerNotFoundError(playerId);
-  }
-
-  const alreadySubmitted = room.clues.some((c) => c.playerId === playerId);
-  if (alreadySubmitted) {
-    throw new ClueAlreadySubmittedError(playerId);
-  }
-
-  const trimmedClue = clueText.trim();
-
-  if (!trimmedClue) {
-    throw new InvalidClueError(clueText, 'Clue cannot be empty');
-  }
-
-  if (trimmedClue.split(' ').length > CLUE_MAX_WORDS) {
-    throw new InvalidClueError(clueText, `Clue must be ${CLUE_MAX_WORDS} word only`);
-  }
-
-  if (trimmedClue.length > CLUE_MAX_LENGTH) {
-    throw new InvalidClueError(clueText, `Clue is too long (max ${CLUE_MAX_LENGTH} characters)`);
-  }
-
-  const newClue: Clue = {
-    playerId,
-    playerName: player.name,
-    clue: trimmedClue,
-    submittedAt: Date.now(),
-  };
-
-  return {
-    ...room,
-    clues: [...room.clues, newClue],
-  };
-}
-
-// Check if all players have submitted clues
-export function allCluesSubmitted(room: Room): boolean {
-  return room.clues.length === room.players.length;
 }
 
 // Submit a vote
@@ -265,7 +213,7 @@ export function checkImposterWin(room: Room, mostVotedPlayerId: string): boolean
   return mostVotedPlayerId !== room.imposterId;
 }
 
-// Reset game for new round
+// Reset game for new round (same theme)
 export function resetGame(room: Room): Room {
   const word = generateWord(room.theme);
 
@@ -273,7 +221,21 @@ export function resetGame(room: Room): Room {
     ...room,
     word,
     phase: 'lobby',
-    clues: [],
+    votes: [],
+    imposterId: null,
+    players: room.players.map((p) => ({ ...p, isImposter: false })),
+  };
+}
+
+// Reset game with a new theme
+export function resetGameWithTheme(room: Room, newTheme: Theme): Room {
+  const word = generateWord(newTheme);
+
+  return {
+    ...room,
+    word,
+    theme: newTheme,
+    phase: 'lobby',
     votes: [],
     imposterId: null,
     players: room.players.map((p) => ({ ...p, isImposter: false })),

@@ -19,41 +19,19 @@ export function Lobby({ room, currentPlayerId, onStartGame }: LobbyProps) {
   const canStart = room.players.length >= 3;
   const [copied, setCopied] = useState(false);
 
-  const shareUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/join/${room.id}`
+  const joinUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/join`
     : '';
 
-  const handleCopyLink = async () => {
+  const handleCopyCode = async () => {
     try {
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(room.id);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
     }
   };
-
-  const handleNativeShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: t.home.title,
-          text: t.lobby.shareMessage,
-          url: shareUrl,
-        });
-      } catch (err) {
-        console.error('Share failed:', err);
-      }
-    }
-  };
-
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
-    `${t.lobby.shareMessage} ${shareUrl}`
-  )}`;
-
-  const smsUrl = `sms:?&body=${encodeURIComponent(
-    `${t.lobby.shareMessage} ${shareUrl}`
-  )}`;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -62,8 +40,23 @@ export function Lobby({ room, currentPlayerId, onStartGame }: LobbyProps) {
         <CardBody className="text-center space-y-4 py-6">
           <div className="text-4xl mb-2">🎮</div>
           <h2 className="text-2xl font-bold text-gray-900">
-            {t.lobby.shareTitle}
+            {t.lobby.inviteFriends}
           </h2>
+
+          {/* Instructions */}
+          <div className="bg-gray-50 border-2 border-gray-200 rounded-lg p-4 text-left">
+            <p className="text-sm text-gray-700 mb-3">
+              {t.lobby.tellFriends}
+            </p>
+            <ol className="text-sm text-gray-800 space-y-2 ml-4 list-decimal">
+              <li>
+                {t.lobby.step1} <span className="font-mono font-bold bg-primary-100 px-2 py-0.5 rounded text-primary-700">{joinUrl}</span>
+              </li>
+              <li>
+                {t.lobby.step2}
+              </li>
+            </ol>
+          </div>
 
           {/* Room Code - Prominent */}
           <div className="bg-primary-50 border-2 border-primary-200 rounded-lg p-4">
@@ -73,42 +66,14 @@ export function Lobby({ room, currentPlayerId, onStartGame }: LobbyProps) {
             </p>
           </div>
 
-          {/* Divider with OR */}
-          <div className="relative py-2">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-white px-4 text-sm text-gray-500 font-medium">or</span>
-            </div>
-          </div>
-
-          {/* Share Link Display */}
-          <div className="bg-gray-100 rounded-lg p-3 font-mono text-sm break-all">
-            {shareUrl}
-          </div>
-
-          {/* Share Buttons */}
-          <div className="grid grid-cols-1 gap-3">
-            <Button
-              onClick={handleCopyLink}
-              size="lg"
-              className="w-full"
-            >
-              {copied ? `✓ ${t.lobby.linkCopied}` : `📋 ${t.lobby.copyLink}`}
-            </Button>
-
-            {typeof navigator !== 'undefined' && 'share' in navigator && (
-              <Button
-                onClick={handleNativeShare}
-                variant="secondary"
-                size="lg"
-                className="w-full"
-              >
-                📤 {t.lobby.share}
-              </Button>
-            )}
-          </div>
+          {/* Copy Code Button */}
+          <Button
+            onClick={handleCopyCode}
+            size="lg"
+            className="w-full"
+          >
+            {copied ? `✓ ${t.lobby.codeCopied}` : `📋 ${t.lobby.copyCode}`}
+          </Button>
         </CardBody>
       </Card>
 

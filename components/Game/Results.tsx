@@ -1,7 +1,9 @@
-import { Room } from '@/schema';
+import { useState } from 'react';
+import { Room, Theme } from '@/schema';
 import { Button } from '@/components/UI/Button';
 import { Card, CardBody, CardHeader } from '@/components/UI/Card';
 import { useTranslation } from '@/lib/i18n';
+import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
 
 interface ResultsProps {
   room: Room;
@@ -9,6 +11,8 @@ interface ResultsProps {
   voteCounts: Record<string, number>;
   imposterWon: boolean;
   onPlayAgain: () => void;
+  onPlayAgainWithTheme: (theme: Theme) => void;
+  onGoHome: () => void;
 }
 
 export function Results({
@@ -17,10 +21,15 @@ export function Results({
   voteCounts,
   imposterWon,
   onPlayAgain,
+  onPlayAgainWithTheme,
+  onGoHome,
 }: ResultsProps) {
   const { t } = useTranslation();
+  const [showThemes, setShowThemes] = useState(false);
   const mostVotedPlayer = room.players.find((p) => p.id === mostVotedPlayerId);
   const imposter = room.players.find((p) => p.id === room.imposterId);
+
+  const themes: Theme[] = ['default', 'pokemon', 'nba', 'memes', 'movies', 'countries'];
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -90,11 +99,55 @@ export function Results({
         </CardBody>
       </Card>
 
-      {/* Play Again */}
+      {/* Restart Options */}
       <Card variant="elevated">
-        <CardBody>
-          <Button onClick={onPlayAgain} className="w-full" size="lg">
-            {t.results.playAgain}
+        <CardBody className="space-y-3">
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={onPlayAgain}
+              variant="primary"
+              size="lg"
+              className="flex-1"
+            >
+              🎲 {t.results.restartRandom}
+            </Button>
+            <span className="text-sm font-medium text-gray-500 px-2">or</span>
+            <Button
+              onClick={() => setShowThemes(!showThemes)}
+              variant="secondary"
+              size="lg"
+              className="flex-1"
+            >
+              {showThemes ? `✕ ${t.common.close}` : `🎨 ${t.results.chooseTheme}`}
+            </Button>
+          </div>
+
+          {showThemes && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-3 border-t">
+              {themes.map((theme) => (
+                <button
+                  key={theme}
+                  onClick={() => onPlayAgainWithTheme(theme)}
+                  className="p-3 rounded-lg border-2 border-gray-200 hover:border-primary-500 hover:bg-primary-50 transition-all text-left"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl">{THEME_EMOJIS[theme]}</span>
+                    <span className="font-medium text-gray-900">
+                      {THEME_LABELS[theme]}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          <Button
+            onClick={onGoHome}
+            variant="ghost"
+            size="lg"
+            className="w-full"
+          >
+            🏠 {t.results.returnHome}
           </Button>
         </CardBody>
       </Card>

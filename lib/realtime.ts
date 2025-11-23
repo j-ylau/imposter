@@ -26,7 +26,6 @@ export const roomApi = {
         theme: room.theme,
         phase: room.phase,
         players: room.players,
-        clues: room.clues,
         votes: room.votes,
         imposter_id: room.imposterId,
         host_id: room.hostId,
@@ -74,7 +73,6 @@ export const roomApi = {
         theme: room.theme,
         phase: room.phase,
         players: room.players,
-        clues: room.clues,
         votes: room.votes,
         imposter_id: room.imposterId,
         host_id: room.hostId,
@@ -115,7 +113,6 @@ function mapDbToRoom(data: any): Room {
     theme: data.theme,
     phase: data.phase,
     players: data.players || [],
-    clues: data.clues || [],
     votes: data.votes || [],
     imposterId: data.imposter_id,
     hostId: data.host_id,
@@ -142,7 +139,7 @@ export function useRoom(roomId: string) {
         setError(null);
       } catch (err) {
         setError(handleError(err));
-        console.error(err);
+        console.error('[useRoom] Failed to load room:', err);
       } finally {
         setLoading(false);
       }
@@ -150,9 +147,13 @@ export function useRoom(roomId: string) {
 
     loadRoom();
 
-    // Subscribe to realtime updates
+    // Subscribe to realtime updates with better logging
     channel = supabase
-      .channel(`room:${roomId}`)
+      .channel(`room:${roomId}`, {
+        config: {
+          broadcast: { self: true },
+        },
+      })
       .on(
         'postgres_changes',
         {
@@ -162,6 +163,7 @@ export function useRoom(roomId: string) {
           filter: `id=eq.${roomId}`,
         },
         (payload) => {
+          console.log('[useRoom] Realtime update received:', payload.eventType, payload);
           if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
             setRoom(mapDbToRoom(payload.new));
           } else if (payload.eventType === 'DELETE') {
@@ -169,9 +171,15 @@ export function useRoom(roomId: string) {
           }
         }
       )
-      .subscribe();
+      .subscribe((status, err) => {
+        console.log('[useRoom] Subscription status:', status, err);
+        if (err) {
+          console.error('[useRoom] Subscription error:', err);
+        }
+      });
 
     return () => {
+      console.log('[useRoom] Unsubscribing from channel');
       channel.unsubscribe();
     };
   }, [roomId]);

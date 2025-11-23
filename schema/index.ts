@@ -3,8 +3,6 @@
 export type GamePhase =
   | 'lobby'
   | 'role'
-  | 'clue'
-  | 'reveal'
   | 'vote'
   | 'results';
 
@@ -24,13 +22,6 @@ export interface Player {
   joinedAt: number;
 }
 
-export interface Clue {
-  playerId: string;
-  playerName: string;
-  clue: string;
-  submittedAt: number;
-}
-
 export interface Vote {
   voterId: string;
   voterName: string;
@@ -44,7 +35,6 @@ export interface Room {
   theme: Theme;
   phase: GamePhase;
   players: Player[];
-  clues: Clue[];
   votes: Vote[];
   imposterId: string | null;
   createdAt: number;

@@ -6,19 +6,17 @@ import { useRoom, roomApi } from '@/lib/realtime';
 import {
   startGame,
   nextPhase,
-  submitClue,
   submitVote,
   calculateVoteResults,
   checkImposterWin,
   resetGame,
+  resetGameWithTheme,
   getRoomStateForPlayer,
-  allCluesSubmitted,
   allVotesSubmitted,
 } from '@/lib/game';
+import type { Theme } from '@/schema';
 import { Lobby } from '@/components/Game/Lobby';
 import { RoleReveal } from '@/components/Game/RoleReveal';
-import { SubmitClue } from '@/components/Game/SubmitClue';
-import { RevealClues } from '@/components/Game/RevealClues';
 import { Vote } from '@/components/Game/Vote';
 import { Results } from '@/components/Game/Results';
 
@@ -53,16 +51,6 @@ export default function RoomPage() {
     }
   }, [room, currentPlayerId]);
 
-  // Auto-advance when all clues submitted
-  useEffect(() => {
-    if (room && room.phase === 'clue' && allCluesSubmitted(room)) {
-      setTimeout(async () => {
-        const updated = nextPhase(room);
-        await roomApi.updateRoom(updated);
-      }, 1000);
-    }
-  }, [room]);
-
   // Auto-calculate results when all votes submitted
   useEffect(() => {
     if (room && room.phase === 'vote' && allVotesSubmitted(room)) {
@@ -87,12 +75,6 @@ export default function RoomPage() {
     await roomApi.updateRoom(updated);
   };
 
-  const handleSubmitClue = async (clue: string) => {
-    if (!room) return;
-    const updated = submitClue(room, currentPlayerId, clue);
-    await roomApi.updateRoom(updated);
-  };
-
   const handleVote = async (targetId: string) => {
     if (!room) return;
     const updated = submitVote(room, currentPlayerId, targetId);
@@ -104,6 +86,17 @@ export default function RoomPage() {
     const updated = resetGame(room);
     await roomApi.updateRoom(updated);
     setVoteResults(null);
+  };
+
+  const handlePlayAgainWithTheme = async (theme: Theme) => {
+    if (!room) return;
+    const updated = resetGameWithTheme(room, theme);
+    await roomApi.updateRoom(updated);
+    setVoteResults(null);
+  };
+
+  const handleGoHome = () => {
+    router.push('/');
   };
 
   if (loading) {
@@ -141,22 +134,6 @@ export default function RoomPage() {
         />
       )}
 
-      {room.phase === 'clue' && (
-        <SubmitClue
-          room={room}
-          currentPlayerId={currentPlayerId}
-          onSubmit={handleSubmitClue}
-        />
-      )}
-
-      {room.phase === 'reveal' && (
-        <RevealClues
-          room={room}
-          currentPlayerId={currentPlayerId}
-          onContinue={handleContinue}
-        />
-      )}
-
       {room.phase === 'vote' && (
         <Vote
           room={room}
@@ -172,6 +149,8 @@ export default function RoomPage() {
           voteCounts={voteResults.voteCounts}
           imposterWon={checkImposterWin(room, voteResults.mostVotedPlayerId)}
           onPlayAgain={handlePlayAgain}
+          onPlayAgainWithTheme={handlePlayAgainWithTheme}
+          onGoHome={handleGoHome}
         />
       )}
     </div>

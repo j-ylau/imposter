@@ -31,19 +31,19 @@ export const en = {
     steps: {
       step1: {
         title: 'Get Your Role',
-        description: 'Everyone gets the word except <strong>one player</strong>.',
+        description: 'Everyone gets the word except <strong>one player</strong> - the imposter.',
       },
       step2: {
-        title: 'Give One-Word Clues',
-        description: 'Submit <strong>one word</strong> related to the secret word.',
+        title: 'Discuss',
+        description: 'Talk about the word with others. The imposter must <strong>blend in</strong> without knowing the word!',
       },
       step3: {
         title: 'Vote',
-        description: 'Discuss and vote for the imposter.',
+        description: 'Vote for who you think is the imposter.',
       },
       win: {
         title: 'Win',
-        players: '<strong>Players:</strong> Vote out imposter',
+        players: '<strong>Players:</strong> Vote out the imposter',
         imposter: '<strong>Imposter:</strong> Survive the vote',
       },
     },
@@ -55,9 +55,9 @@ export const en = {
       gameStarting: 'Game Starting',
       yourWord: 'Your word:',
       imposterRole: 'You are the IMPOSTER',
-      submitClues: 'Submit Clues',
-      myClue: 'My clue:',
-      discussion1: "Mike's clue was too vague...",
+      submitClues: 'Discuss the word',
+      myClue: 'Discussion:',
+      discussion1: "Mike seems suspicious...",
       discussion2: 'Yeah, sus 👀',
       votingTime: 'Voting Time',
       votedFor: 'voted for',
@@ -89,12 +89,16 @@ export const en = {
 
   // Lobby
   lobby: {
+    inviteFriends: 'Invite Your Friends',
+    tellFriends: 'Tell your friends to:',
+    step1: 'Visit',
+    step2: 'Enter the room code below',
+    copyCode: 'Copy Room Code',
+    codeCopied: 'Code Copied!',
     shareTitle: 'Share this link with your friends',
     copyLink: 'Copy Link',
     linkCopied: 'Link Copied!',
     share: 'Share',
-    whatsapp: 'WhatsApp',
-    text: 'Text',
     shareMessage: "Let's play Imposter Word Game! Join here:",
     players: 'Players',
     waitingForPlayers: 'Waiting for {count} more player{plural}...',
@@ -108,23 +112,23 @@ export const en = {
     title: 'Your Role',
     imposter: {
       title: 'You are the IMPOSTER',
-      subtitle: "You don't know the secret word. Try to blend in with your clues!",
+      subtitle: "You don't know the secret word. Try to blend in!",
       goals: [
-        'Give vague clues that could apply to anything',
+        'Look at other players and try to figure out the word',
         "Don't get voted out",
-        'If you survive, guess the secret word to win',
+        'If you survive, you win!',
       ],
     },
     player: {
       title: 'You are a PLAYER',
       subtitle: 'The secret word is:',
       goals: [
-        'Give a one-word clue related to the secret word',
-        'Help others identify the imposter',
+        'Discuss with others about the word',
+        'Watch for suspicious behavior',
         'Vote out the imposter to win',
       ],
     },
-    continueButton: 'Continue to Clue Round',
+    continueButton: 'Continue to Vote',
   },
 
   // Submit Clue
@@ -181,7 +185,9 @@ export const en = {
       singular: 'vote',
       plural: 'votes',
     },
-    playAgain: 'Play Again',
+    restartRandom: 'Restart with Random Theme',
+    chooseTheme: 'Choose Theme',
+    returnHome: 'Return to Home',
   },
 } as const;
 

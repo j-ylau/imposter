@@ -23,9 +23,6 @@ export enum ErrorCode {
   // Game errors
   INVALID_GAME_PHASE = 'INVALID_GAME_PHASE',
   INSUFFICIENT_PLAYERS = 'INSUFFICIENT_PLAYERS',
-  CLUE_ALREADY_SUBMITTED = 'CLUE_ALREADY_SUBMITTED',
-  VOTE_ALREADY_SUBMITTED = 'VOTE_ALREADY_SUBMITTED',
-  INVALID_CLUE = 'INVALID_CLUE',
   INVALID_VOTE_TARGET = 'INVALID_VOTE_TARGET',
 
   // Database errors
@@ -210,41 +207,6 @@ export class InsufficientPlayersError extends AppError {
   }
 }
 
-export class ClueAlreadySubmittedError extends AppError {
-  readonly playerId: string;
-
-  constructor(playerId: string) {
-    super(ErrorCode.CLUE_ALREADY_SUBMITTED, `Player ${playerId} has already submitted a clue`);
-    this.name = 'ClueAlreadySubmittedError';
-    this.playerId = playerId;
-    Object.setPrototypeOf(this, ClueAlreadySubmittedError.prototype);
-  }
-}
-
-export class VoteAlreadySubmittedError extends AppError {
-  readonly playerId: string;
-
-  constructor(playerId: string) {
-    super(ErrorCode.VOTE_ALREADY_SUBMITTED, `Player ${playerId} has already voted`);
-    this.name = 'VoteAlreadySubmittedError';
-    this.playerId = playerId;
-    Object.setPrototypeOf(this, VoteAlreadySubmittedError.prototype);
-  }
-}
-
-export class InvalidClueError extends AppError {
-  readonly clue: string;
-  readonly reason: string;
-
-  constructor(clue: string, reason: string) {
-    super(ErrorCode.INVALID_CLUE, `Invalid clue "${clue}": ${reason}`);
-    this.name = 'InvalidClueError';
-    this.clue = clue;
-    this.reason = reason;
-    Object.setPrototypeOf(this, InvalidClueError.prototype);
-  }
-}
-
 export class InvalidVoteTargetError extends AppError {
   readonly targetId: string;
 
@@ -333,12 +295,9 @@ export function isPlayerError(error: unknown): error is InvalidPlayerNameError |
          error instanceof NotHostError;
 }
 
-export function isGameError(error: unknown): error is InvalidGamePhaseError | InsufficientPlayersError | ClueAlreadySubmittedError | VoteAlreadySubmittedError | InvalidClueError | InvalidVoteTargetError {
+export function isGameError(error: unknown): error is InvalidGamePhaseError | InsufficientPlayersError | InvalidVoteTargetError {
   return error instanceof InvalidGamePhaseError ||
          error instanceof InsufficientPlayersError ||
-         error instanceof ClueAlreadySubmittedError ||
-         error instanceof VoteAlreadySubmittedError ||
-         error instanceof InvalidClueError ||
          error instanceof InvalidVoteTargetError;
 }
 
@@ -386,12 +345,6 @@ export function getErrorMessage(code: ErrorCode): string {
       return 'Invalid game phase';
     case ErrorCode.INSUFFICIENT_PLAYERS:
       return 'Not enough players';
-    case ErrorCode.CLUE_ALREADY_SUBMITTED:
-      return 'Clue already submitted';
-    case ErrorCode.VOTE_ALREADY_SUBMITTED:
-      return 'Vote already submitted';
-    case ErrorCode.INVALID_CLUE:
-      return 'Invalid clue';
     case ErrorCode.INVALID_VOTE_TARGET:
       return 'Invalid vote target';
     case ErrorCode.DB_READ_FAILED:
