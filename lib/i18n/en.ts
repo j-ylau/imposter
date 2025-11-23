@@ -16,6 +16,7 @@ export const en = {
     title: 'Imposter Word Game',
     subtitle: "One player doesn't know the word. Find the imposter!",
     howToPlay: 'How to play?',
+    joinRoom: 'Join a room',
     yourName: 'Your name',
     randomTheme: 'Play Random Theme',
     chooseTheme: 'Choose Theme',

@@ -63,12 +63,21 @@ export default function HomePage() {
             <p className="text-gray-600 mb-3">
               {t.home.subtitle}
             </p>
-            <button
-              onClick={() => setShowHowToPlay(true)}
-              className="text-primary-600 hover:text-primary-700 font-medium text-sm underline"
-            >
-              {t.home.howToPlay}
-            </button>
+            <div className="flex items-center justify-center gap-4">
+              <button
+                onClick={() => setShowHowToPlay(true)}
+                className="text-primary-600 hover:text-primary-700 font-medium text-sm underline"
+              >
+                {t.home.howToPlay}
+              </button>
+              <span className="text-gray-400">•</span>
+              <button
+                onClick={() => router.push('/join')}
+                className="text-primary-600 hover:text-primary-700 font-medium text-sm underline"
+              >
+                {t.home.joinRoom}
+              </button>
+            </div>
           </div>
 
           {/* Name Input */}
