@@ -283,6 +283,7 @@ export function useRoom(roomId: string, currentPlayerId?: string) {
       }
       channel.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomId, currentPlayerId]);
 
   return {

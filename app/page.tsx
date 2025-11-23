@@ -6,7 +6,7 @@ import { Button } from '@/components/UI/Button';
 import { Input } from '@/components/UI/Input';
 import { Card, CardBody } from '@/components/UI/Card';
 import { Modal } from '@/components/UI/Modal';
-import { createRoom } from '@/lib/game';
+import { createRoom, addPlayer, startGame } from '@/lib/game';
 import { roomApi } from '@/lib/realtime';
 import { Theme, GameMode } from '@/schema';
 import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
@@ -23,6 +23,7 @@ export default function HomePage() {
   const [playerName, setPlayerName] = useState('');
   const [selectedTheme, setSelectedTheme] = useState<Theme>('default');
   const [selectedGameMode, setSelectedGameMode] = useState<GameMode>('online');
+  const [playerCount, setPlayerCount] = useState(4); // For pass-and-play
   const [showGameModes, setShowGameModes] = useState(false);
   const [showThemes, setShowThemes] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
@@ -48,7 +49,8 @@ export default function HomePage() {
   ];
 
   const handleCreate = async (useRandomTheme = false): Promise<void> => {
-    if (!isValidPlayerName(playerName)) {
+    // For pass-and-play, we don't need a name since players are auto-named
+    if (selectedGameMode === 'online' && !isValidPlayerName(playerName)) {
       toast.error(t.home.errors.invalidName);
       return;
     }
@@ -58,18 +60,34 @@ export default function HomePage() {
 
     try {
       const theme = useRandomTheme ? randomItem(themes) : selectedTheme;
-      const room = createRoom(playerName, theme, selectedGameMode);
-      await roomApi.createRoom(room);
 
-      localStorage.setItem('currentPlayerId', room.hostId);
-      localStorage.setItem('currentPlayerName', playerName);
-
-      toast.success(t.home.success.roomCreated);
-
-      // Redirect based on game mode
+      // For pass-and-play: Create room with auto-named players
       if (selectedGameMode === 'pass-and-play') {
-        router.push(`/setup/${room.id}`);
+        // Create room with Player 1 as host
+        let room = createRoom('Player 1', theme, selectedGameMode);
+
+        // Add remaining players (Player 2, Player 3, etc.)
+        for (let i = 2; i <= playerCount; i++) {
+          room = addPlayer(room, `Player ${i}`);
+        }
+
+        // Auto-start the game
+        room = startGame(room);
+
+        await roomApi.createRoom(room);
+
+        // Don't need to store player ID for pass-and-play
+        toast.success(t.home.success.roomCreated);
+        router.push(`/room/${room.id}`);
       } else {
+        // Online mode: Use entered player name
+        const room = createRoom(playerName, theme, selectedGameMode);
+        await roomApi.createRoom(room);
+
+        localStorage.setItem('currentPlayerId', room.hostId);
+        localStorage.setItem('currentPlayerName', playerName);
+
+        toast.success(t.home.success.roomCreated);
         router.push(`/room/${room.id}`);
       }
     } catch (err) {
@@ -115,21 +133,23 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Name Input */}
-          <Card variant="elevated">
-            <CardBody>
-              <Input
-                type="text"
-                placeholder={t.home.yourName}
-                value={playerName}
-                onChange={(e) => setPlayerName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && !showGameModes && !showThemes && handleCreate(true)}
-                error={error}
-                maxLength={20}
-                autoFocus
-              />
-            </CardBody>
-          </Card>
+          {/* Name Input - Only for online mode */}
+          {selectedGameMode === 'online' && (
+            <Card variant="elevated">
+              <CardBody>
+                <Input
+                  type="text"
+                  placeholder={t.home.yourName}
+                  value={playerName}
+                  onChange={(e) => setPlayerName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && !showGameModes && !showThemes && handleCreate(true)}
+                  error={error}
+                  maxLength={20}
+                  autoFocus
+                />
+              </CardBody>
+            </Card>
+          )}
 
           {/* Game Mode Selection */}
           <Card variant="elevated">
@@ -138,8 +158,7 @@ export default function HomePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <button
                   onClick={() => setSelectedGameMode('online')}
-                  disabled={!playerName.trim()}
-                  className={`p-4 rounded-lg border-2 transition-all text-left disabled:opacity-50 ${
+                  className={`p-4 rounded-lg border-2 transition-all text-left ${
                     selectedGameMode === 'online'
                       ? 'border-primary bg-primary-subtle'
                       : 'border-border hover:border-primary hover:bg-primary-subtle'
@@ -151,8 +170,7 @@ export default function HomePage() {
                 </button>
                 <button
                   onClick={() => setSelectedGameMode('pass-and-play')}
-                  disabled={!playerName.trim()}
-                  className={`p-4 rounded-lg border-2 transition-all text-left disabled:opacity-50 ${
+                  className={`p-4 rounded-lg border-2 transition-all text-left ${
                     selectedGameMode === 'pass-and-play'
                       ? 'border-primary bg-primary-subtle'
                       : 'border-border hover:border-primary hover:bg-primary-subtle'
@@ -166,13 +184,42 @@ export default function HomePage() {
             </CardBody>
           </Card>
 
+          {/* Player Count Selection - Only for pass-and-play */}
+          {selectedGameMode === 'pass-and-play' && (
+            <Card variant="elevated">
+              <CardBody className="space-y-3">
+                <h3 className="text-lg font-bold text-fg text-center">
+                  {t.home.gameMode.passAndPlay.playerCount}
+                </h3>
+                <div className="flex gap-2 justify-center">
+                  {[3, 4, 5, 6, 7, 8].map((count) => (
+                    <button
+                      key={count}
+                      onClick={() => setPlayerCount(count)}
+                      className={`w-12 h-12 rounded-lg border-2 transition-all font-bold ${
+                        playerCount === count
+                          ? 'border-primary bg-primary text-primary-fg'
+                          : 'border-border hover:border-primary hover:bg-primary-subtle text-fg'
+                      }`}
+                    >
+                      {count}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-sm text-center text-fg-muted">
+                  {t.home.gameMode.passAndPlay.playerNaming}
+                </p>
+              </CardBody>
+            </Card>
+          )}
+
           {/* Theme Selection */}
           <Card variant="elevated">
             <CardBody className="space-y-3">
               <div className="flex items-center gap-3">
                 <Button
                   onClick={() => handleCreate(true)}
-                  disabled={loading || !playerName.trim()}
+                  disabled={loading || (selectedGameMode === 'online' && !playerName.trim())}
                   variant="primary"
                   size="lg"
                   className="flex-1"
@@ -182,7 +229,7 @@ export default function HomePage() {
                 <span className="text-sm font-medium text-gray-500 px-2">or</span>
                 <Button
                   onClick={() => setShowThemes(!showThemes)}
-                  disabled={!playerName.trim()}
+                  disabled={selectedGameMode === 'online' && !playerName.trim()}
                   variant="secondary"
                   size="lg"
                   className="flex-1"

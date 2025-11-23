@@ -13,6 +13,8 @@ import {
   resetGameWithTheme,
   getRoomStateForPlayer,
   allVotesSubmitted,
+  nextPlayer,
+  allPlayersRevealed,
 } from '@/lib/game';
 import type { Theme } from '@/schema';
 import { Lobby } from '@/components/Game/Lobby';
@@ -50,7 +52,17 @@ export default function RoomPage() {
 
   // Update player state when room changes
   useEffect(() => {
-    if (room && currentPlayerId) {
+    if (!room) return;
+
+    // In pass-and-play mode, get state for current player by index
+    if (room.gameMode === 'pass-and-play' && room.currentPlayerIndex !== undefined) {
+      const currentPlayer = room.players[room.currentPlayerIndex];
+      if (currentPlayer) {
+        const state = getRoomStateForPlayer(room, currentPlayer.id);
+        setPlayerState(state);
+      }
+    } else if (currentPlayerId) {
+      // Online mode: use stored player ID
       const state = getRoomStateForPlayer(room, currentPlayerId);
       setPlayerState(state);
     }
@@ -89,8 +101,23 @@ export default function RoomPage() {
 
   const handleContinue = throttle(async () => {
     if (!room) return;
-    const updated = nextPhase(room);
-    await roomApi.updateRoom(updated);
+
+    // In pass-and-play mode, advance to next player until all have seen roles
+    if (room.gameMode === 'pass-and-play' && room.phase === 'role') {
+      // Advance to next player
+      let updated = nextPlayer(room);
+
+      // If all players have now seen their role, move to vote phase
+      if (allPlayersRevealed(updated)) {
+        updated = nextPhase(updated);
+      }
+
+      await roomApi.updateRoom(updated);
+    } else {
+      // Online mode: just advance phase
+      const updated = nextPhase(room);
+      await roomApi.updateRoom(updated);
+    }
   });
 
   const handleVote = throttle(async (targetId: string) => {

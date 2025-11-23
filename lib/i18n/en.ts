@@ -73,6 +73,8 @@ export const en = {
       passAndPlay: {
         title: 'Pass & Play',
         description: 'Share one device, pass it around',
+        playerCount: 'How many players?',
+        playerNaming: 'Players will be named: Player 1, Player 2, Player 3...',
       },
     },
     success: {
