@@ -1,5 +1,9 @@
 // All application constants in one place
 
+// Site constants
+export const SITE_URL = 'imposterga.me';
+export const SITE_NAME = 'Imposter';
+
 // Player constants
 export const PLAYER_NAME_MIN_LENGTH = 2;
 export const PLAYER_NAME_MAX_LENGTH = 20;

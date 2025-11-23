@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { SITE_URL, SITE_NAME } from '@/lib/constants';
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -36,8 +37,23 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100">
-        {children}
+      <body className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex flex-col">
+        <main className="flex-1">
+          {children}
+        </main>
+        <footer className="py-6 text-center">
+          <p className="text-sm text-gray-600">
+            Made with <span className="font-semibold text-primary-700">{SITE_NAME}</span> — Play with your friends at{' '}
+            <a
+              href={`https://${SITE_URL}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-primary-600 hover:text-primary-700 underline"
+            >
+              {SITE_URL}
+            </a>
+          </p>
+        </footer>
       </body>
     </html>
   );
