@@ -17,6 +17,7 @@ import {
   allPlayersRevealed,
 } from '@/lib/game';
 import type { Theme } from '@/schema';
+import { GamePhase, GameMode } from '@/schema';
 import { Lobby } from '@/components/Game/Lobby';
 import { RoleReveal } from '@/components/Game/RoleReveal';
 import { InPersonRound } from '@/components/Game/InPersonRound';
@@ -71,7 +72,7 @@ export default function RoomPage() {
 
   // Auto-calculate results when all votes submitted
   useEffect(() => {
-    if (room && room.phase === 'vote' && allVotesSubmitted(room)) {
+    if (room && room.phase === GamePhase.Vote && allVotesSubmitted(room)) {
       setTimeout(async () => {
         const results = calculateVoteResults(room);
         setVoteResults(results);
@@ -104,11 +105,11 @@ export default function RoomPage() {
     if (!room) return;
 
     // In pass-and-play mode, advance to next player until all have seen roles
-    if (room.gameMode === 'pass-and-play' && room.phase === 'role') {
+    if (room.gameMode === GameMode.PassAndPlay && room.phase === GamePhase.Role) {
       // Advance to next player
       let updated = nextPlayer(room);
 
-      // If all players have now seen their role, move to vote phase
+      // If all players have now seen their role, move to in-person-round phase
       if (allPlayersRevealed(updated)) {
         updated = nextPhase(updated);
       }
@@ -163,7 +164,7 @@ export default function RoomPage() {
 
   return (
     <div className="min-h-screen p-4 py-8">
-      {room.phase === 'lobby' && (
+      {room.phase === GamePhase.Lobby && (
         <Lobby
           room={room}
           currentPlayerId={currentPlayerId}
@@ -171,7 +172,7 @@ export default function RoomPage() {
         />
       )}
 
-      {room.phase === 'role' && (
+      {room.phase === GamePhase.Role && (
         <RoleReveal
           room={room}
           isImposter={playerState.isImposter}
@@ -180,11 +181,11 @@ export default function RoomPage() {
         />
       )}
 
-      {room.phase === 'in-person-round' && (
+      {room.phase === GamePhase.InPersonRound && (
         <InPersonRound room={room} onRevealImposter={handleContinue} />
       )}
 
-      {room.phase === 'vote' && (
+      {room.phase === GamePhase.Vote && (
         <Vote
           room={room}
           currentPlayerId={currentPlayerId}
@@ -192,7 +193,7 @@ export default function RoomPage() {
         />
       )}
 
-      {room.phase === 'result' && (
+      {room.phase === GamePhase.Result && (
         <Results
           room={room}
           mostVotedPlayerId={voteResults?.mostVotedPlayerId}

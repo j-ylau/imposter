@@ -219,10 +219,10 @@ export const en = {
     instructions: {
       title: 'What to do now:',
       steps: [
-        'Discuss clues and hints in person',
-        'Ask questions to find the imposter',
-        'When ready, vote together on who the imposter is',
-        'Tap the button below to reveal the answer',
+        'Take turns describing something related to the secret word',
+        'Ask each other questions to spot who feels off',
+        'As a group, decide who you think the imposter is (or go another round)',
+        "When you're ready to see the answer, tap the button below",
       ],
     },
     revealButton: 'Reveal Imposter',
@@ -283,6 +283,19 @@ export const en = {
       singular: 'vote',
       plural: 'votes',
     },
+    cta: {
+      online: {
+        playAgain: 'Play Again',
+        chooseTheme: 'Choose Theme',
+        returnHome: 'Return to Home',
+      },
+      passAndPlay: {
+        playAgain: 'Play Again with Same Players',
+        chooseTheme: 'Pick a New Theme',
+        returnHome: 'Back to Home',
+      },
+    },
+    // Deprecated - kept for backwards compatibility
     restartRandom: 'Restart with Random Theme',
     chooseTheme: 'Choose Theme',
     returnHome: 'Return to Home',

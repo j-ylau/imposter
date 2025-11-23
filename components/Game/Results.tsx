@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Room, Theme } from '@/schema';
+import { Room, Theme, GameMode } from '@/schema';
 import { Button } from '@/components/UI/Button';
 import { Card, CardBody, CardHeader } from '@/components/UI/Card';
 import { useTranslation } from '@/lib/i18n';
@@ -30,7 +30,7 @@ export function Results({
 }: ResultsProps) {
   const { t } = useTranslation();
   const [showThemes, setShowThemes] = useState(false);
-  const isPassAndPlay = room.gameMode === 'pass-and-play';
+  const isPassAndPlay = room.gameMode === GameMode.PassAndPlay;
   const mostVotedPlayer = mostVotedPlayerId ? room.players.find((p) => p.id === mostVotedPlayerId) : null;
   const imposter = room.players.find((p) => p.id === room.imposterId);
 
@@ -190,7 +190,10 @@ export function Results({
               size="lg"
               className="flex-1"
             >
-              🎲 {t.results.restartRandom}
+              🎲{' '}
+              {isPassAndPlay
+                ? t.results.cta.passAndPlay.playAgain
+                : t.results.cta.online.playAgain}
             </Button>
             <span className="text-sm font-medium text-fg-subtle px-2">or</span>
             <Button
@@ -199,7 +202,13 @@ export function Results({
               size="lg"
               className="flex-1"
             >
-              {showThemes ? `✕ ${t.common.close}` : `🎨 ${t.results.chooseTheme}`}
+              {showThemes
+                ? `✕ ${t.common.close}`
+                : `🎨 ${
+                    isPassAndPlay
+                      ? t.results.cta.passAndPlay.chooseTheme
+                      : t.results.cta.online.chooseTheme
+                  }`}
             </Button>
           </div>
 
@@ -228,7 +237,10 @@ export function Results({
             size="lg"
             className="w-full"
           >
-            🏠 {t.results.returnHome}
+            🏠{' '}
+            {isPassAndPlay
+              ? t.results.cta.passAndPlay.returnHome
+              : t.results.cta.online.returnHome}
           </Button>
         </CardBody>
       </Card>

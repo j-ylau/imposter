@@ -1,13 +1,18 @@
 // All TypeScript types in one file
 
-export type GameMode = 'online' | 'pass-and-play';
+// Enums for game logic (DRY, type-safe)
+export enum GameMode {
+  Online = 'online',
+  PassAndPlay = 'pass-and-play',
+}
 
-export type GamePhase =
-  | 'lobby'
-  | 'role'
-  | 'in-person-round' // For pass-and-play: IRL discussion phase
-  | 'vote' // For online mode: digital voting
-  | 'result';
+export enum GamePhase {
+  Lobby = 'lobby',
+  Role = 'role',
+  InPersonRound = 'in-person-round', // For pass-and-play: IRL discussion phase
+  Vote = 'vote', // For online mode: digital voting
+  Result = 'result',
+}
 
 export type Theme =
   | 'default'

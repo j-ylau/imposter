@@ -1,6 +1,7 @@
 // ALL game logic in one file
 
-import type { Room, Player, GamePhase, Theme, Vote, GameMode } from '@/schema';
+import type { Room, Player, Theme, Vote } from '@/schema';
+import { GamePhase, GameMode } from '@/schema';
 import { THEMES } from '@/data/themes';
 import { randomItem, shuffle, generateRoomId, generatePlayerId } from './util';
 import { MIN_PLAYERS_TO_START } from './constants';
@@ -45,7 +46,11 @@ export function assignRoles(players: Player[]): {
 }
 
 // Create a new room
-export function createRoom(hostName: string, theme: Theme, gameMode: GameMode = 'online'): Room {
+export function createRoom(
+  hostName: string,
+  theme: Theme,
+  gameMode: GameMode = GameMode.Online
+): Room {
   const roomId = generateRoomId();
   const hostId = generatePlayerId();
   const word = generateWord(theme);
@@ -63,7 +68,7 @@ export function createRoom(hostName: string, theme: Theme, gameMode: GameMode = 
     id: roomId,
     word,
     theme,
-    phase: 'lobby',
+    phase: GamePhase.Lobby,
     gameMode,
     players: [host],
     votes: [],
@@ -73,13 +78,13 @@ export function createRoom(hostName: string, theme: Theme, gameMode: GameMode = 
     locked: false,
     expiresAt: now + 30 * 60 * 1000, // 30 minutes from now
     updatedAt: now,
-    currentPlayerIndex: gameMode === 'pass-and-play' ? 0 : undefined,
+    currentPlayerIndex: gameMode === GameMode.PassAndPlay ? 0 : undefined,
   };
 }
 
 // Add player to room
 export function addPlayer(room: Room, playerName: string): Room {
-  if (room.phase !== 'lobby') {
+  if (room.phase !== GamePhase.Lobby) {
     throw new RoomGameInProgressError(room.id);
   }
 
@@ -120,8 +125,8 @@ export function removePlayer(room: Room, playerId: string): Room {
 
 // Start the game (transition from lobby to role reveal)
 export function startGame(room: Room): Room {
-  if (room.phase !== 'lobby') {
-    throw new InvalidGamePhaseError(room.phase, 'lobby');
+  if (room.phase !== GamePhase.Lobby) {
+    throw new InvalidGamePhaseError(room.phase, GamePhase.Lobby);
   }
 
   if (room.players.length < MIN_PLAYERS_TO_START) {
@@ -134,7 +139,7 @@ export function startGame(room: Room): Room {
     ...room,
     players,
     imposterId,
-    phase: 'role',
+    phase: GamePhase.Role,
     locked: true, // Lock room when game starts
   };
 }
@@ -143,9 +148,9 @@ export function startGame(room: Room): Room {
 export function nextPhase(room: Room): Room {
   // Different phase flow for online vs pass-and-play
   const phaseOrder: GamePhase[] =
-    room.gameMode === 'pass-and-play'
-      ? ['lobby', 'role', 'in-person-round', 'result']
-      : ['lobby', 'role', 'vote', 'result'];
+    room.gameMode === GameMode.PassAndPlay
+      ? [GamePhase.Lobby, GamePhase.Role, GamePhase.InPersonRound, GamePhase.Result]
+      : [GamePhase.Lobby, GamePhase.Role, GamePhase.Vote, GamePhase.Result];
 
   const currentIndex = phaseOrder.indexOf(room.phase);
   const nextPhaseValue = phaseOrder[currentIndex + 1] || room.phase;
@@ -158,8 +163,8 @@ export function nextPhase(room: Room): Room {
 
 // Submit a vote
 export function submitVote(room: Room, voterId: string, targetId: string): Room {
-  if (room.phase !== 'vote') {
-    throw new InvalidGamePhaseError(room.phase, 'vote');
+  if (room.phase !== GamePhase.Vote) {
+    throw new InvalidGamePhaseError(room.phase, GamePhase.Vote);
   }
 
   const voter = room.players.find((p) => p.id === voterId);
@@ -237,7 +242,7 @@ export function resetGame(room: Room): Room {
   return {
     ...room,
     word,
-    phase: 'lobby',
+    phase: GamePhase.Lobby,
     votes: [],
     imposterId: null,
     locked: false, // Unlock room on restart
@@ -253,7 +258,7 @@ export function resetGameWithTheme(room: Room, newTheme: Theme): Room {
     ...room,
     word,
     theme: newTheme,
-    phase: 'lobby',
+    phase: GamePhase.Lobby,
     votes: [],
     imposterId: null,
     locked: false, // Unlock room on restart
@@ -281,7 +286,7 @@ export function getRoomStateForPlayer(room: Room, playerId: string): {
 
 // Get current player in pass-and-play mode
 export function getCurrentPlayer(room: Room) {
-  if (room.gameMode !== 'pass-and-play' || room.currentPlayerIndex === undefined) {
+  if (room.gameMode !== GameMode.PassAndPlay || room.currentPlayerIndex === undefined) {
     return null;
   }
   return room.players[room.currentPlayerIndex] || null;
@@ -289,7 +294,7 @@ export function getCurrentPlayer(room: Room) {
 
 // Advance to next player in pass-and-play mode
 export function nextPlayer(room: Room): Room {
-  if (room.gameMode !== 'pass-and-play' || room.currentPlayerIndex === undefined) {
+  if (room.gameMode !== GameMode.PassAndPlay || room.currentPlayerIndex === undefined) {
     return room;
   }
 
@@ -303,17 +308,17 @@ export function nextPlayer(room: Room): Room {
 
 // Check if all players have seen their role in pass-and-play
 export function allPlayersRevealed(room: Room): boolean {
-  if (room.gameMode !== 'pass-and-play' || room.currentPlayerIndex === undefined) {
+  if (room.gameMode !== GameMode.PassAndPlay || room.currentPlayerIndex === undefined) {
     return true; // In online mode, roles are revealed simultaneously
   }
 
   // In pass-and-play, all players have seen roles when we've cycled through everyone
-  return room.currentPlayerIndex === 0 && room.phase !== 'lobby';
+  return room.currentPlayerIndex === 0 && room.phase !== GamePhase.Lobby;
 }
 
 // Reset player index to start
 export function resetPlayerIndex(room: Room): Room {
-  if (room.gameMode !== 'pass-and-play') {
+  if (room.gameMode !== GameMode.PassAndPlay) {
     return room;
   }
 

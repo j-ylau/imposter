@@ -22,7 +22,7 @@ export default function HomePage() {
   const { t } = useTranslation();
   const [playerName, setPlayerName] = useState('');
   const [selectedTheme, setSelectedTheme] = useState<Theme>('default');
-  const [selectedGameMode, setSelectedGameMode] = useState<GameMode>('online');
+  const [selectedGameMode, setSelectedGameMode] = useState<GameMode>(GameMode.Online);
   const [playerCount, setPlayerCount] = useState(4); // For pass-and-play
   const [showGameModes, setShowGameModes] = useState(false);
   const [showThemes, setShowThemes] = useState(false);
@@ -50,7 +50,7 @@ export default function HomePage() {
 
   const handleCreate = async (useRandomTheme = false): Promise<void> => {
     // For pass-and-play, we don't need a name since players are auto-named
-    if (selectedGameMode === 'online' && !isValidPlayerName(playerName)) {
+    if (selectedGameMode === GameMode.Online && !isValidPlayerName(playerName)) {
       toast.error(t.home.errors.invalidName);
       return;
     }
@@ -62,7 +62,7 @@ export default function HomePage() {
       const theme = useRandomTheme ? randomItem(themes) : selectedTheme;
 
       // For pass-and-play: Create room with auto-named players
-      if (selectedGameMode === 'pass-and-play') {
+      if (selectedGameMode === GameMode.PassAndPlay) {
         // Create room with Player 1 as host
         let room = createRoom('Player 1', theme, selectedGameMode);
 
@@ -134,7 +134,7 @@ export default function HomePage() {
           </div>
 
           {/* Name Input - Only for online mode */}
-          {selectedGameMode === 'online' && (
+          {selectedGameMode === GameMode.Online && (
             <Card variant="elevated">
               <CardBody>
                 <Input
@@ -157,9 +157,9 @@ export default function HomePage() {
               <h3 className="text-lg font-bold text-fg text-center">{t.home.gameMode.title}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <button
-                  onClick={() => setSelectedGameMode('online')}
+                  onClick={() => setSelectedGameMode(GameMode.Online)}
                   className={`p-4 rounded-lg border-2 transition-all text-left ${
-                    selectedGameMode === 'online'
+                    selectedGameMode === GameMode.Online
                       ? 'border-primary bg-primary-subtle'
                       : 'border-border hover:border-primary hover:bg-primary-subtle'
                   }`}
@@ -169,9 +169,9 @@ export default function HomePage() {
                   <div className="text-sm text-fg-muted">{t.home.gameMode.online.description}</div>
                 </button>
                 <button
-                  onClick={() => setSelectedGameMode('pass-and-play')}
+                  onClick={() => setSelectedGameMode(GameMode.PassAndPlay)}
                   className={`p-4 rounded-lg border-2 transition-all text-left ${
-                    selectedGameMode === 'pass-and-play'
+                    selectedGameMode === GameMode.PassAndPlay
                       ? 'border-primary bg-primary-subtle'
                       : 'border-border hover:border-primary hover:bg-primary-subtle'
                   }`}
@@ -185,7 +185,7 @@ export default function HomePage() {
           </Card>
 
           {/* Player Count Selection - Only for pass-and-play */}
-          {selectedGameMode === 'pass-and-play' && (
+          {selectedGameMode === GameMode.PassAndPlay && (
             <Card variant="elevated">
               <CardBody className="space-y-3">
                 <h3 className="text-lg font-bold text-fg text-center">
@@ -219,7 +219,7 @@ export default function HomePage() {
               <div className="flex items-center gap-3">
                 <Button
                   onClick={() => handleCreate(true)}
-                  disabled={loading || (selectedGameMode === 'online' && !playerName.trim())}
+                  disabled={loading || (selectedGameMode === GameMode.Online && !playerName.trim())}
                   variant="primary"
                   size="lg"
                   className="flex-1"
@@ -229,7 +229,7 @@ export default function HomePage() {
                 <span className="text-sm font-medium text-gray-500 px-2">or</span>
                 <Button
                   onClick={() => setShowThemes(!showThemes)}
-                  disabled={selectedGameMode === 'online' && !playerName.trim()}
+                  disabled={selectedGameMode === GameMode.Online && !playerName.trim()}
                   variant="secondary"
                   size="lg"
                   className="flex-1"
