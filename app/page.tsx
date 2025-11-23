@@ -8,7 +8,7 @@ import { Card, CardBody } from '@/components/UI/Card';
 import { Modal } from '@/components/UI/Modal';
 import { createRoom } from '@/lib/game';
 import { roomApi } from '@/lib/realtime';
-import { Theme } from '@/schema';
+import { Theme, GameMode } from '@/schema';
 import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
 import { isValidPlayerName, randomItem } from '@/lib/util';
 import { useTranslation } from '@/lib/i18n';
@@ -22,12 +22,30 @@ export default function HomePage() {
   const { t } = useTranslation();
   const [playerName, setPlayerName] = useState('');
   const [selectedTheme, setSelectedTheme] = useState<Theme>('default');
+  const [selectedGameMode, setSelectedGameMode] = useState<GameMode>('online');
+  const [showGameModes, setShowGameModes] = useState(false);
   const [showThemes, setShowThemes] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const themes: Theme[] = ['default', 'pokemon', 'nba', 'memes', 'movies', 'countries'];
+  const themes: Theme[] = [
+    'default',
+    'pokemon',
+    'nba',
+    'memes',
+    'movies',
+    'countries',
+    'anime',
+    'video-games',
+    'youtube',
+    'tiktok',
+    'music',
+    'tv-shows',
+    'food',
+    'brands',
+    'sports',
+  ];
 
   const handleCreate = async (useRandomTheme = false): Promise<void> => {
     if (!isValidPlayerName(playerName)) {
@@ -40,14 +58,20 @@ export default function HomePage() {
 
     try {
       const theme = useRandomTheme ? randomItem(themes) : selectedTheme;
-      const room = createRoom(playerName, theme);
+      const room = createRoom(playerName, theme, selectedGameMode);
       await roomApi.createRoom(room);
 
       localStorage.setItem('currentPlayerId', room.hostId);
       localStorage.setItem('currentPlayerName', playerName);
 
       toast.success(t.home.success.roomCreated);
-      router.push(`/room/${room.id}`);
+
+      // Redirect based on game mode
+      if (selectedGameMode === 'pass-and-play') {
+        router.push(`/setup/${room.id}`);
+      } else {
+        router.push(`/room/${room.id}`);
+      }
     } catch (err) {
       const appError = handleError(err);
       const errorKey = getErrorTranslationKey(appError.code);
@@ -99,11 +123,46 @@ export default function HomePage() {
                 placeholder={t.home.yourName}
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && !showThemes && handleCreate(true)}
+                onKeyDown={(e) => e.key === 'Enter' && !showGameModes && !showThemes && handleCreate(true)}
                 error={error}
                 maxLength={20}
                 autoFocus
               />
+            </CardBody>
+          </Card>
+
+          {/* Game Mode Selection */}
+          <Card variant="elevated">
+            <CardBody className="space-y-3">
+              <h3 className="text-lg font-bold text-fg text-center">{t.home.gameMode.title}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <button
+                  onClick={() => setSelectedGameMode('online')}
+                  disabled={!playerName.trim()}
+                  className={`p-4 rounded-lg border-2 transition-all text-left disabled:opacity-50 ${
+                    selectedGameMode === 'online'
+                      ? 'border-primary bg-primary-subtle'
+                      : 'border-border hover:border-primary hover:bg-primary-subtle'
+                  }`}
+                >
+                  <div className="text-3xl mb-2">🌐</div>
+                  <div className="font-bold text-fg mb-1">{t.home.gameMode.online.title}</div>
+                  <div className="text-sm text-fg-muted">{t.home.gameMode.online.description}</div>
+                </button>
+                <button
+                  onClick={() => setSelectedGameMode('pass-and-play')}
+                  disabled={!playerName.trim()}
+                  className={`p-4 rounded-lg border-2 transition-all text-left disabled:opacity-50 ${
+                    selectedGameMode === 'pass-and-play'
+                      ? 'border-primary bg-primary-subtle'
+                      : 'border-border hover:border-primary hover:bg-primary-subtle'
+                  }`}
+                >
+                  <div className="text-3xl mb-2">📱</div>
+                  <div className="font-bold text-fg mb-1">{t.home.gameMode.passAndPlay.title}</div>
+                  <div className="text-sm text-fg-muted">{t.home.gameMode.passAndPlay.description}</div>
+                </button>
+              </div>
             </CardBody>
           </Card>
 
@@ -154,6 +213,45 @@ export default function HomePage() {
                   ))}
                 </div>
               )}
+            </CardBody>
+          </Card>
+
+          {/* Popular Themes Section - SEO Internal Links */}
+          <Card variant="elevated">
+            <CardBody>
+              <h2 className="text-xl font-bold text-fg mb-4 text-center">
+                🎯 {t.home.popularThemes}
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <a
+                  href="/theme/pokemon"
+                  className="p-3 rounded-lg border-2 border-border hover:border-primary hover:bg-primary-subtle transition-all text-center"
+                >
+                  <div className="text-3xl mb-1">⚡</div>
+                  <div className="text-sm font-medium text-fg">Pokémon</div>
+                </a>
+                <a
+                  href="/theme/anime"
+                  className="p-3 rounded-lg border-2 border-border hover:border-primary hover:bg-primary-subtle transition-all text-center"
+                >
+                  <div className="text-3xl mb-1">⚔️</div>
+                  <div className="text-sm font-medium text-fg">Anime</div>
+                </a>
+                <a
+                  href="/theme/video-games"
+                  className="p-3 rounded-lg border-2 border-border hover:border-primary hover:bg-primary-subtle transition-all text-center"
+                >
+                  <div className="text-3xl mb-1">🎮</div>
+                  <div className="text-sm font-medium text-fg">Video Games</div>
+                </a>
+                <a
+                  href="/theme/tiktok"
+                  className="p-3 rounded-lg border-2 border-border hover:border-primary hover:bg-primary-subtle transition-all text-center"
+                >
+                  <div className="text-3xl mb-1">🎵</div>
+                  <div className="text-sm font-medium text-fg">TikTok</div>
+                </a>
+              </div>
             </CardBody>
           </Card>
         </div>

@@ -26,12 +26,14 @@ export const roomApi = {
         word: room.word,
         theme: room.theme,
         phase: room.phase,
+        game_mode: room.gameMode,
         players: room.players,
         votes: room.votes,
         imposter_id: room.imposterId,
         host_id: room.hostId,
         locked: room.locked,
         created_at: new Date(room.createdAt).toISOString(),
+        current_player_index: room.currentPlayerIndex,
       })
       .select()
       .single();
@@ -78,11 +80,13 @@ export const roomApi = {
         word: room.word,
         theme: room.theme,
         phase: room.phase,
+        game_mode: room.gameMode,
         players: room.players,
         votes: room.votes,
         imposter_id: room.imposterId,
         host_id: room.hostId,
         locked: room.locked,
+        current_player_index: room.currentPlayerIndex,
       })
       .eq('id', room.id)
       .select()
@@ -134,6 +138,7 @@ function mapDbToRoom(data: any): Room {
     word: data.word,
     theme: data.theme,
     phase: data.phase,
+    gameMode: data.game_mode || 'online',
     players: data.players || [],
     votes: data.votes || [],
     imposterId: data.imposter_id,
@@ -142,6 +147,7 @@ function mapDbToRoom(data: any): Room {
     createdAt: new Date(data.created_at).getTime(),
     expiresAt: new Date(data.expires_at).getTime(),
     updatedAt: new Date(data.updated_at).getTime(),
+    currentPlayerIndex: data.current_player_index,
   };
 }
 

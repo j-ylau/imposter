@@ -1,5 +1,7 @@
 // All TypeScript types in one file
 
+export type GameMode = 'online' | 'pass-and-play';
+
 export type GamePhase =
   | 'lobby'
   | 'role'
@@ -12,7 +14,16 @@ export type Theme =
   | 'nba'
   | 'memes'
   | 'movies'
-  | 'countries';
+  | 'countries'
+  | 'anime'
+  | 'video-games'
+  | 'youtube'
+  | 'tiktok'
+  | 'music'
+  | 'tv-shows'
+  | 'food'
+  | 'brands'
+  | 'sports';
 
 export interface Player {
   id: string;
@@ -34,6 +45,7 @@ export interface Room {
   word: string;
   theme: Theme;
   phase: GamePhase;
+  gameMode: GameMode;
   players: Player[];
   votes: Vote[];
   imposterId: string | null;
@@ -42,11 +54,13 @@ export interface Room {
   locked: boolean;
   expiresAt: number;
   updatedAt: number;
+  currentPlayerIndex?: number; // For pass-and-play mode: tracks whose turn it is
 }
 
 export interface CreateRoomParams {
   hostName: string;
   theme: Theme;
+  gameMode?: GameMode;
 }
 
 export interface JoinRoomParams {

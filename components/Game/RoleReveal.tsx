@@ -1,10 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import { Room } from '@/schema';
 import { Button } from '@/components/UI/Button';
 import { Card, CardBody, CardHeader } from '@/components/UI/Card';
 import { useTranslation } from '@/lib/i18n';
 import { AdSense } from '@/components/Ads/AdSense';
+import { PlayerTransition } from './PlayerTransition';
+import { getCurrentPlayer } from '@/lib/game';
 
 interface RoleRevealProps {
   room: Room;
@@ -15,6 +18,21 @@ interface RoleRevealProps {
 
 export function RoleReveal({ room, isImposter, word, onContinue }: RoleRevealProps) {
   const { t } = useTranslation();
+  const [showTransition, setShowTransition] = useState(room.gameMode === 'pass-and-play');
+
+  const isPassAndPlay = room.gameMode === 'pass-and-play';
+  const currentPlayer = getCurrentPlayer(room);
+  const buttonText = isPassAndPlay ? t.roleReveal.nextPlayer : t.roleReveal.continueButton;
+
+  // Show transition screen in pass-and-play mode
+  if (isPassAndPlay && showTransition && currentPlayer) {
+    return (
+      <PlayerTransition
+        playerName={currentPlayer.name}
+        onReady={() => setShowTransition(false)}
+      />
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -77,8 +95,17 @@ export function RoleReveal({ room, isImposter, word, onContinue }: RoleRevealPro
             className="my-4"
           />
 
-          <Button onClick={onContinue} className="w-full" size="lg">
-            {t.roleReveal.continueButton}
+          <Button
+            onClick={() => {
+              if (isPassAndPlay) {
+                setShowTransition(true);
+              }
+              onContinue();
+            }}
+            className="w-full"
+            size="lg"
+          >
+            {buttonText}
           </Button>
         </CardBody>
       </Card>

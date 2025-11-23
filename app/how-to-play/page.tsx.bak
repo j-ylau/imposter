@@ -1,0 +1,299 @@
+import { Metadata } from 'next';
+import Link from 'next/link';
+import { generatePageSEO, GAME_SCHEMA } from '@/lib/seo';
+
+export const metadata: Metadata = generatePageSEO(
+  'How to Play',
+  'Learn how to play Imposter Word Game. Complete guide with rules, strategies, and tips for the ultimate multiplayer party game experience.',
+  '/how-to-play'
+);
+
+export default function HowToPlayPage() {
+  return (
+    <>
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(GAME_SCHEMA) }}
+      />
+
+      <div className="min-h-screen p-4 md:p-8">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="text-6xl mb-4">🎮</div>
+            <h1 className="text-4xl md:text-5xl font-bold text-fg mb-3">
+              How to Play Imposter Word Game
+            </h1>
+            <p className="text-lg text-fg-muted">
+              Master the art of deduction and deception
+            </p>
+          </div>
+
+          {/* Quick Start */}
+          <div className="bg-primary-subtle border-2 border-primary rounded-lg p-6 mb-8">
+            <h2 className="text-2xl font-bold text-fg mb-4">
+              🚀 Quick Start (30 seconds)
+            </h2>
+            <ol className="space-y-2 text-fg-muted">
+              <li><strong className="text-fg">1.</strong> Create a room and share the code with friends</li>
+              <li><strong className="text-fg">2.</strong> One player is randomly chosen as the imposter</li>
+              <li><strong className="text-fg">3.</strong> Everyone except the imposter sees the secret word</li>
+              <li><strong className="text-fg">4.</strong> Give clues, vote on the imposter, and have fun!</li>
+            </ol>
+          </div>
+
+          {/* Detailed Rules */}
+          <div className="space-y-6">
+            <section className="bg-card rounded-lg p-6 border border-border">
+              <h2 className="text-2xl font-bold text-fg mb-4">
+                📋 Complete Rules
+              </h2>
+
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xl font-semibold text-fg mb-3 flex items-center gap-2">
+                    <span>1️⃣</span> Setup Phase
+                  </h3>
+                  <ul className="space-y-2 text-fg-muted list-disc list-inside ml-6">
+                    <li>The host creates a room and chooses a theme (or random)</li>
+                    <li>Players join using the 6-character room code</li>
+                    <li>You need at least 3 players to start (maximum 12)</li>
+                    <li>The host clicks "Start Game" when everyone is ready</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-semibold text-fg mb-3 flex items-center gap-2">
+                    <span>2️⃣</span> Role Assignment
+                  </h3>
+                  <ul className="space-y-2 text-fg-muted list-disc list-inside ml-6">
+                    <li>One player is randomly selected as the <strong className="text-danger">imposter</strong></li>
+                    <li>All other players see the <strong className="text-success">secret word</strong></li>
+                    <li>The imposter sees "YOU ARE THE IMPOSTER" instead</li>
+                    <li>No one knows who the imposter is (except the imposter themselves)</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-semibold text-fg mb-3 flex items-center gap-2">
+                    <span>3️⃣</span> Clue Round
+                  </h3>
+                  <ul className="space-y-2 text-fg-muted list-disc list-inside ml-6">
+                    <li>Players take turns giving one-word clues about the secret word</li>
+                    <li><strong className="text-fg">DON'T</strong> say the word directly or any part of it</li>
+                    <li><strong className="text-fg">DO</strong> be specific enough that others know you have the word</li>
+                    <li><strong className="text-fg">DO</strong> be vague enough that the imposter can't guess it</li>
+                    <li>The imposter must also give a clue to blend in</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-semibold text-fg mb-3 flex items-center gap-2">
+                    <span>4️⃣</span> Discussion
+                  </h3>
+                  <ul className="space-y-2 text-fg-muted list-disc list-inside ml-6">
+                    <li>Discuss the clues and who seems suspicious</li>
+                    <li>Look for vague or off-topic clues</li>
+                    <li>The imposter should try to act natural and accuse others</li>
+                    <li>Use voice chat or text chat to communicate</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-semibold text-fg mb-3 flex items-center gap-2">
+                    <span>5️⃣</span> Voting Phase
+                  </h3>
+                  <ul className="space-y-2 text-fg-muted list-disc list-inside ml-6">
+                    <li>Everyone votes on who they think is the imposter</li>
+                    <li>You cannot vote for yourself</li>
+                    <li>The player with the most votes is revealed</li>
+                    <li>If there's a tie, everyone can see the votes and discuss</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-semibold text-fg mb-3 flex items-center gap-2">
+                    <span>6️⃣</span> Imposter's Last Chance
+                  </h3>
+                  <ul className="space-y-2 text-fg-muted list-disc list-inside ml-6">
+                    <li>If the imposter receives the most votes, they get one final guess</li>
+                    <li>If they guess the secret word correctly, they still win!</li>
+                    <li>If they guess wrong, the other players win</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            {/* Winning Conditions */}
+            <section className="bg-card rounded-lg p-6 border border-border">
+              <h2 className="text-2xl font-bold text-fg mb-4">
+                🏆 How to Win
+              </h2>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-success/10 border-2 border-success rounded-lg p-4">
+                  <h3 className="font-bold text-success text-lg mb-2">
+                    Players Win If:
+                  </h3>
+                  <ul className="space-y-2 text-fg-muted text-sm">
+                    <li>✓ They correctly vote for the imposter</li>
+                    <li>✓ AND the imposter fails to guess the word</li>
+                  </ul>
+                </div>
+                <div className="bg-danger/10 border-2 border-danger rounded-lg p-4">
+                  <h3 className="font-bold text-danger text-lg mb-2">
+                    Imposter Wins If:
+                  </h3>
+                  <ul className="space-y-2 text-fg-muted text-sm">
+                    <li>✓ They avoid getting the most votes</li>
+                    <li>✓ OR they correctly guess the secret word</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            {/* Pro Tips */}
+            <section className="bg-card rounded-lg p-6 border border-border">
+              <h2 className="text-2xl font-bold text-fg mb-4">
+                💡 Pro Tips & Strategy
+              </h2>
+
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold text-fg mb-2">For Regular Players:</h3>
+                  <ul className="space-y-2 text-fg-muted list-disc list-inside ml-4 text-sm">
+                    <li>Give clues that are specific but not obvious</li>
+                    <li>Watch for players giving generic or vague clues</li>
+                    <li>Don't be too obvious - the imposter is listening!</li>
+                    <li>Look for hesitation or delayed responses</li>
+                    <li>Pay attention to who asks questions about the word</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-fg mb-2">For the Imposter:</h3>
+                  <ul className="space-y-2 text-fg-muted list-disc list-inside ml-4 text-sm">
+                    <li>Listen carefully to the first few clues to guess the category</li>
+                    <li>Give a clue that could apply to many things</li>
+                    <li>Confidently accuse others to deflect suspicion</li>
+                    <li>Don't be too quiet or too talkative</li>
+                    <li>Take mental notes of all clues to narrow down your final guess</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold text-fg mb-2">General Strategy:</h3>
+                  <ul className="space-y-2 text-fg-muted list-disc list-inside ml-4 text-sm">
+                    <li>Use voice chat for more immersive gameplay</li>
+                    <li>Play multiple rounds to improve your skills</li>
+                    <li>Try different themes to keep it fresh</li>
+                    <li>Don't take it too seriously - have fun!</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+
+            {/* Example Game */}
+            <section className="bg-card rounded-lg p-6 border border-border">
+              <h2 className="text-2xl font-bold text-fg mb-4">
+                📝 Example Game
+              </h2>
+              <div className="space-y-4 text-sm">
+                <div className="bg-bg-subtle rounded-lg p-4">
+                  <p className="text-fg mb-2"><strong>Secret Word:</strong> <span className="text-success">PIZZA</span></p>
+                  <p className="text-fg mb-2"><strong>Imposter:</strong> <span className="text-danger">Mike</span></p>
+                  <p className="text-fg-muted">Players: Sarah, Alex, Mike</p>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex gap-3 items-start">
+                    <div className="font-semibold text-fg min-w-[80px]">Sarah:</div>
+                    <div className="text-fg-muted">"Italian" - <span className="text-success">Good! Specific but not obvious</span></div>
+                  </div>
+                  <div className="flex gap-3 items-start">
+                    <div className="font-semibold text-fg min-w-[80px]">Alex:</div>
+                    <div className="text-fg-muted">"Cheese" - <span className="text-success">Perfect clue</span></div>
+                  </div>
+                  <div className="flex gap-3 items-start">
+                    <div className="font-semibold text-danger min-w-[80px]">Mike:</div>
+                    <div className="text-fg-muted">"Food" - <span className="text-warning">Too vague! Suspicious...</span></div>
+                  </div>
+                </div>
+
+                <div className="bg-primary-subtle border-l-4 border-primary p-4 rounded">
+                  <p className="text-fg"><strong>Result:</strong> Mike gets voted out. He guesses "Pasta" but it's wrong. <span className="text-success font-semibold">Players win!</span></p>
+                </div>
+              </div>
+            </section>
+
+            {/* Call to Action */}
+            <section className="text-center py-8 bg-gradient-to-r from-primary-subtle to-secondary-subtle rounded-lg">
+              <h2 className="text-2xl font-bold text-fg mb-4">
+                Ready to Play?
+              </h2>
+              <p className="text-fg-muted mb-6">
+                Now that you know the rules, start your first game!
+              </p>
+              <div className="flex gap-4 justify-center flex-wrap">
+                <Link
+                  href="/"
+                  className="bg-primary text-primary-fg px-8 py-3 rounded-lg font-medium hover:bg-primary-hover transition-colors text-lg"
+                >
+                  Create a Room
+                </Link>
+                <Link
+                  href="/about"
+                  className="bg-secondary text-fg px-8 py-3 rounded-lg font-medium hover:bg-secondary-hover transition-colors text-lg"
+                >
+                  Learn More
+                </Link>
+              </div>
+            </section>
+
+            {/* Theme Links */}
+            <section className="bg-card rounded-lg p-6 border border-border">
+              <h2 className="text-2xl font-bold text-fg mb-4 text-center">
+                Explore Different Themes
+              </h2>
+              <div className="flex gap-3 justify-center flex-wrap text-sm">
+                <Link href="/theme/pokemon" className="text-primary hover:text-primary-hover underline">
+                  Pokémon
+                </Link>
+                <Link href="/theme/anime" className="text-primary hover:text-primary-hover underline">
+                  Anime
+                </Link>
+                <Link href="/theme/video-games" className="text-primary hover:text-primary-hover underline">
+                  Video Games
+                </Link>
+                <Link href="/theme/music" className="text-primary hover:text-primary-hover underline">
+                  Music
+                </Link>
+                <Link href="/theme/tiktok" className="text-primary hover:text-primary-hover underline">
+                  TikTok
+                </Link>
+                <Link href="/theme/food" className="text-primary hover:text-primary-hover underline">
+                  Food
+                </Link>
+              </div>
+            </section>
+          </div>
+
+          {/* Footer Links */}
+          <div className="text-center mt-8 pt-8 border-t border-border">
+            <div className="flex gap-6 justify-center flex-wrap">
+              <Link href="/" className="text-primary hover:text-primary-hover underline">
+                Home
+              </Link>
+              <Link href="/about" className="text-primary hover:text-primary-hover underline">
+                About
+              </Link>
+              <Link href="/privacy" className="text-primary hover:text-primary-hover underline">
+                Privacy Policy
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

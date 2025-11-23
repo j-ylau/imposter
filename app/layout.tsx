@@ -6,6 +6,7 @@ import { SITE_URL } from '@/lib/constants';
 import { ThemeProvider } from '@/components/Providers/ThemeProvider';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Footer } from '@/components/Layout/Footer';
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -21,7 +22,12 @@ export const metadata: Metadata = {
     'multiplayer browser game',
     'group game',
     'online party game',
+    'social deduction game',
+    'word game with friends',
   ],
+  alternates: {
+    canonical: 'https://imposterga.me',
+  },
   icons: {
     icon: [
       { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
@@ -42,12 +48,23 @@ export const metadata: Metadata = {
     title: 'Imposter Word Game - Play Online with Friends',
     description:
       'A fun multiplayer party game. One player is the imposter. Give clues, vote, and guess the word. Play free in your browser.',
+    url: 'https://imposterga.me',
+    siteName: 'Imposter Word Game',
     type: 'website',
+    images: [
+      {
+        url: 'https://imposterga.me/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Imposter Word Game',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Imposter Word Game',
     description: 'Multiplayer word guessing party game. Play free online.',
+    images: ['https://imposterga.me/og-image.png'],
   },
   other: {
     'google-adsense-account': 'ca-pub-4975735342482892',
@@ -90,19 +107,7 @@ export default function RootLayout({
           />
 
           {/* Fixed Footer - Always Visible */}
-          <footer className="fixed bottom-0 left-0 right-0 py-3 text-center bg-card/80 backdrop-blur-sm border-t border-border transition-colors">
-            <p className="text-xs text-fg-muted">
-              Made with ❤️ — Play with your friends at{' '}
-              <a
-                href={`https://${SITE_URL}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold text-primary hover:text-primary-hover underline"
-              >
-                {SITE_URL}
-              </a>
-            </p>
-          </footer>
+          <Footer />
         </ThemeProvider>
       </body>
     </html>

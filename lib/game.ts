@@ -1,6 +1,6 @@
 // ALL game logic in one file
 
-import type { Room, Player, GamePhase, Theme, Vote } from '@/schema';
+import type { Room, Player, GamePhase, Theme, Vote, GameMode } from '@/schema';
 import { THEMES } from '@/data/themes';
 import { randomItem, shuffle, generateRoomId, generatePlayerId } from './util';
 import { MIN_PLAYERS_TO_START } from './constants';
@@ -45,7 +45,7 @@ export function assignRoles(players: Player[]): {
 }
 
 // Create a new room
-export function createRoom(hostName: string, theme: Theme): Room {
+export function createRoom(hostName: string, theme: Theme, gameMode: GameMode = 'online'): Room {
   const roomId = generateRoomId();
   const hostId = generatePlayerId();
   const word = generateWord(theme);
@@ -64,6 +64,7 @@ export function createRoom(hostName: string, theme: Theme): Room {
     word,
     theme,
     phase: 'lobby',
+    gameMode,
     players: [host],
     votes: [],
     imposterId: null,
@@ -72,6 +73,7 @@ export function createRoom(hostName: string, theme: Theme): Room {
     locked: false,
     expiresAt: now + 30 * 60 * 1000, // 30 minutes from now
     updatedAt: now,
+    currentPlayerIndex: gameMode === 'pass-and-play' ? 0 : undefined,
   };
 }
 
@@ -265,5 +267,53 @@ export function getRoomStateForPlayer(room: Room, playerId: string): {
   return {
     word: isImposter ? undefined : room.word,
     isImposter,
+  };
+}
+
+// ============================================================================
+// Pass & Play Mode - Turn Management
+// ============================================================================
+
+// Get current player in pass-and-play mode
+export function getCurrentPlayer(room: Room) {
+  if (room.gameMode !== 'pass-and-play' || room.currentPlayerIndex === undefined) {
+    return null;
+  }
+  return room.players[room.currentPlayerIndex] || null;
+}
+
+// Advance to next player in pass-and-play mode
+export function nextPlayer(room: Room): Room {
+  if (room.gameMode !== 'pass-and-play' || room.currentPlayerIndex === undefined) {
+    return room;
+  }
+
+  const nextIndex = (room.currentPlayerIndex + 1) % room.players.length;
+
+  return {
+    ...room,
+    currentPlayerIndex: nextIndex,
+  };
+}
+
+// Check if all players have seen their role in pass-and-play
+export function allPlayersRevealed(room: Room): boolean {
+  if (room.gameMode !== 'pass-and-play' || room.currentPlayerIndex === undefined) {
+    return true; // In online mode, roles are revealed simultaneously
+  }
+
+  // In pass-and-play, all players have seen roles when we've cycled through everyone
+  return room.currentPlayerIndex === 0 && room.phase !== 'lobby';
+}
+
+// Reset player index to start
+export function resetPlayerIndex(room: Room): Room {
+  if (room.gameMode !== 'pass-and-play') {
+    return room;
+  }
+
+  return {
+    ...room,
+    currentPlayerIndex: 0,
   };
 }

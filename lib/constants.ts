@@ -3,6 +3,11 @@
 // Site constants
 export const SITE_URL = 'imposterga.me';
 export const SITE_NAME = 'Imposter';
+export const SITE_FULL_NAME = 'Imposter Word Game';
+export const SITE_DOMAIN = 'https://imposterga.me';
+export const SITE_DESCRIPTION = 'A fun multiplayer party game where one player is the imposter. Everyone gets a secret word except one person. Give clues, vote, and guess. Play instantly with friends in your browser.';
+export const SITE_TAGLINE = 'Find the Imposter. Guess the Word.';
+export const TWITTER_HANDLE = '@imposterga_me';
 
 // Player constants
 export const PLAYER_NAME_MIN_LENGTH = 2;
@@ -16,3 +21,17 @@ export const ROOM_ID_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Removed simi
 // Game constants
 export const CLUE_MAX_LENGTH = 20;
 export const CLUE_MAX_WORDS = 1;
+
+// SEO constants
+export const DEFAULT_KEYWORDS = [
+  'imposter word game',
+  'word guessing game',
+  'party game online',
+  'multiplayer browser game',
+  'group game',
+  'online party game',
+  'social deduction game',
+  'word game with friends',
+  'imposter game online',
+  'guess the word game',
+];

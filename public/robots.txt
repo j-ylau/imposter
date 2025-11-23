@@ -1,0 +1,9 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin or temporary pages if any
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://imposterga.me/sitemap.xml
