@@ -29,6 +29,9 @@ export const metadata: Metadata = {
     title: 'Imposter Word Game',
     description: 'Multiplayer word guessing party game. Play free online.',
   },
+  other: {
+    'google-adsense-account': 'ca-pub-4975735342482892',
+  },
 };
 
 export default function RootLayout({
