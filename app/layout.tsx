@@ -41,7 +41,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex flex-col">
+      <body className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100">
         {/* Google AdSense */}
         <Script
           async
@@ -50,12 +50,14 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
 
-        <main className="flex-1">
+        <main className="pb-16">
           {children}
         </main>
-        <footer className="py-6 text-center">
-          <p className="text-sm text-gray-600">
-            Made with <span className="font-semibold text-primary-700">{SITE_NAME}</span> — Play with your friends at{' '}
+
+        {/* Fixed Footer - Always Visible */}
+        <footer className="fixed bottom-0 left-0 right-0 py-3 text-center bg-white/80 backdrop-blur-sm border-t border-gray-200">
+          <p className="text-xs text-gray-600">
+            Made with ❤️ — Play with your friends at{' '}
             <a
               href={`https://${SITE_URL}`}
               target="_blank"
