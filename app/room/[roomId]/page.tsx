@@ -19,14 +19,16 @@ import { Lobby } from '@/components/Game/Lobby';
 import { RoleReveal } from '@/components/Game/RoleReveal';
 import { Vote } from '@/components/Game/Vote';
 import { Results } from '@/components/Game/Results';
+import { useThrottle } from '@/lib/hooks/useThrottle';
+import { logger } from '@/lib/logger';
 
 export default function RoomPage() {
   const params = useParams();
   const router = useRouter();
   const roomId = params.roomId as string;
 
-  const { room, loading, error } = useRoom(roomId);
   const [currentPlayerId, setCurrentPlayerId] = useState<string>('');
+  const { room, loading, error } = useRoom(roomId, currentPlayerId);
   const [playerState, setPlayerState] = useState<{
     word?: string;
     isImposter: boolean;
@@ -36,6 +38,9 @@ export default function RoomPage() {
     voteCount: number;
     voteCounts: Record<string, number>;
   } | null>(null);
+
+  // Rate limiting for game actions
+  const throttle = useThrottle(2000); // 2 second cooldown between actions
 
   // Load player ID from localStorage
   useEffect(() => {
@@ -63,37 +68,50 @@ export default function RoomPage() {
     }
   }, [room]);
 
-  const handleStartGame = async () => {
+  const handleStartGame = throttle(async () => {
     if (!room) return;
-    const updated = startGame(room);
-    await roomApi.updateRoom(updated);
-  };
 
-  const handleContinue = async () => {
+    // Use atomic start to prevent race conditions
+    const updated = startGame(room);
+    const success = await roomApi.startGameAtomic(
+      room.id,
+      updated.players,
+      updated.imposterId!
+    );
+
+    if (!success) {
+      logger.warn('[handleStartGame] Game already started by another player');
+      // Refresh room state to get latest data
+      const latestRoom = await roomApi.getRoom(room.id);
+      // Room will be updated via realtime subscription
+    }
+  });
+
+  const handleContinue = throttle(async () => {
     if (!room) return;
     const updated = nextPhase(room);
     await roomApi.updateRoom(updated);
-  };
+  });
 
-  const handleVote = async (targetId: string) => {
+  const handleVote = throttle(async (targetId: string) => {
     if (!room) return;
     const updated = submitVote(room, currentPlayerId, targetId);
     await roomApi.updateRoom(updated);
-  };
+  });
 
-  const handlePlayAgain = async () => {
+  const handlePlayAgain = throttle(async () => {
     if (!room) return;
     const updated = resetGame(room);
     await roomApi.updateRoom(updated);
     setVoteResults(null);
-  };
+  });
 
-  const handlePlayAgainWithTheme = async (theme: Theme) => {
+  const handlePlayAgainWithTheme = throttle(async (theme: Theme) => {
     if (!room) return;
     const updated = resetGameWithTheme(room, theme);
     await roomApi.updateRoom(updated);
     setVoteResults(null);
-  };
+  });
 
   const handleGoHome = () => {
     router.push('/');

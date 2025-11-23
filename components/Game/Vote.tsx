@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { Room, Player } from '@/schema';
 import { Button } from '@/components/UI/Button';
@@ -18,7 +20,7 @@ export function Vote({ room, currentPlayerId, onVote }: VoteProps) {
   const votedCount = room.votes.length;
   const totalPlayers = room.players.length;
 
-  const handleVote = () => {
+  const handleVote = (): void => {
     if (selectedPlayerId) {
       onVote(selectedPlayerId);
     }
@@ -28,10 +30,10 @@ export function Vote({ room, currentPlayerId, onVote }: VoteProps) {
     <div className="max-w-2xl mx-auto">
       <Card variant="elevated">
         <CardHeader>
-          <h2 className="text-2xl font-bold text-center text-gray-900">
+          <h2 className="text-2xl font-bold text-center text-fg transition-colors">
             {t.vote.title}
           </h2>
-          <p className="text-center text-gray-600 mt-2">
+          <p className="text-center text-fg-muted mt-2 transition-colors">
             {format(t.vote.progress, { voted: votedCount, total: totalPlayers })}
           </p>
         </CardHeader>
@@ -39,10 +41,10 @@ export function Vote({ room, currentPlayerId, onVote }: VoteProps) {
           {hasVoted ? (
             <div className="text-center py-8">
               <div className="text-6xl mb-4">🗳️</div>
-              <h3 className="text-2xl font-bold text-green-600 mb-2">
+              <h3 className="text-2xl font-bold text-success mb-2 transition-colors">
                 {t.vote.submitted.title}
               </h3>
-              <p className="text-gray-600">
+              <p className="text-fg-muted transition-colors">
                 {t.common.waiting}
               </p>
             </div>
@@ -57,11 +59,11 @@ export function Vote({ room, currentPlayerId, onVote }: VoteProps) {
                       onClick={() => setSelectedPlayerId(player.id)}
                       className={`w-full px-4 py-3 rounded-lg border-2 transition-all ${
                         selectedPlayerId === player.id
-                          ? 'border-primary-500 bg-primary-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                          ? 'border-primary bg-primary-subtle'
+                          : 'border-border hover:border-border-hover'
                       }`}
                     >
-                      <span className="font-medium text-gray-900">
+                      <span className="font-medium text-fg">
                         {player.name}
                       </span>
                     </button>

@@ -1,28 +1,47 @@
+'use client';
+
 import { HTMLAttributes, forwardRef } from 'react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/util';
 
-interface CardProps extends HTMLAttributes<HTMLDivElement> {
+type SafeHTMLAttributes = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  | 'onDrag'
+  | 'onDragStart'
+  | 'onDragEnd'
+  | 'onDragEnter'
+  | 'onDragLeave'
+  | 'onDragOver'
+  | 'onAnimationStart'
+  | 'onAnimationEnd'
+  | 'onAnimationIteration'
+>;
+
+interface CardProps extends SafeHTMLAttributes {
   variant?: 'default' | 'elevated' | 'bordered';
 }
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = 'default', children, ...props }, ref) => {
     return (
-      <div
+      <motion.div
         ref={ref}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
         className={cn(
-          'rounded-xl',
+          'rounded-xl transition-all duration-200',
           {
-            'bg-white': variant === 'default',
-            'bg-white shadow-lg': variant === 'elevated',
-            'bg-white border-2 border-gray-200': variant === 'bordered',
+            'bg-card': variant === 'default',
+            'bg-card-elevated shadow-lg hover:shadow-xl': variant === 'elevated',
+            'bg-card border-2 border-border': variant === 'bordered',
           },
           className
         )}
         {...props}
       >
         {children}
-      </div>
+      </motion.div>
     );
   }
 );
@@ -36,7 +55,7 @@ export const CardHeader = forwardRef<
   return (
     <div
       ref={ref}
-      className={cn('px-6 py-4 border-b border-gray-200', className)}
+      className={cn('px-6 py-4 border-b border-border transition-colors', className)}
       {...props}
     />
   );
@@ -66,7 +85,7 @@ export const CardFooter = forwardRef<
   return (
     <div
       ref={ref}
-      className={cn('px-6 py-4 border-t border-gray-200', className)}
+      className={cn('px-6 py-4 border-t border-border transition-colors', className)}
       {...props}
     />
   );

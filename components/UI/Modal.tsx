@@ -1,7 +1,23 @@
+'use client';
+
 import { HTMLAttributes, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/util';
 
-interface ModalProps extends HTMLAttributes<HTMLDivElement> {
+type SafeModalAttributes = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  | 'onDrag'
+  | 'onDragStart'
+  | 'onDragEnd'
+  | 'onDragEnter'
+  | 'onDragLeave'
+  | 'onDragOver'
+  | 'onAnimationStart'
+  | 'onAnimationEnd'
+  | 'onAnimationIteration'
+>;
+
+interface ModalProps extends SafeModalAttributes {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
@@ -27,31 +43,40 @@ export function Modal({
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black bg-opacity-50"
-        onClick={onClose}
-      />
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
+            onClick={onClose}
+          />
 
-      {/* Modal */}
-      <div
-        className={cn(
-          'relative bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto',
-          className
-        )}
-        {...props}
-      >
-        {title && (
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900">{title}</h2>
-          </div>
-        )}
-        <div className="px-6 py-4">{children}</div>
-      </div>
-    </div>
+          {/* Modal */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className={cn(
+              'relative bg-card rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto transition-colors',
+              className
+            )}
+            {...props}
+          >
+            {title && (
+              <div className="px-6 py-4 border-b border-border transition-colors">
+                <h2 className="text-xl font-bold text-fg">{title}</h2>
+              </div>
+            )}
+            <div className="px-6 py-4 text-fg">{children}</div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }

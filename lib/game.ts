@@ -11,6 +11,7 @@ import {
   InvalidVoteTargetError,
   PlayerAlreadyExistsError,
   RoomGameInProgressError,
+  RoomLockedError,
 } from './error';
 
 // Generate a random word from the selected theme
@@ -48,13 +49,14 @@ export function createRoom(hostName: string, theme: Theme): Room {
   const roomId = generateRoomId();
   const hostId = generatePlayerId();
   const word = generateWord(theme);
+  const now = Date.now();
 
   const host: Player = {
     id: hostId,
     name: hostName.trim(),
     isHost: true,
     isImposter: false,
-    joinedAt: Date.now(),
+    joinedAt: now,
   };
 
   return {
@@ -65,8 +67,11 @@ export function createRoom(hostName: string, theme: Theme): Room {
     players: [host],
     votes: [],
     imposterId: null,
-    createdAt: Date.now(),
+    createdAt: now,
     hostId,
+    locked: false,
+    expiresAt: now + 30 * 60 * 1000, // 30 minutes from now
+    updatedAt: now,
   };
 }
 
@@ -74,6 +79,10 @@ export function createRoom(hostName: string, theme: Theme): Room {
 export function addPlayer(room: Room, playerName: string): Room {
   if (room.phase !== 'lobby') {
     throw new RoomGameInProgressError(room.id);
+  }
+
+  if (room.locked) {
+    throw new RoomLockedError(room.id);
   }
 
   const trimmedName = playerName.trim();
@@ -124,6 +133,7 @@ export function startGame(room: Room): Room {
     players,
     imposterId,
     phase: 'role',
+    locked: true, // Lock room when game starts
   };
 }
 
@@ -223,6 +233,7 @@ export function resetGame(room: Room): Room {
     phase: 'lobby',
     votes: [],
     imposterId: null,
+    locked: false, // Unlock room on restart
     players: room.players.map((p) => ({ ...p, isImposter: false })),
   };
 }
@@ -238,6 +249,7 @@ export function resetGameWithTheme(room: Room, newTheme: Theme): Room {
     phase: 'lobby',
     votes: [],
     imposterId: null,
+    locked: false, // Unlock room on restart
     players: room.players.map((p) => ({ ...p, isImposter: false })),
   };
 }

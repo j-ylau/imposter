@@ -12,6 +12,10 @@ import { Theme } from '@/schema';
 import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
 import { isValidPlayerName, randomItem } from '@/lib/util';
 import { useTranslation } from '@/lib/i18n';
+import { ThemeToggle } from '@/components/UI/ThemeToggle';
+import { PageTransition } from '@/components/Animations/PageTransition';
+import { toast } from 'react-toastify';
+import { handleError, getErrorMessage } from '@/lib/error';
 
 export default function HomePage() {
   const router = useRouter();
@@ -25,9 +29,9 @@ export default function HomePage() {
 
   const themes: Theme[] = ['default', 'pokemon', 'nba', 'memes', 'movies', 'countries'];
 
-  const handleCreate = async (useRandomTheme = false) => {
+  const handleCreate = async (useRandomTheme = false): Promise<void> => {
     if (!isValidPlayerName(playerName)) {
-      setError(t.home.errors.invalidName);
+      toast.error(t.home.errors.invalidName);
       return;
     }
 
@@ -42,38 +46,44 @@ export default function HomePage() {
       localStorage.setItem('currentPlayerId', room.hostId);
       localStorage.setItem('currentPlayerName', playerName);
 
+      toast.success('Room created! 🎉');
       router.push(`/room/${room.id}`);
     } catch (err) {
-      console.error('Failed to create room:', err);
-      setError(err instanceof Error ? err.message : t.home.errors.createFailed);
+      const appError = handleError(err);
+      toast.error(getErrorMessage(appError.code));
       setLoading(false);
     }
   };
 
   return (
-    <>
+    <PageTransition>
       <div className="min-h-screen flex items-center justify-center p-4">
+        {/* Theme Toggle - Fixed top right */}
+        <div className="fixed top-4 right-4 z-50">
+          <ThemeToggle />
+        </div>
+
         <div className="max-w-2xl w-full space-y-6">
           {/* Header */}
-          <div className="text-center">
-            <div className="text-6xl mb-4">🕵️</div>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
+          <div className="text-center animate-fade-in">
+            <div className="text-6xl mb-4 animate-bounce-subtle">🕵️</div>
+            <h1 className="text-4xl md:text-5xl font-bold text-fg mb-2 transition-colors">
               {t.home.title}
             </h1>
-            <p className="text-gray-600 mb-3">
+            <p className="text-fg-muted mb-3 transition-colors">
               {t.home.subtitle}
             </p>
             <div className="flex items-center justify-center gap-4">
               <button
                 onClick={() => setShowHowToPlay(true)}
-                className="text-primary-600 hover:text-primary-700 font-medium text-sm underline"
+                className="text-primary hover:text-primary-hover font-medium text-sm underline transition-colors"
               >
                 {t.home.howToPlay}
               </button>
-              <span className="text-gray-400">•</span>
+              <span className="text-fg-subtle">•</span>
               <button
                 onClick={() => router.push('/join')}
-                className="text-primary-600 hover:text-primary-700 font-medium text-sm underline"
+                className="text-primary hover:text-primary-hover font-medium text-sm underline transition-colors"
               >
                 {t.home.joinRoom}
               </button>
@@ -122,7 +132,7 @@ export default function HomePage() {
               </div>
 
               {showThemes && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-3 border-t">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-3 border-t border-border">
                   {themes.map((theme) => (
                     <button
                       key={theme}
@@ -131,11 +141,11 @@ export default function HomePage() {
                         handleCreate(false);
                       }}
                       disabled={loading}
-                      className="p-3 rounded-lg border-2 border-gray-200 hover:border-primary-500 hover:bg-primary-50 transition-all text-left disabled:opacity-50"
+                      className="p-3 rounded-lg border-2 border-border hover:border-primary hover:bg-primary-subtle transition-all text-left disabled:opacity-50"
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-2xl">{THEME_EMOJIS[theme]}</span>
-                        <span className="font-medium text-gray-900">
+                        <span className="font-medium text-fg">
                           {THEME_LABELS[theme]}
                         </span>
                       </div>
@@ -161,24 +171,24 @@ export default function HomePage() {
             <div className="flex gap-3">
               <div className="text-3xl flex-shrink-0">1️⃣</div>
               <div>
-                <h3 className="font-bold mb-1">{t.howToPlay.steps.step1.title}</h3>
-                <p className="text-gray-600 text-sm" dangerouslySetInnerHTML={{ __html: t.howToPlay.steps.step1.description }} />
+                <h3 className="font-bold mb-1 text-fg">{t.howToPlay.steps.step1.title}</h3>
+                <p className="text-fg-muted text-sm" dangerouslySetInnerHTML={{ __html: t.howToPlay.steps.step1.description }} />
               </div>
             </div>
 
             <div className="flex gap-3">
               <div className="text-3xl flex-shrink-0">2️⃣</div>
               <div>
-                <h3 className="font-bold mb-1">{t.howToPlay.steps.step2.title}</h3>
-                <p className="text-gray-600 text-sm" dangerouslySetInnerHTML={{ __html: t.howToPlay.steps.step2.description }} />
+                <h3 className="font-bold mb-1 text-fg">{t.howToPlay.steps.step2.title}</h3>
+                <p className="text-fg-muted text-sm" dangerouslySetInnerHTML={{ __html: t.howToPlay.steps.step2.description }} />
               </div>
             </div>
 
             <div className="flex gap-3">
               <div className="text-3xl flex-shrink-0">3️⃣</div>
               <div>
-                <h3 className="font-bold mb-1">{t.howToPlay.steps.step3.title}</h3>
-                <p className="text-gray-600 text-sm">
+                <h3 className="font-bold mb-1 text-fg">{t.howToPlay.steps.step3.title}</h3>
+                <p className="text-fg-muted text-sm">
                   {t.howToPlay.steps.step3.description}
                 </p>
               </div>
@@ -187,20 +197,20 @@ export default function HomePage() {
             <div className="flex gap-3">
               <div className="text-3xl flex-shrink-0">🎯</div>
               <div>
-                <h3 className="font-bold mb-1">{t.howToPlay.steps.win.title}</h3>
-                <p className="text-sm text-green-600" dangerouslySetInnerHTML={{ __html: t.howToPlay.steps.win.players }} />
-                <p className="text-sm text-red-600" dangerouslySetInnerHTML={{ __html: t.howToPlay.steps.win.imposter }} />
+                <h3 className="font-bold mb-1 text-fg">{t.howToPlay.steps.win.title}</h3>
+                <p className="text-sm text-success" dangerouslySetInnerHTML={{ __html: t.howToPlay.steps.win.players }} />
+                <p className="text-sm text-danger" dangerouslySetInnerHTML={{ __html: t.howToPlay.steps.win.imposter }} />
               </div>
             </div>
           </div>
 
           {/* Example */}
           <div>
-            <h3 className="font-bold mb-3 text-gray-900">{t.howToPlay.example.title}</h3>
-            <div className="bg-gradient-to-b from-gray-100 to-gray-200 rounded-2xl p-4 space-y-3 text-sm h-[600px] overflow-y-auto">
+            <h3 className="font-bold mb-3 text-fg">{t.howToPlay.example.title}</h3>
+            <div className="bg-gradient-to-b from-bg-subtle to-border rounded-2xl p-4 space-y-3 text-sm h-[600px] overflow-y-auto">
               {/* Invite */}
               <div className="flex justify-end">
-                <div className="bg-blue-500 text-white rounded-2xl px-4 py-2 max-w-[80%]">
+                <div className="bg-primary text-primary-fg rounded-2xl px-4 py-2 max-w-[80%]">
                   {t.howToPlay.example.invite}<br/>
                   <span className="text-xs opacity-90">imposter.game/ABC123</span>
                 </div>
@@ -208,13 +218,13 @@ export default function HomePage() {
 
               {/* Joins */}
               <div className="flex justify-start">
-                <div className="bg-gray-300 text-gray-900 rounded-2xl px-4 py-2 max-w-[80%]">
+                <div className="bg-bg-subtle text-fg rounded-2xl px-4 py-2 max-w-[80%]">
                   <strong>Sarah</strong><br/>
                   {t.howToPlay.example.joined}
                 </div>
               </div>
               <div className="flex justify-start">
-                <div className="bg-gray-300 text-gray-900 rounded-2xl px-4 py-2 max-w-[80%]">
+                <div className="bg-bg-subtle text-fg rounded-2xl px-4 py-2 max-w-[80%]">
                   <strong>Mike</strong><br/>
                   {t.howToPlay.example.imIn}
                 </div>
@@ -222,26 +232,26 @@ export default function HomePage() {
 
               {/* Game Start */}
               <div className="text-center">
-                <span className="bg-gray-400 text-white text-xs px-3 py-1 rounded-full">
+                <span className="bg-fg-muted text-primary-fg text-xs px-3 py-1 rounded-full">
                   {t.howToPlay.example.gameStarting}
                 </span>
               </div>
 
               {/* Role Reveals */}
               <div className="flex justify-end">
-                <div className="bg-green-500 text-white rounded-2xl px-4 py-2 max-w-[80%]">
+                <div className="bg-success text-primary-fg rounded-2xl px-4 py-2 max-w-[80%]">
                   <strong>{t.howToPlay.example.yourWord}</strong><br/>
                   🍕 PIZZA
                 </div>
               </div>
               <div className="flex justify-start">
-                <div className="bg-green-500 text-white rounded-2xl px-4 py-2 max-w-[70%]">
+                <div className="bg-success text-primary-fg rounded-2xl px-4 py-2 max-w-[70%]">
                   <strong>Sarah&apos;s word:</strong><br/>
                   🍕 PIZZA
                 </div>
               </div>
               <div className="flex justify-start">
-                <div className="bg-red-500 text-white rounded-2xl px-4 py-2 max-w-[70%]">
+                <div className="bg-danger text-primary-fg rounded-2xl px-4 py-2 max-w-[70%]">
                   <strong>Mike:</strong><br/>
                   🕵️ {t.howToPlay.example.imposterRole}
                 </div>
@@ -249,48 +259,48 @@ export default function HomePage() {
 
               {/* Clue Round */}
               <div className="text-center">
-                <span className="bg-gray-400 text-white text-xs px-3 py-1 rounded-full">
+                <span className="bg-fg-muted text-primary-fg text-xs px-3 py-1 rounded-full">
                   {t.howToPlay.example.submitClues}
                 </span>
               </div>
 
               <div className="flex justify-end">
-                <div className="bg-blue-500 text-white rounded-2xl px-4 py-2">
+                <div className="bg-primary text-primary-fg rounded-2xl px-4 py-2">
                   {t.howToPlay.example.myClue} &quot;Italian&quot;
                 </div>
               </div>
               <div className="flex justify-start">
-                <div className="bg-gray-300 text-gray-900 rounded-2xl px-4 py-2">
+                <div className="bg-bg-subtle text-fg rounded-2xl px-4 py-2">
                   <strong>Sarah:</strong> &quot;Cheese&quot;
                 </div>
               </div>
               <div className="flex justify-start">
-                <div className="bg-gray-300 text-gray-900 rounded-2xl px-4 py-2">
+                <div className="bg-bg-subtle text-fg rounded-2xl px-4 py-2">
                   <strong>Mike:</strong> &quot;Food&quot; 🤔
                 </div>
               </div>
 
               {/* Discussion */}
               <div className="flex justify-end">
-                <div className="bg-blue-500 text-white rounded-2xl px-4 py-2 max-w-[80%]">
+                <div className="bg-primary text-primary-fg rounded-2xl px-4 py-2 max-w-[80%]">
                   {t.howToPlay.example.discussion1}
                 </div>
               </div>
               <div className="flex justify-start">
-                <div className="bg-gray-300 text-gray-900 rounded-2xl px-4 py-2">
+                <div className="bg-bg-subtle text-fg rounded-2xl px-4 py-2">
                   <strong>Sarah:</strong> {t.howToPlay.example.discussion2}
                 </div>
               </div>
 
               {/* Voting */}
               <div className="text-center">
-                <span className="bg-gray-400 text-white text-xs px-3 py-1 rounded-full">
+                <span className="bg-fg-muted text-primary-fg text-xs px-3 py-1 rounded-full">
                   {t.howToPlay.example.votingTime}
                 </span>
               </div>
 
               <div className="flex justify-center">
-                <div className="bg-purple-100 border border-purple-300 rounded-xl px-4 py-2 text-purple-900 text-xs">
+                <div className="bg-primary-subtle border border-primary rounded-xl px-4 py-2 text-primary text-xs">
                   You {t.howToPlay.example.votedFor} Mike<br/>
                   Sarah {t.howToPlay.example.votedFor} Mike<br/>
                   Mike {t.howToPlay.example.votedFor} You
@@ -299,7 +309,7 @@ export default function HomePage() {
 
               {/* Result */}
               <div className="flex justify-center">
-                <div className="bg-green-500 text-white rounded-2xl px-6 py-3 font-bold text-center">
+                <div className="bg-success text-primary-fg rounded-2xl px-6 py-3 font-bold text-center">
                   {t.howToPlay.example.playersWin}<br/>
                   <span className="text-sm font-normal">Mike {t.howToPlay.example.wasImposter}</span>
                 </div>
@@ -314,6 +324,6 @@ export default function HomePage() {
           </Button>
         </div>
       </Modal>
-    </>
+    </PageTransition>
   );
 }

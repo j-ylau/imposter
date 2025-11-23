@@ -1,7 +1,11 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import './globals.css';
-import { SITE_URL, SITE_NAME } from '@/lib/constants';
+import './theme.css';
+import { SITE_URL } from '@/lib/constants';
+import { ThemeProvider } from '@/components/Providers/ThemeProvider';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -40,34 +44,50 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100">
-        {/* Google AdSense */}
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4975735342482892"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
+    <html lang="en" suppressHydrationWarning>
+      <body className="min-h-screen bg-gradient-to-br from-[var(--color-bg-start)] to-[var(--color-bg-end)] transition-colors duration-300">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {/* Google AdSense */}
+          <Script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4975735342482892"
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
 
-        <main className="pb-16">
-          {children}
-        </main>
+          <main className="pb-16">
+            {children}
+          </main>
 
-        {/* Fixed Footer - Always Visible */}
-        <footer className="fixed bottom-0 left-0 right-0 py-3 text-center bg-white/80 backdrop-blur-sm border-t border-gray-200">
-          <p className="text-xs text-gray-600">
-            Made with ❤️ — Play with your friends at{' '}
-            <a
-              href={`https://${SITE_URL}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-primary-600 hover:text-primary-700 underline"
-            >
-              {SITE_URL}
-            </a>
-          </p>
-        </footer>
+          {/* Toast Container */}
+          <ToastContainer
+            position="top-center"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss={false}
+            draggable
+            pauseOnHover
+            theme="colored"
+          />
+
+          {/* Fixed Footer - Always Visible */}
+          <footer className="fixed bottom-0 left-0 right-0 py-3 text-center bg-card/80 backdrop-blur-sm border-t border-border transition-colors">
+            <p className="text-xs text-fg-muted">
+              Made with ❤️ — Play with your friends at{' '}
+              <a
+                href={`https://${SITE_URL}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-primary hover:text-primary-hover underline"
+              >
+                {SITE_URL}
+              </a>
+            </p>
+          </footer>
+        </ThemeProvider>
       </body>
     </html>
   );

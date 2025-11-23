@@ -39,6 +39,9 @@ export interface Room {
   imposterId: string | null;
   createdAt: number;
   hostId: string;
+  locked: boolean;
+  expiresAt: number;
+  updatedAt: number;
 }
 
 export interface CreateRoomParams {

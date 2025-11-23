@@ -1,0 +1,194 @@
+/**
+ * DESIGN TOKEN THEME SYSTEM
+ *
+ * This file contains the centralized design token system for the entire application.
+ * All colors, shadows, and typography are defined here as CSS variables.
+ *
+ * WHY THIS APPROACH?
+ * - Single source of truth for all theming
+ * - No scattered dark: classes throughout components
+ * - Easy to maintain and update
+ * - Consistent visual language across the app
+ *
+ * USAGE:
+ * Instead of: className="bg-white dark:bg-gray-900"
+ * Use: className="bg-card"
+ *
+ * Instead of: className="text-gray-900 dark:text-white"
+ * Use: className="text-fg"
+ *
+ * ⚠️ POTENTIAL PITFALLS TO WATCH FOR:
+ *
+ * 1. DUAL BACKGROUND GRADIENT TOKENS
+ *    The theme uses TWO background variables for gradients:
+ *    - --color-bg-start
+ *    - --color-bg-end
+ *
+ *    If you change background colors, remember to update BOTH tokens
+ *    in BOTH :root and .dark sections. They're used in layout.tsx:
+ *    className="bg-gradient-to-br from-[var(--color-bg-start)] to-[var(--color-bg-end)]"
+ *
+ * 2. DARK MODE SHADOWS MAY FEEL HEAVY ON MOBILE
+ *    Dark mode shadows are intentionally stronger for proper elevation.
+ *    If they feel too heavy on mobile devices, consider reducing:
+ *    --shadow-md and --shadow-lg opacity values (currently 0.5 and 0.6)
+ *
+ * 3. "HOW TO PLAY" EXAMPLE CHAT BUBBLES
+ *    The chat example uses semantic tokens (bg-primary, bg-success, etc.)
+ *    but may need fine-tuning later to better match the neutral gray palette.
+ *    See app/page.tsx lines 210-315 for the example section.
+ *
+ * 4. HOST/IMPOSTER BADGES IN SMALL FONT SIZES
+ *    Badge colors are vivid for clarity, but in very small text they can
+ *    appear sharp in dark mode. If needed, adjust:
+ *    - --color-host-badge-fg (currently #93c5fd)
+ *    - --color-imposter-badge-fg (currently #fca5a5)
+ *    to slightly muted versions.
+ *
+ * TOKEN ORGANIZATION:
+ * - All tokens use --color- prefix for organization
+ * - Legacy aliases (--bg, --fg, etc.) maintained for compatibility
+ * - Dark palette uses neutral grays (#0f0f0f) NOT bluish tones (#0f172a)
+ */
+
+:root {
+  /* Background colors - organized & semantic */
+  --color-bg: #f8fafc;
+  --color-bg-subtle: #f1f5f9;
+  --color-bg-start: #f8fafc;
+  --color-bg-end: #f1f5f9;
+
+  --color-card: #ffffff;
+  --color-card-elevated: #ffffff;
+
+  /* Text colors - organized */
+  --color-fg: #0f172a;
+  --color-fg-muted: #64748b;
+  --color-fg-subtle: #94a3b8;
+
+  /* Border colors */
+  --color-border: #e2e8f0;
+  --color-border-hover: #cbd5e1;
+
+  /* Primary brand colors */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-fg: #ffffff;
+  --color-primary-subtle: #dbeafe;
+
+  /* Status colors */
+  --color-success: #16a34a;
+  --color-success-subtle: #dcfce7;
+  --color-success-fg: #15803d;
+
+  --color-danger: #dc2626;
+  --color-danger-subtle: #fee2e2;
+  --color-danger-fg: #b91c1c;
+
+  --color-warning: #ea580c;
+  --color-warning-subtle: #fed7aa;
+  --color-warning-fg: #c2410c;
+
+  /* Specialized semantic colors */
+  --color-host-badge: #dbeafe;
+  --color-host-badge-fg: #1e40af;
+  --color-imposter-badge: #fecaca;
+  --color-imposter-badge-fg: #b91c1c;
+
+  /* Typography scale */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+
+  /* Elevation shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* Legacy aliases for backwards compatibility */
+  --bg: var(--color-bg);
+  --bg-subtle: var(--color-bg-subtle);
+  --card: var(--color-card);
+  --card-elevated: var(--color-card-elevated);
+  --fg: var(--color-fg);
+  --fg-muted: var(--color-fg-muted);
+  --fg-subtle: var(--color-fg-subtle);
+  --border: var(--color-border);
+  --border-hover: var(--color-border-hover);
+  --primary: var(--color-primary);
+  --primary-hover: var(--color-primary-hover);
+  --primary-fg: var(--color-primary-fg);
+  --primary-subtle: var(--color-primary-subtle);
+  --success: var(--color-success);
+  --success-subtle: var(--color-success-subtle);
+  --success-fg: var(--color-success-fg);
+  --danger: var(--color-danger);
+  --danger-subtle: var(--color-danger-subtle);
+  --danger-fg: var(--color-danger-fg);
+  --warning: var(--color-warning);
+  --warning-subtle: var(--color-warning-subtle);
+  --warning-fg: var(--color-warning-fg);
+  --host-badge: var(--color-host-badge);
+  --host-badge-fg: var(--color-host-badge-fg);
+  --imposter-badge: var(--color-imposter-badge);
+  --imposter-badge-fg: var(--color-imposter-badge-fg);
+}
+
+.dark {
+  /* Background colors - neutral grays, NOT bluish */
+  --color-bg: #0f0f0f;
+  --color-bg-subtle: #1a1a1a;
+  --color-bg-start: #0f0f0f;
+  --color-bg-end: #1a1a1a;
+
+  --color-card: #1f1f1f;
+  --color-card-elevated: #262626;
+
+  /* Text colors - high contrast */
+  --color-fg: #fafafa;
+  --color-fg-muted: #cfcfcf;
+  --color-fg-subtle: #888888;
+
+  /* Border colors - subtle but visible */
+  --color-border: #2a2a2a;
+  --color-border-hover: #3a3a3a;
+
+  /* Primary colors - vibrant but not overwhelming */
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-primary-fg: #ffffff;
+  --color-primary-subtle: #1e3a8a;
+
+  /* Status colors - adjusted for dark bg */
+  --color-success: #22c55e;
+  --color-success-subtle: #14532d;
+  --color-success-fg: #86efac;
+
+  --color-danger: #ef4444;
+  --color-danger-subtle: #7f1d1d;
+  --color-danger-fg: #fca5a5;
+
+  --color-warning: #f97316;
+  --color-warning-subtle: #7c2d12;
+  --color-warning-fg: #fdba74;
+
+  /* Specialized colors */
+  --color-host-badge: #1e3a8a;
+  --color-host-badge-fg: #93c5fd;
+  --color-imposter-badge: #7f1d1d;
+  --color-imposter-badge-fg: #fca5a5;
+
+  /* Enhanced elevation shadows for dark mode */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow: 0 4px 8px 0 rgb(0 0 0 / 0.4);
+  --shadow-md: 0 8px 16px 0 rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 12px 24px -4px rgb(0 0 0 / 0.6);
+  --shadow-xl: 0 20px 32px -8px rgb(0 0 0 / 0.7);
+}

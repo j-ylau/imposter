@@ -13,6 +13,7 @@ import {
   DatabaseWriteError,
   handleError,
 } from './error';
+import { logger } from './logger';
 
 // Room API - CRUD operations using Supabase
 export const roomApi = {
@@ -29,6 +30,7 @@ export const roomApi = {
         votes: room.votes,
         imposter_id: room.imposterId,
         host_id: room.hostId,
+        locked: room.locked,
         created_at: new Date(room.createdAt).toISOString(),
       })
       .select()
@@ -76,6 +78,7 @@ export const roomApi = {
         votes: room.votes,
         imposter_id: room.imposterId,
         host_id: room.hostId,
+        locked: room.locked,
       })
       .eq('id', room.id)
       .select()
@@ -103,6 +106,21 @@ export const roomApi = {
       throw new DatabaseWriteError('deleteRoom', error.message);
     }
   },
+
+  // Start game with race condition protection
+  async startGameAtomic(roomId: string, players: any[], imposterId: string): Promise<boolean> {
+    const { data, error } = await supabase.rpc('start_game_atomic', {
+      p_room_id: roomId,
+      p_players: players,
+      p_imposter_id: imposterId,
+    });
+
+    if (error) {
+      throw new RoomUpdateFailedError(roomId, error.message);
+    }
+
+    return data === true;
+  },
 };
 
 // Map database row to Room type
@@ -116,12 +134,15 @@ function mapDbToRoom(data: any): Room {
     votes: data.votes || [],
     imposterId: data.imposter_id,
     hostId: data.host_id,
+    locked: data.locked || false,
     createdAt: new Date(data.created_at).getTime(),
+    expiresAt: new Date(data.expires_at).getTime(),
+    updatedAt: new Date(data.updated_at).getTime(),
   };
 }
 
-// Hook to subscribe to room updates
-export function useRoom(roomId: string) {
+// Hook to subscribe to room updates with presence tracking
+export function useRoom(roomId: string, currentPlayerId?: string) {
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<AppError | null>(null);
@@ -132,14 +153,14 @@ export function useRoom(roomId: string) {
     let channel: RealtimeChannel;
 
     // Load initial room data
-    const loadRoom = async () => {
+    const loadRoom = async (): Promise<void> => {
       try {
         const roomData = await roomApi.getRoom(roomId);
         setRoom(roomData);
         setError(null);
       } catch (err) {
         setError(handleError(err));
-        console.error('[useRoom] Failed to load room:', err);
+        logger.error('[useRoom] Failed to load room:', err);
       } finally {
         setLoading(false);
       }
@@ -147,11 +168,12 @@ export function useRoom(roomId: string) {
 
     loadRoom();
 
-    // Subscribe to realtime updates with better logging
+    // Subscribe to realtime updates with presence tracking
     channel = supabase
       .channel(`room:${roomId}`, {
         config: {
           broadcast: { self: true },
+          presence: { key: currentPlayerId || 'anonymous' },
         },
       })
       .on(
@@ -163,7 +185,7 @@ export function useRoom(roomId: string) {
           filter: `id=eq.${roomId}`,
         },
         (payload) => {
-          console.log('[useRoom] Realtime update received:', payload.eventType, payload);
+          logger.debug('[useRoom] Realtime update received:', payload.eventType);
           if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
             setRoom(mapDbToRoom(payload.new));
           } else if (payload.eventType === 'DELETE') {
@@ -171,18 +193,87 @@ export function useRoom(roomId: string) {
           }
         }
       )
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState();
+        logger.debug('[useRoom] Presence sync:', state);
+      })
+      .on('presence', { event: 'join' }, ({ key }) => {
+        logger.debug('[useRoom] Player joined presence:', key);
+      })
+      .on('presence', { event: 'leave' }, async ({ key }) => {
+        logger.debug('[useRoom] Player left presence:', key);
+
+        // Auto-remove player who disconnected (unless they're just refreshing)
+        if (room && key && key !== 'anonymous') {
+          const playerExists = room.players.some(p => p.id === key);
+
+          if (playerExists) {
+            logger.debug('[useRoom] Auto-removing disconnected player:', key);
+
+            // Wait a bit to allow for quick reconnections (e.g., page refresh)
+            setTimeout(async () => {
+              try {
+                // Check if player is still absent
+                const currentState = channel.presenceState();
+                const stillDisconnected = !Object.keys(currentState).includes(key);
+
+                if (stillDisconnected && room) {
+                  // Get latest room state
+                  const latestRoom = await roomApi.getRoom(roomId);
+
+                  // Check if player is still in the room
+                  const playerStillExists = latestRoom.players.some(p => p.id === key);
+
+                  if (playerStillExists) {
+                    // Remove player from room
+                    const updatedRoom = {
+                      ...latestRoom,
+                      players: latestRoom.players.filter(p => p.id !== key),
+                    };
+
+                    // If the disconnected player was the host, reassign host
+                    if (latestRoom.hostId === key && updatedRoom.players.length > 0) {
+                      const newHost = updatedRoom.players[0];
+                      updatedRoom.hostId = newHost.id;
+                      updatedRoom.players = updatedRoom.players.map(p =>
+                        p.id === newHost.id ? { ...p, isHost: true } : p
+                      );
+                      logger.debug('[useRoom] Reassigned host to:', newHost.name);
+                    }
+
+                    await roomApi.updateRoom(updatedRoom);
+                  }
+                }
+              } catch (err) {
+                logger.error('[useRoom] Failed to auto-remove player:', err);
+              }
+            }, 5000); // 5 second grace period for reconnection
+          }
+        }
+      })
       .subscribe((status, err) => {
-        console.log('[useRoom] Subscription status:', status, err);
+        logger.debug('[useRoom] Subscription status:', status);
         if (err) {
-          console.error('[useRoom] Subscription error:', err);
+          logger.error('[useRoom] Subscription error:', err);
+        }
+
+        // Track presence for current player
+        if (status === 'SUBSCRIBED' && currentPlayerId) {
+          channel.track({
+            online_at: new Date().toISOString(),
+            player_id: currentPlayerId,
+          });
         }
       });
 
     return () => {
-      console.log('[useRoom] Unsubscribing from channel');
+      logger.debug('[useRoom] Unsubscribing from channel');
+      if (currentPlayerId) {
+        channel.untrack();
+      }
       channel.unsubscribe();
     };
-  }, [roomId]);
+  }, [roomId, currentPlayerId]);
 
   return {
     room,

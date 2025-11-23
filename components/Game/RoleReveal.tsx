@@ -1,3 +1,5 @@
+'use client';
+
 import { Room } from '@/schema';
 import { Button } from '@/components/UI/Button';
 import { Card, CardBody, CardHeader } from '@/components/UI/Card';
@@ -18,7 +20,7 @@ export function RoleReveal({ room, isImposter, word, onContinue }: RoleRevealPro
     <div className="max-w-2xl mx-auto">
       <Card variant="elevated">
         <CardHeader>
-          <h2 className="text-2xl font-bold text-center text-gray-900">
+          <h2 className="text-2xl font-bold text-center text-fg transition-colors">
             {t.roleReveal.title}
           </h2>
         </CardHeader>
@@ -27,16 +29,16 @@ export function RoleReveal({ room, isImposter, word, onContinue }: RoleRevealPro
             <>
               <div className="text-center py-8">
                 <div className="text-6xl mb-4">🕵️</div>
-                <h3 className="text-3xl font-bold text-red-600 mb-2">
+                <h3 className="text-3xl font-bold text-danger mb-2 transition-colors">
                   {t.roleReveal.imposter.title}
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-fg-muted transition-colors">
                   {t.roleReveal.imposter.subtitle}
                 </p>
               </div>
-              <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4">
-                <h4 className="font-bold text-red-900 mb-2">{t.common.yourGoal}</h4>
-                <ul className="text-sm text-red-800 space-y-1">
+              <div className="bg-danger-subtle border-2 border-danger rounded-lg p-4 transition-colors">
+                <h4 className="font-bold text-danger-fg mb-2 transition-colors">{t.common.yourGoal}</h4>
+                <ul className="text-sm text-danger-fg space-y-1">
                   {t.roleReveal.imposter.goals.map((goal, index) => (
                     <li key={index}>• {goal}</li>
                   ))}
@@ -47,19 +49,19 @@ export function RoleReveal({ room, isImposter, word, onContinue }: RoleRevealPro
             <>
               <div className="text-center py-8">
                 <div className="text-6xl mb-4">👥</div>
-                <h3 className="text-3xl font-bold text-primary-600 mb-2">
+                <h3 className="text-3xl font-bold text-primary mb-2 transition-colors">
                   {t.roleReveal.player.title}
                 </h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-fg-muted mb-4 transition-colors">
                   {t.roleReveal.player.subtitle}
                 </p>
-                <div className="text-5xl font-bold text-gray-900 bg-primary-50 border-4 border-primary-200 rounded-lg py-6 px-8 inline-block">
+                <div className="text-5xl font-bold text-fg bg-primary-subtle border-4 border-primary rounded-lg py-6 px-8 inline-block transition-colors">
                   {word}
                 </div>
               </div>
-              <div className="bg-primary-50 border-2 border-primary-200 rounded-lg p-4">
-                <h4 className="font-bold text-primary-900 mb-2">{t.common.yourGoal}</h4>
-                <ul className="text-sm text-primary-800 space-y-1">
+              <div className="bg-primary-subtle border-2 border-primary rounded-lg p-4 transition-colors">
+                <h4 className="font-bold text-primary mb-2 transition-colors">{t.common.yourGoal}</h4>
+                <ul className="text-sm text-primary space-y-1">
                   {t.roleReveal.player.goals.map((goal, index) => (
                     <li key={index}>• {goal}</li>
                   ))}

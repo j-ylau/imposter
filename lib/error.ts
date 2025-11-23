@@ -13,6 +13,8 @@ export enum ErrorCode {
   ROOM_UPDATE_FAILED = 'ROOM_UPDATE_FAILED',
   ROOM_FULL = 'ROOM_FULL',
   ROOM_GAME_IN_PROGRESS = 'ROOM_GAME_IN_PROGRESS',
+  ROOM_LOCKED = 'ROOM_LOCKED',
+  ROOM_EXPIRED = 'ROOM_EXPIRED',
 
   // Player errors
   INVALID_PLAYER_NAME = 'INVALID_PLAYER_NAME',
@@ -119,6 +121,30 @@ export class RoomGameInProgressError extends AppError {
     this.name = 'RoomGameInProgressError';
     this.roomId = roomId;
     Object.setPrototypeOf(this, RoomGameInProgressError.prototype);
+  }
+}
+
+export class RoomLockedError extends AppError {
+  readonly roomId: string;
+
+  constructor(roomId: string) {
+    super(ErrorCode.ROOM_LOCKED, `Room ${roomId} is locked: game has started`);
+    this.name = 'RoomLockedError';
+    this.roomId = roomId;
+    Object.setPrototypeOf(this, RoomLockedError.prototype);
+  }
+}
+
+export class RoomExpiredError extends AppError {
+  readonly roomId: string;
+  readonly expiresAt: number;
+
+  constructor(roomId: string, expiresAt: number) {
+    super(ErrorCode.ROOM_EXPIRED, `Room ${roomId} has expired`);
+    this.name = 'RoomExpiredError';
+    this.roomId = roomId;
+    this.expiresAt = expiresAt;
+    Object.setPrototypeOf(this, RoomExpiredError.prototype);
   }
 }
 
@@ -280,12 +306,14 @@ export function isAppError(error: unknown): error is AppError {
   return error instanceof AppError;
 }
 
-export function isRoomError(error: unknown): error is RoomNotFoundError | RoomCreationFailedError | RoomUpdateFailedError | RoomFullError | RoomGameInProgressError {
+export function isRoomError(error: unknown): error is RoomNotFoundError | RoomCreationFailedError | RoomUpdateFailedError | RoomFullError | RoomGameInProgressError | RoomLockedError | RoomExpiredError {
   return error instanceof RoomNotFoundError ||
          error instanceof RoomCreationFailedError ||
          error instanceof RoomUpdateFailedError ||
          error instanceof RoomFullError ||
-         error instanceof RoomGameInProgressError;
+         error instanceof RoomGameInProgressError ||
+         error instanceof RoomLockedError ||
+         error instanceof RoomExpiredError;
 }
 
 export function isPlayerError(error: unknown): error is InvalidPlayerNameError | PlayerNotFoundError | PlayerAlreadyExistsError | NotHostError {
@@ -333,6 +361,10 @@ export function getErrorMessage(code: ErrorCode): string {
       return 'Room is full';
     case ErrorCode.ROOM_GAME_IN_PROGRESS:
       return 'Game already in progress';
+    case ErrorCode.ROOM_LOCKED:
+      return 'Room is locked: game has started';
+    case ErrorCode.ROOM_EXPIRED:
+      return 'Room has expired';
     case ErrorCode.INVALID_PLAYER_NAME:
       return 'Invalid player name';
     case ErrorCode.PLAYER_NOT_FOUND:
