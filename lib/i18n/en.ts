@@ -75,6 +75,15 @@ export const en = {
         description: 'Share one device, pass it around',
         playerCount: 'How many players?',
         playerNaming: 'Players will be named: Player 1, Player 2, Player 3...',
+        customCount: {
+          button: 'Custom',
+          title: 'Custom Player Count',
+          description: 'Perfect for large parties! Enter any number of players (minimum 3).',
+          placeholder: 'Enter number of players',
+          confirm: 'Continue',
+          playersSelected: 'players selected',
+          minError: 'Minimum 3 players required',
+        },
       },
     },
     success: {

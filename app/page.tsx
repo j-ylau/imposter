@@ -24,6 +24,8 @@ export default function HomePage() {
   const [selectedTheme, setSelectedTheme] = useState<Theme>('default');
   const [selectedGameMode, setSelectedGameMode] = useState<GameMode>(GameMode.Online);
   const [playerCount, setPlayerCount] = useState(4); // For pass-and-play
+  const [customPlayerCount, setCustomPlayerCount] = useState('');
+  const [showCustomCount, setShowCustomCount] = useState(false);
   const [showGameModes, setShowGameModes] = useState(false);
   const [showThemes, setShowThemes] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
@@ -47,6 +49,19 @@ export default function HomePage() {
     'brands',
     'sports',
   ];
+
+  const quickPlayerCounts = [3, 4, 5, 6, 7, 8, 10, 12];
+
+  const handleCustomCountSubmit = () => {
+    const count = parseInt(customPlayerCount, 10);
+    if (count >= 3) {
+      setPlayerCount(count);
+      setShowCustomCount(false);
+      setCustomPlayerCount('');
+    } else {
+      toast.error(t.home.gameMode.passAndPlay.customCount.minError);
+    }
+  };
 
   const handleCreate = async (useRandomTheme = false): Promise<void> => {
     // For pass-and-play, we don't need a name since players are auto-named
@@ -191,13 +206,13 @@ export default function HomePage() {
                 <h3 className="text-lg font-bold text-fg text-center">
                   {t.home.gameMode.passAndPlay.playerCount}
                 </h3>
-                <div className="flex gap-2 justify-center">
-                  {[3, 4, 5, 6, 7, 8].map((count) => (
+                <div className="flex gap-2 justify-center flex-wrap">
+                  {quickPlayerCounts.map((count) => (
                     <button
                       key={count}
                       onClick={() => setPlayerCount(count)}
                       className={`w-12 h-12 rounded-lg border-2 transition-all font-bold ${
-                        playerCount === count
+                        playerCount === count && !showCustomCount
                           ? 'border-primary bg-primary text-primary-fg'
                           : 'border-border hover:border-primary hover:bg-primary-subtle text-fg'
                       }`}
@@ -205,10 +220,25 @@ export default function HomePage() {
                       {count}
                     </button>
                   ))}
+                  <button
+                    onClick={() => setShowCustomCount(true)}
+                    className={`px-4 h-12 rounded-lg border-2 transition-all font-bold ${
+                      !quickPlayerCounts.includes(playerCount) || showCustomCount
+                        ? 'border-primary bg-primary text-primary-fg'
+                        : 'border-border hover:border-primary hover:bg-primary-subtle text-fg'
+                    }`}
+                  >
+                    {t.home.gameMode.passAndPlay.customCount.button}
+                  </button>
                 </div>
                 <p className="text-sm text-center text-fg-muted">
                   {t.home.gameMode.passAndPlay.playerNaming}
                 </p>
+                {!quickPlayerCounts.includes(playerCount) && !showCustomCount && (
+                  <p className="text-sm text-center text-primary font-medium">
+                    {playerCount} {t.home.gameMode.passAndPlay.customCount.playersSelected}
+                  </p>
+                )}
               </CardBody>
             </Card>
           )}
@@ -468,6 +498,54 @@ export default function HomePage() {
           <Button onClick={() => setShowHowToPlay(false)} className="w-full">
             {t.howToPlay.gotIt}
           </Button>
+        </div>
+      </Modal>
+
+      {/* Custom Player Count Modal */}
+      <Modal
+        isOpen={showCustomCount}
+        onClose={() => {
+          setShowCustomCount(false);
+          setCustomPlayerCount('');
+        }}
+        title={t.home.gameMode.passAndPlay.customCount.title}
+        className="max-w-md"
+      >
+        <div className="space-y-4">
+          <p className="text-fg-muted text-sm">
+            {t.home.gameMode.passAndPlay.customCount.description}
+          </p>
+          <Input
+            type="number"
+            min="3"
+            placeholder={t.home.gameMode.passAndPlay.customCount.placeholder}
+            value={customPlayerCount}
+            onChange={(e) => setCustomPlayerCount(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleCustomCountSubmit()}
+            autoFocus
+          />
+          <div className="flex gap-3">
+            <Button
+              onClick={handleCustomCountSubmit}
+              variant="primary"
+              size="lg"
+              className="flex-1"
+              disabled={!customPlayerCount || parseInt(customPlayerCount, 10) < 3}
+            >
+              {t.home.gameMode.passAndPlay.customCount.confirm}
+            </Button>
+            <Button
+              onClick={() => {
+                setShowCustomCount(false);
+                setCustomPlayerCount('');
+              }}
+              variant="ghost"
+              size="lg"
+              className="flex-1"
+            >
+              {t.common.close}
+            </Button>
+          </div>
         </div>
       </Modal>
     </PageTransition>
