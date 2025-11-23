@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import './globals.css';
 import { SITE_URL, SITE_NAME } from '@/lib/constants';
 
@@ -38,6 +39,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex flex-col">
+        {/* Google AdSense */}
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4975735342482892"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
+
         <main className="flex-1">
           {children}
         </main>
