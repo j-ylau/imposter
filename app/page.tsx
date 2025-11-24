@@ -17,6 +17,8 @@ import { toast } from 'react-toastify';
 import { handleError, getErrorTranslationKey } from '@/lib/error';
 import { trackThemeUsage } from '@/lib/theme-stats';
 import { PopularThemes } from '@/components/Home/PopularThemes';
+import { likeTheme, hasUserLikedTheme } from '@/lib/theme-likes';
+import { MostLovedThemes } from '@/components/Home/MostLovedThemes';
 
 export default function HomePage() {
   const router = useRouter();
@@ -32,6 +34,7 @@ export default function HomePage() {
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [likedThemes, setLikedThemes] = useState<Set<Theme>>(new Set());
 
   const themes: Theme[] = [
     'default',
@@ -65,6 +68,23 @@ export default function HomePage() {
       setCustomPlayerCount('');
     } else {
       toast.error(t.home.gameMode.passAndPlay.customCount.minError);
+    }
+  };
+
+  const handleLikeTheme = async (theme: Theme, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent theme selection when clicking like button
+
+    if (hasUserLikedTheme(theme)) {
+      toast.info('You already liked this theme!');
+      return;
+    }
+
+    const result = await likeTheme(theme);
+    if (result.success) {
+      setLikedThemes(prev => new Set(prev).add(theme));
+      toast.success('❤️ Theme liked!');
+    } else if (result.alreadyLiked) {
+      toast.info('You already liked this theme!');
     }
   };
 
@@ -276,24 +296,41 @@ export default function HomePage() {
 
               {showThemes && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-3 border-t border-border">
-                  {themes.map((theme) => (
-                    <button
-                      key={theme}
-                      onClick={() => {
-                        setSelectedTheme(theme);
-                        handleCreate(false);
-                      }}
-                      disabled={loading}
-                      className="p-3 rounded-lg border-2 border-border hover:border-primary hover:bg-primary-subtle transition-all text-left disabled:opacity-50"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl">{THEME_EMOJIS[theme]}</span>
-                        <span className="font-medium text-fg">
-                          {THEME_LABELS[theme]}
-                        </span>
-                      </div>
-                    </button>
-                  ))}
+                  {themes.map((theme) => {
+                    const isLiked = hasUserLikedTheme(theme) || likedThemes.has(theme);
+
+                    return (
+                      <button
+                        key={theme}
+                        onClick={() => {
+                          setSelectedTheme(theme);
+                          handleCreate(false);
+                        }}
+                        disabled={loading}
+                        className="p-3 rounded-lg border-2 border-border hover:border-primary hover:bg-primary-subtle transition-all text-left disabled:opacity-50 relative group"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">{THEME_EMOJIS[theme]}</span>
+                          <span className="font-medium text-fg flex-1">
+                            {THEME_LABELS[theme]}
+                          </span>
+                          {/* Like button */}
+                          <button
+                            onClick={(e) => handleLikeTheme(theme, e)}
+                            disabled={isLiked}
+                            className={`text-xl transition-transform ${
+                              isLiked
+                                ? 'opacity-100 scale-110'
+                                : 'opacity-50 group-hover:opacity-100 hover:scale-125'
+                            }`}
+                            title={isLiked ? 'Already liked' : 'Like this theme'}
+                          >
+                            {isLiked ? '❤️' : '🤍'}
+                          </button>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </CardBody>
@@ -301,6 +338,15 @@ export default function HomePage() {
 
           {/* Popular Themes Today - Dynamic tracking */}
           <PopularThemes
+            onThemeSelect={(theme) => {
+              setSelectedTheme(theme);
+              handleCreate(false);
+            }}
+            selectedTheme={selectedTheme}
+          />
+
+          {/* Most Loved Themes - Community favorites */}
+          <MostLovedThemes
             onThemeSelect={(theme) => {
               setSelectedTheme(theme);
               handleCreate(false);
