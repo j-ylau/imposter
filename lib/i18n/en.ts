@@ -18,6 +18,8 @@ export const en = {
     dbReadFailed: 'Connection issue. Check your internet and try again.',
     dbWriteFailed: 'Could not save changes. Check your internet and try again.',
     dbConnectionFailed: 'Connection lost. Check your internet and try again.',
+    statsLoadFailed: 'Could not load stats. Please try again later.',
+    noStatsAvailable: 'No stats available yet',
     validationFailed: 'Invalid input. Please check and try again.',
     unknown: 'Something went wrong. Please try again.',
   },

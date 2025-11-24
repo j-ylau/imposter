@@ -18,6 +18,7 @@ import { handleError, getErrorTranslationKey } from '@/lib/error';
 import { trackThemeUsage } from '@/lib/theme-stats';
 import { PopularThemes } from '@/components/Home/PopularThemes';
 import { likeTheme, hasUserLikedTheme, getThemeLikeCount } from '@/lib/theme-likes';
+import { logger } from '@/lib/logger';
 import { MostLovedThemes } from '@/components/Home/MostLovedThemes';
 
 export default function HomePage() {
@@ -67,17 +68,27 @@ export default function HomePage() {
     if (showThemes && Object.keys(themeLikeCounts).length === 0) {
       // Load like counts for all themes
       const loadLikeCounts = async () => {
-        const results = await Promise.all(
-          themes.map(async (theme) => {
-            const count = await getThemeLikeCount(theme);
-            return { theme, count };
-          })
-        );
-        const counts: Record<string, number> = {};
-        results.forEach(({ theme, count }) => {
-          counts[theme] = count;
-        });
-        setThemeLikeCounts(counts);
+        try {
+          const results = await Promise.all(
+            themes.map(async (theme) => {
+              try {
+                const count = await getThemeLikeCount(theme);
+                return { theme, count };
+              } catch (error) {
+                // Fail gracefully for individual themes
+                return { theme, count: 0 };
+              }
+            })
+          );
+          const counts: Record<string, number> = {};
+          results.forEach(({ theme, count }) => {
+            counts[theme] = count;
+          });
+          setThemeLikeCounts(counts);
+        } catch (error) {
+          // Fail silently - like counts are supplementary info
+          logger.error('[HomePage] Failed to load like counts:', error);
+        }
       };
       loadLikeCounts();
     }

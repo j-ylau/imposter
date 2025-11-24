@@ -32,6 +32,10 @@ export enum ErrorCode {
   DB_WRITE_FAILED = 'DB_WRITE_FAILED',
   DB_CONNECTION_FAILED = 'DB_CONNECTION_FAILED',
 
+  // Stats errors
+  STATS_LOAD_FAILED = 'STATS_LOAD_FAILED',
+  NO_STATS_AVAILABLE = 'NO_STATS_AVAILABLE',
+
   // Validation errors
   VALIDATION_FAILED = 'VALIDATION_FAILED',
 
@@ -385,6 +389,10 @@ export function getErrorTranslationKey(code: ErrorCode): keyof typeof import('@/
       return 'dbWriteFailed';
     case ErrorCode.DB_CONNECTION_FAILED:
       return 'dbConnectionFailed';
+    case ErrorCode.STATS_LOAD_FAILED:
+      return 'statsLoadFailed';
+    case ErrorCode.NO_STATS_AVAILABLE:
+      return 'noStatsAvailable';
     case ErrorCode.VALIDATION_FAILED:
       return 'validationFailed';
     case ErrorCode.UNKNOWN:

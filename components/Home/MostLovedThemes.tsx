@@ -26,6 +26,7 @@ export function MostLovedThemes({
   const { t } = useTranslation();
   const [lovedThemes, setLovedThemes] = useState<LovedTheme[]>(initialData || []);
   const [loading, setLoading] = useState(!initialData);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     // Skip client-side fetch if server-side data was provided
@@ -36,9 +37,16 @@ export function MostLovedThemes({
     async function fetchLovedThemes() {
       try {
         const themes = await getMostLovedThemes(5); // Top 5 most loved
+
+        if (!themes || themes.length === 0) {
+          setHasError(true);
+          return;
+        }
+
         setLovedThemes(themes);
       } catch (error) {
         logger.error('[MostLovedThemes] Failed to fetch:', error);
+        setHasError(true);
       } finally {
         setLoading(false);
       }
@@ -48,9 +56,33 @@ export function MostLovedThemes({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Don't render if no data yet
-  if (loading || lovedThemes.length === 0) {
+  // Don't render if still loading
+  if (loading) {
     return null;
+  }
+
+  // Show error state if failed to load
+  if (hasError || lovedThemes.length === 0) {
+    return (
+      <Card variant="elevated">
+        <CardHeader>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-2xl">❤️</span>
+              <h3 className="text-xl font-bold text-fg transition-colors">
+                {t.mostLovedThemes.title}
+              </h3>
+            </div>
+            <p className="text-sm text-fg-muted">{t.mostLovedThemes.description}</p>
+          </div>
+        </CardHeader>
+        <CardBody>
+          <div className="text-center py-6 text-fg-muted text-sm">
+            {hasError ? t.errors.statsLoadFailed : t.errors.noStatsAvailable}
+          </div>
+        </CardBody>
+      </Card>
+    );
   }
 
   return (

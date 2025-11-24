@@ -34,6 +34,7 @@ export function PopularThemes({
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>(initialLikeCounts || {});
   const [trendingSet, setTrendingSet] = useState<Set<string>>(initialTrending || new Set());
   const [loading, setLoading] = useState(!initialData);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     // Skip client-side fetch if server-side data was provided
@@ -44,6 +45,12 @@ export function PopularThemes({
     async function fetchPopularThemes() {
       try {
         const themes = await getPopularThemes(6); // Top 6 themes
+
+        if (!themes || themes.length === 0) {
+          setHasError(true);
+          return;
+        }
+
         setPopularThemes(themes);
 
         // Fetch like counts and trending status
@@ -60,6 +67,7 @@ export function PopularThemes({
         setTrendingSet(new Set(trending.map(t => t.theme)));
       } catch (error) {
         logger.error('[PopularThemes] Failed to fetch:', error);
+        setHasError(true);
       } finally {
         setLoading(false);
       }
@@ -69,9 +77,33 @@ export function PopularThemes({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Don't render if no data yet
-  if (loading || popularThemes.length === 0) {
+  // Don't render if still loading
+  if (loading) {
     return null;
+  }
+
+  // Show error state if failed to load
+  if (hasError || popularThemes.length === 0) {
+    return (
+      <Card variant="elevated">
+        <CardHeader>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-2xl">🔥</span>
+              <h3 className="text-xl font-bold text-fg transition-colors">
+                {t.popularThemesToday.title}
+              </h3>
+            </div>
+            <p className="text-sm text-fg-muted">{t.popularThemesToday.description}</p>
+          </div>
+        </CardHeader>
+        <CardBody>
+          <div className="text-center py-6 text-fg-muted text-sm">
+            {hasError ? t.errors.statsLoadFailed : t.errors.noStatsAvailable}
+          </div>
+        </CardBody>
+      </Card>
+    );
   }
 
   return (
