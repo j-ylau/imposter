@@ -5,9 +5,9 @@ export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 /**
- * Hourly cron endpoint to snapshot theme rankings
+ * Daily cron endpoint to snapshot theme rankings
  *
- * This endpoint should be called every hour to track ranking changes
+ * This endpoint is called once per day to track ranking changes
  * for trending detection.
  *
  * Authentication:
@@ -15,7 +15,8 @@ export const dynamic = 'force-dynamic';
  * - Token must match CRON_SECRET environment variable
  *
  * Usage:
- * - Set up Vercel Cron, GitHub Actions, or external cron service
+ * - Configured in vercel.json to run daily at midnight UTC
+ * - Can also be called manually or via external cron service
  * - Call: GET /api/snapshot-rankings
  * - Header: Authorization: Bearer YOUR_CRON_SECRET
  */

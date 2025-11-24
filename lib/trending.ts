@@ -19,7 +19,7 @@ const TRENDING_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 
 /**
  * Snapshot current theme rankings
- * Should be called hourly via cron job or API endpoint
+ * Called daily via cron job at midnight UTC
  */
 export async function snapshotRankings(): Promise<void> {
   try {
@@ -37,7 +37,7 @@ export async function snapshotRankings(): Promise<void> {
 
 /**
  * Get themes that are currently trending
- * A theme is trending if it improved rank by 3+ positions in the last 6 hours
+ * A theme is trending if it improved rank by 3+ positions in the last 24 hours
  */
 export async function getTrendingThemes(minRankImprovement: number = 3): Promise<TrendingTheme[]> {
   try {
