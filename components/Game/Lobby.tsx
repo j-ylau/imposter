@@ -26,6 +26,10 @@ export function Lobby({ room, currentPlayerId, onStartGame }: LobbyProps) {
     ? `${window.location.origin}/join/${room.id}`
     : '';
 
+  const baseJoinUrl = typeof window !== 'undefined'
+    ? `${window.location.host}/join`
+    : 'www.imposterga.me/join';
+
   const [copiedLink, setCopiedLink] = useState(false);
 
   const handleCopyCode = async (): Promise<void> => {
@@ -98,10 +102,15 @@ export function Lobby({ room, currentPlayerId, onStartGame }: LobbyProps) {
           </div>
 
           <div className="bg-bg-subtle border border-border rounded-lg p-3 transition-colors">
-            <p className="text-xs text-fg-muted mb-1">{t.common.roomCode}</p>
-            <p className="text-2xl font-bold font-mono text-fg tracking-wider">
-              {room.id}
-            </p>
+            <p className="text-xs text-fg-muted mb-2">{format(t.lobby.manualJoinInstructions, { url: baseJoinUrl })}</p>
+            <div className="space-y-2">
+              <div>
+                <p className="text-xs text-fg-muted mb-1">{t.common.roomCode}</p>
+                <p className="text-2xl font-bold font-mono text-fg tracking-wider">
+                  {room.id}
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Copy Code Button - Secondary */}

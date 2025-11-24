@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Theme } from '@/schema';
 import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
 import { getMostLovedThemes, LovedTheme } from '@/lib/theme-likes';
@@ -27,6 +27,16 @@ export function MostLovedThemes({
   const [lovedThemes, setLovedThemes] = useState<LovedTheme[]>(initialData || []);
   const [loading, setLoading] = useState(!initialData);
   const [hasError, setHasError] = useState(false);
+
+  // Generate random fallback themes when no data is available
+  const fallbackThemes = useMemo(() => {
+    const allThemes = Object.keys(THEME_LABELS) as Theme[];
+    const shuffled = [...allThemes].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 5).map((theme) => ({
+      theme,
+      count: 0,
+    }));
+  }, []);
 
   useEffect(() => {
     // Skip client-side fetch if server-side data was provided
@@ -61,46 +71,28 @@ export function MostLovedThemes({
     return null;
   }
 
-  // Show error state if failed to load
-  if (hasError || lovedThemes.length === 0) {
-    return (
-      <Card variant="elevated">
-        <CardHeader>
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-2xl">❤️</span>
-              <h3 className="text-xl font-bold text-fg transition-colors">
-                {t.mostLovedThemes.title}
-              </h3>
-            </div>
-            <p className="text-sm text-fg-muted">{t.mostLovedThemes.description}</p>
-          </div>
-        </CardHeader>
-        <CardBody>
-          <div className="text-center py-6 text-fg-muted text-sm">
-            {hasError ? t.errors.statsLoadFailed : t.errors.noStatsAvailable}
-          </div>
-        </CardBody>
-      </Card>
-    );
-  }
+  // Use fallback themes if no data or error
+  const displayThemes = (hasError || lovedThemes.length === 0) ? fallbackThemes : lovedThemes;
+  const showingFallback = hasError || lovedThemes.length === 0;
 
   return (
     <Card variant="elevated">
       <CardHeader>
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-2xl">❤️</span>
+            <span className="text-2xl">{showingFallback ? '🎲' : '❤️'}</span>
             <h3 className="text-xl font-bold text-fg transition-colors">
-              {t.mostLovedThemes.title}
+              {showingFallback ? t.mostLovedThemes.discoverThemes : t.mostLovedThemes.title}
             </h3>
           </div>
-          <p className="text-sm text-fg-muted">{t.mostLovedThemes.description}</p>
+          <p className="text-sm text-fg-muted">
+            {showingFallback ? t.mostLovedThemes.randomSelection : t.mostLovedThemes.description}
+          </p>
         </div>
       </CardHeader>
       <CardBody>
         <div className="space-y-2">
-          {lovedThemes.map((item, index) => {
+          {displayThemes.map((item, index) => {
             const isSelected = selectedTheme === item.theme;
             const emoji = THEME_EMOJIS[item.theme] || '🎲';
             const label = THEME_LABELS[item.theme] || item.theme;
@@ -141,9 +133,11 @@ export function MostLovedThemes({
                     <div className="font-medium text-fg">
                       {label}
                     </div>
-                    <div className="text-xs text-fg-muted">
-                      {item.count.toLocaleString()} {item.count === 1 ? t.mostLovedThemes.like : t.mostLovedThemes.likes}
-                    </div>
+                    {!showingFallback && (
+                      <div className="text-xs text-fg-muted">
+                        {item.count.toLocaleString()} {item.count === 1 ? t.mostLovedThemes.like : t.mostLovedThemes.likes}
+                      </div>
+                    )}
                   </div>
 
                   {/* Heart */}

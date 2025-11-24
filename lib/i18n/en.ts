@@ -147,6 +147,8 @@ export const en = {
   popularThemesToday: {
     title: 'Popular Themes Today',
     description: 'Most played themes over the last 24 hours',
+    discoverThemes: 'Discover Themes',
+    randomSelection: 'Random selection for you to explore',
     playNow: 'Play Now',
     plays: 'plays',
     play: 'play',
@@ -157,6 +159,8 @@ export const en = {
   mostLovedThemes: {
     title: 'Most Loved Themes',
     description: 'Themes voted for by players',
+    discoverThemes: 'Discover Themes',
+    randomSelection: 'Random selection for you to explore',
     playNow: 'Play Now',
     likes: 'likes',
     like: 'like',
@@ -195,6 +199,7 @@ export const en = {
     copyLink: 'Copy Join Link',
     linkCopied: 'Link Copied!',
     orUseCode: 'or use room code',
+    manualJoinInstructions: 'Visit {url} and enter this code:',
     copyCode: 'Copy Room Code',
     codeCopied: 'Code Copied!',
     share: 'Share',

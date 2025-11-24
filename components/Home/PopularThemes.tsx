@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Theme } from '@/schema';
 import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
 import { getPopularThemes, PopularTheme } from '@/lib/theme-stats';
@@ -10,6 +10,7 @@ import { Card, CardBody, CardHeader } from '@/components/UI/Card';
 import { motion } from 'framer-motion';
 import { logger } from '@/lib/logger';
 import { useTranslation } from '@/lib/i18n';
+import { randomItem } from '@/lib/util';
 
 interface PopularThemesProps {
   onThemeSelect: (theme: Theme) => void;
@@ -35,6 +36,16 @@ export function PopularThemes({
   const [trendingSet, setTrendingSet] = useState<Set<string>>(initialTrending || new Set());
   const [loading, setLoading] = useState(!initialData);
   const [hasError, setHasError] = useState(false);
+
+  // Generate random fallback themes when no data is available
+  const fallbackThemes = useMemo(() => {
+    const allThemes = Object.keys(THEME_LABELS) as Theme[];
+    const shuffled = [...allThemes].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 6).map((theme) => ({
+      theme,
+      count: 0,
+    }));
+  }, []);
 
   useEffect(() => {
     // Skip client-side fetch if server-side data was provided
@@ -82,46 +93,28 @@ export function PopularThemes({
     return null;
   }
 
-  // Show error state if failed to load
-  if (hasError || popularThemes.length === 0) {
-    return (
-      <Card variant="elevated">
-        <CardHeader>
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-2xl">🔥</span>
-              <h3 className="text-xl font-bold text-fg transition-colors">
-                {t.popularThemesToday.title}
-              </h3>
-            </div>
-            <p className="text-sm text-fg-muted">{t.popularThemesToday.description}</p>
-          </div>
-        </CardHeader>
-        <CardBody>
-          <div className="text-center py-6 text-fg-muted text-sm">
-            {hasError ? t.errors.statsLoadFailed : t.errors.noStatsAvailable}
-          </div>
-        </CardBody>
-      </Card>
-    );
-  }
+  // Use fallback themes if no data or error
+  const displayThemes = (hasError || popularThemes.length === 0) ? fallbackThemes : popularThemes;
+  const showingFallback = hasError || popularThemes.length === 0;
 
   return (
     <Card variant="elevated">
       <CardHeader>
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-2xl">🔥</span>
+            <span className="text-2xl">{showingFallback ? '🎲' : '🔥'}</span>
             <h3 className="text-xl font-bold text-fg transition-colors">
-              {t.popularThemesToday.title}
+              {showingFallback ? t.popularThemesToday.discoverThemes : t.popularThemesToday.title}
             </h3>
           </div>
-          <p className="text-sm text-fg-muted">{t.popularThemesToday.description}</p>
+          <p className="text-sm text-fg-muted">
+            {showingFallback ? t.popularThemesToday.randomSelection : t.popularThemesToday.description}
+          </p>
         </div>
       </CardHeader>
       <CardBody>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-          {popularThemes.map((item, index) => {
+          {displayThemes.map((item, index) => {
             const isSelected = selectedTheme === item.theme;
             const emoji = THEME_EMOJIS[item.theme] || '🎲';
             const label = THEME_LABELS[item.theme] || item.theme;
@@ -159,10 +152,12 @@ export function PopularThemes({
                     <div className="font-medium text-fg text-sm line-clamp-1">
                       {label}
                     </div>
-                    <div className="flex gap-2 text-xs text-fg-muted">
-                      <span>🔥 {item.count} {item.count === 1 ? t.popularThemesToday.play : t.popularThemesToday.plays}</span>
-                      <span>❤️ {likeCounts[item.theme] || 0}</span>
-                    </div>
+                    {!showingFallback && (
+                      <div className="flex gap-2 text-xs text-fg-muted">
+                        <span>🔥 {item.count} {item.count === 1 ? t.popularThemesToday.play : t.popularThemesToday.plays}</span>
+                        <span>❤️ {likeCounts[item.theme] || 0}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
