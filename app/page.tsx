@@ -15,6 +15,8 @@ import { useTranslation } from '@/lib/i18n';
 import { PageTransition } from '@/components/Animations/PageTransition';
 import { toast } from 'react-toastify';
 import { handleError, getErrorTranslationKey } from '@/lib/error';
+import { trackThemeUsage } from '@/lib/theme-stats';
+import { PopularThemes } from '@/components/Home/PopularThemes';
 
 export default function HomePage() {
   const router = useRouter();
@@ -94,6 +96,9 @@ export default function HomePage() {
 
         await roomApi.createRoom(room);
 
+        // Track theme usage for popular themes
+        trackThemeUsage(theme);
+
         // Don't need to store player ID for pass-and-play
         toast.success(t.home.success.roomCreated);
         router.push(`/room/${room.id}`);
@@ -101,6 +106,9 @@ export default function HomePage() {
         // Online mode: Use entered player name
         const room = createRoom(playerName, theme, selectedGameMode);
         await roomApi.createRoom(room);
+
+        // Track theme usage for popular themes
+        trackThemeUsage(theme);
 
         localStorage.setItem('currentPlayerId', room.hostId);
         localStorage.setItem('currentPlayerName', playerName);
@@ -291,44 +299,14 @@ export default function HomePage() {
             </CardBody>
           </Card>
 
-          {/* Popular Themes Section - SEO Internal Links */}
-          <Card variant="elevated">
-            <CardBody>
-              <h2 className="text-xl font-bold text-fg mb-4 text-center">
-                🎯 {t.home.popularThemes}
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <a
-                  href="/theme/pokemon"
-                  className="p-3 rounded-lg border-2 border-border hover:border-primary hover:bg-primary-subtle transition-all text-center"
-                >
-                  <div className="text-3xl mb-1">⚡</div>
-                  <div className="text-sm font-medium text-fg">Pokémon</div>
-                </a>
-                <a
-                  href="/theme/anime"
-                  className="p-3 rounded-lg border-2 border-border hover:border-primary hover:bg-primary-subtle transition-all text-center"
-                >
-                  <div className="text-3xl mb-1">⚔️</div>
-                  <div className="text-sm font-medium text-fg">Anime</div>
-                </a>
-                <a
-                  href="/theme/video-games"
-                  className="p-3 rounded-lg border-2 border-border hover:border-primary hover:bg-primary-subtle transition-all text-center"
-                >
-                  <div className="text-3xl mb-1">🎮</div>
-                  <div className="text-sm font-medium text-fg">Video Games</div>
-                </a>
-                <a
-                  href="/theme/tiktok"
-                  className="p-3 rounded-lg border-2 border-border hover:border-primary hover:bg-primary-subtle transition-all text-center"
-                >
-                  <div className="text-3xl mb-1">🎵</div>
-                  <div className="text-sm font-medium text-fg">TikTok</div>
-                </a>
-              </div>
-            </CardBody>
-          </Card>
+          {/* Popular Themes Today - Dynamic tracking */}
+          <PopularThemes
+            onThemeSelect={(theme) => {
+              setSelectedTheme(theme);
+              handleCreate(false);
+            }}
+            selectedTheme={selectedTheme}
+          />
         </div>
       </div>
 
