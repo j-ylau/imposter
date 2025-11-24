@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/components/Providers/ThemeProvider';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Footer } from '@/components/Layout/Footer';
+import { GAME_SCHEMA } from '@/lib/seo';
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -78,6 +79,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* JSON-LD Structured Data for Game */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(GAME_SCHEMA) }}
+        />
+      </head>
       <body className="min-h-screen bg-gradient-to-br from-[var(--color-bg-start)] to-[var(--color-bg-end)] transition-colors duration-300">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {/* Google AdSense */}

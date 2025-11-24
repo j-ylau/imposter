@@ -179,6 +179,25 @@ export function generateThemeSchema(theme: Theme) {
   const label = THEME_LABELS[theme];
   const description = THEME_DESCRIPTIONS[theme];
 
+  // Determine audience based on theme
+  const themeAudiences: Record<Theme, string> = {
+    default: 'Everyone',
+    pokemon: 'Teens and Young Adults',
+    nba: 'Sports Fans',
+    memes: 'Teens and Young Adults',
+    movies: 'Movie Enthusiasts',
+    countries: 'Geography Enthusiasts',
+    anime: 'Teens and Young Adults',
+    'video-games': 'Gamers',
+    youtube: 'Content Creators',
+    tiktok: 'Gen Z',
+    music: 'Music Lovers',
+    'tv-shows': 'TV Enthusiasts',
+    food: 'Foodies',
+    brands: 'Everyone',
+    sports: 'Sports Fans',
+  };
+
   return {
     '@context': 'https://schema.org',
     '@type': 'Game',
@@ -187,6 +206,18 @@ export function generateThemeSchema(theme: Theme) {
     url: `${SITE.url}/theme/${theme}`,
     applicationCategory: 'Game',
     genre: ['Party Game', 'Word Game', label],
+    audience: themeAudiences[theme],
+    inLanguage: 'en',
     gamePlatform: 'Web Browser',
+    numberOfPlayers: {
+      '@type': 'QuantitativeValue',
+      minValue: 3,
+      maxValue: 30,
+    },
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
   };
 }
