@@ -9,7 +9,7 @@ import { Modal } from '@/components/UI/Modal';
 import { createRoom, addPlayer, startGame } from '@/lib/game';
 import { roomApi } from '@/lib/realtime';
 import { Theme, GameMode } from '@/schema';
-import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
+import { THEME_LABELS, THEME_EMOJIS, THEME_CATEGORIES, CATEGORIES } from '@/data/themes';
 import { isValidPlayerName, randomItem } from '@/lib/util';
 import { useTranslation } from '@/lib/i18n';
 import { PageTransition } from '@/components/Animations/PageTransition';
@@ -36,6 +36,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [likedThemes, setLikedThemes] = useState<Set<Theme>>(new Set());
   const [themeLikeCounts, setThemeLikeCounts] = useState<Record<string, number>>({});
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   const themes: Theme[] = [
     'default',
@@ -323,8 +324,39 @@ export default function HomePage() {
               </div>
 
               {showThemes && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pt-3 border-t border-border">
-                  {themes.map((theme) => {
+                <>
+                  {/* Category filter */}
+                  <div className="flex flex-wrap gap-2 pt-3 pb-2 border-t border-border">
+                    <button
+                      onClick={() => setSelectedCategory('All')}
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                        selectedCategory === 'All'
+                          ? 'bg-primary text-primary-fg'
+                          : 'bg-bg-subtle text-fg-muted hover:bg-bg-hover'
+                      }`}
+                    >
+                      All
+                    </button>
+                    {CATEGORIES.map((category) => (
+                      <button
+                        key={category}
+                        onClick={() => setSelectedCategory(category)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                          selectedCategory === category
+                            ? 'bg-primary text-primary-fg'
+                            : 'bg-bg-subtle text-fg-muted hover:bg-bg-hover'
+                        }`}
+                      >
+                        {category}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Theme grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {themes
+                      .filter((theme) => selectedCategory === 'All' || THEME_CATEGORIES[theme] === selectedCategory)
+                      .map((theme) => {
                     const isLiked = hasUserLikedTheme(theme) || likedThemes.has(theme);
 
                     return (
@@ -364,7 +396,8 @@ export default function HomePage() {
                       </button>
                     );
                   })}
-                </div>
+                  </div>
+                </>
               )}
             </CardBody>
           </Card>

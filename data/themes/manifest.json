@@ -3,6 +3,7 @@
     "file": "default.json",
     "label": "Default",
     "emoji": "🎲",
+    "category": "General",
     "description": "Random objects, animals, and places",
     "audience": "Everyone",
     "ogColors": {
@@ -15,6 +16,7 @@
     "file": "pokemon.json",
     "label": "Pokémon",
     "emoji": "⚡",
+    "category": "Gaming",
     "description": "Pokémon characters from all generations",
     "audience": "Teens and Young Adults",
     "ogColors": {
@@ -27,6 +29,7 @@
     "file": "nba.json",
     "label": "NBA Players",
     "emoji": "🏀",
+    "category": "Sports",
     "description": "NBA players past and present",
     "audience": "Sports Fans",
     "ogColors": {
@@ -39,6 +42,7 @@
     "file": "memes.json",
     "label": "Memes",
     "emoji": "😂",
+    "category": "Entertainment",
     "description": "Internet memes and viral trends",
     "audience": "Teens and Young Adults",
     "ogColors": {
@@ -51,6 +55,7 @@
     "file": "movies.json",
     "label": "Movies",
     "emoji": "🎬",
+    "category": "Entertainment",
     "description": "Popular movies and cinema",
     "audience": "Movie Enthusiasts",
     "ogColors": {
@@ -63,6 +68,7 @@
     "file": "countries.json",
     "label": "Countries",
     "emoji": "🌍",
+    "category": "General",
     "description": "Countries from around the world",
     "audience": "Geography Enthusiasts",
     "ogColors": {
@@ -75,6 +81,7 @@
     "file": "anime.json",
     "label": "Anime",
     "emoji": "⚔️",
+    "category": "Anime",
     "description": "Popular anime characters and series",
     "audience": "Teens and Young Adults",
     "ogColors": {
@@ -87,6 +94,7 @@
     "file": "video-games.json",
     "label": "Video Games",
     "emoji": "🎮",
+    "category": "Gaming",
     "description": "Video game characters and franchises",
     "audience": "Gamers",
     "ogColors": {
@@ -99,6 +107,7 @@
     "file": "youtube.json",
     "label": "YouTubers",
     "emoji": "📹",
+    "category": "Social Media",
     "description": "Famous YouTubers and content creators",
     "audience": "Content Creators",
     "ogColors": {
@@ -111,6 +120,7 @@
     "file": "tiktok.json",
     "label": "TikTok",
     "emoji": "🎵",
+    "category": "Social Media",
     "description": "TikTok stars and trending dances",
     "audience": "Gen Z",
     "ogColors": {
@@ -123,6 +133,7 @@
     "file": "music.json",
     "label": "Music Artists",
     "emoji": "🎤",
+    "category": "Entertainment",
     "description": "Popular music artists and singers",
     "audience": "Music Lovers",
     "ogColors": {
@@ -135,6 +146,7 @@
     "file": "tv-shows.json",
     "label": "TV Shows",
     "emoji": "📺",
+    "category": "Entertainment",
     "description": "Trending TV shows and series",
     "audience": "TV Enthusiasts",
     "ogColors": {
@@ -147,6 +159,7 @@
     "file": "food.json",
     "label": "Food & Drinks",
     "emoji": "🍕",
+    "category": "General",
     "description": "Delicious foods and beverages",
     "audience": "Foodies",
     "ogColors": {
@@ -159,6 +172,7 @@
     "file": "brands.json",
     "label": "Popular Brands",
     "emoji": "🏷️",
+    "category": "Business",
     "description": "Well-known brands and companies",
     "audience": "Everyone",
     "ogColors": {
@@ -171,6 +185,7 @@
     "file": "sports.json",
     "label": "Sports Stars",
     "emoji": "⚽",
+    "category": "Sports",
     "description": "Famous athletes and sports teams",
     "audience": "Sports Fans",
     "ogColors": {
@@ -183,6 +198,7 @@
     "file": "clash-royale.json",
     "label": "Clash Royale",
     "emoji": "👑",
+    "category": "Gaming",
     "description": "Clash Royale cards, troops, and spells",
     "audience": "Mobile Gamers",
     "ogColors": {
@@ -195,6 +211,7 @@
     "file": "minecraft.json",
     "label": "Minecraft",
     "emoji": "⛏️",
+    "category": "Gaming",
     "description": "Minecraft mobs, items, and blocks",
     "audience": "Gamers and Kids",
     "ogColors": {
@@ -207,6 +224,7 @@
     "file": "animals.json",
     "label": "Animals",
     "emoji": "🦁",
+    "category": "General",
     "description": "Wild and domestic animals from around the world",
     "audience": "Everyone",
     "ogColors": {
@@ -219,6 +237,7 @@
     "file": "companies.json",
     "label": "Companies",
     "emoji": "🏢",
+    "category": "Business",
     "description": "Famous companies and global brands",
     "audience": "Business Professionals",
     "ogColors": {

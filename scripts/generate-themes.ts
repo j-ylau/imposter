@@ -15,6 +15,7 @@ interface ThemeManifest {
     file: string;
     label: string;
     emoji: string;
+    category: string;
     description: string;
     audience: string;
     ogColors: {
@@ -81,6 +82,13 @@ const themeAudiences = themeKeys
   .map((key) => `    '${key}': '${manifest[key].audience}',`)
   .join('\n');
 
+const themeCategories = themeKeys
+  .map((key) => `  '${key}': '${manifest[key].category}',`)
+  .join('\n');
+
+// Get unique categories
+const categories = Array.from(new Set(themeKeys.map(key => manifest[key].category))).sort();
+
 const ogColors = themeKeys
   .map((key) => {
     const { start, end, accent } = manifest[key].ogColors;
@@ -124,6 +132,12 @@ ${themeEmojis}
 export const THEME_AUDIENCES: Record<Theme, string> = {
 ${themeAudiences}
 };
+
+export const THEME_CATEGORIES: Record<Theme, string> = {
+${themeCategories}
+};
+
+export const CATEGORIES = ${JSON.stringify(categories)} as const;
 
 export const THEME_OG_COLORS: Record<Theme, { start: string; end: string; accent: string }> = {
 ${ogColors}

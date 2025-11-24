@@ -13,14 +13,26 @@ interface MostLovedThemesProps {
   onThemeSelect: (theme: Theme) => void;
   selectedTheme?: Theme;
   onBrowseThemes?: () => void;
+  // Server-side preload support
+  initialData?: LovedTheme[];
 }
 
-export function MostLovedThemes({ onThemeSelect, selectedTheme, onBrowseThemes }: MostLovedThemesProps) {
+export function MostLovedThemes({
+  onThemeSelect,
+  selectedTheme,
+  onBrowseThemes,
+  initialData
+}: MostLovedThemesProps) {
   const { t } = useTranslation();
-  const [lovedThemes, setLovedThemes] = useState<LovedTheme[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [lovedThemes, setLovedThemes] = useState<LovedTheme[]>(initialData || []);
+  const [loading, setLoading] = useState(!initialData);
 
   useEffect(() => {
+    // Skip client-side fetch if server-side data was provided
+    if (initialData) {
+      return;
+    }
+
     async function fetchLovedThemes() {
       try {
         const themes = await getMostLovedThemes(5); // Top 5 most loved
@@ -33,6 +45,7 @@ export function MostLovedThemes({ onThemeSelect, selectedTheme, onBrowseThemes }
     }
 
     fetchLovedThemes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Don't render if no data yet

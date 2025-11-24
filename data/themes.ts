@@ -180,6 +180,30 @@ export const THEME_AUDIENCES: Record<Theme, string> = {
     'companies': 'Business Professionals',
 };
 
+export const THEME_CATEGORIES: Record<Theme, string> = {
+  'default': 'General',
+  'pokemon': 'Gaming',
+  'nba': 'Sports',
+  'memes': 'Entertainment',
+  'movies': 'Entertainment',
+  'countries': 'General',
+  'anime': 'Anime',
+  'video-games': 'Gaming',
+  'youtube': 'Social Media',
+  'tiktok': 'Social Media',
+  'music': 'Entertainment',
+  'tv-shows': 'Entertainment',
+  'food': 'General',
+  'brands': 'Business',
+  'sports': 'Sports',
+  'clash-royale': 'Gaming',
+  'minecraft': 'Gaming',
+  'animals': 'General',
+  'companies': 'Business',
+};
+
+export const CATEGORIES = ["Anime","Business","Entertainment","Gaming","General","Social Media","Sports"] as const;
+
 export const THEME_OG_COLORS: Record<Theme, { start: string; end: string; accent: string }> = {
   'default': { start: '#667eea', end: '#764ba2', accent: '#f093fb' },
   'pokemon': { start: '#FFCB05', end: '#3D7DCA', accent: '#CC0000' },

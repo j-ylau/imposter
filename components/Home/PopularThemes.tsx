@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { Theme } from '@/schema';
 import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
 import { getPopularThemes, PopularTheme } from '@/lib/theme-stats';
+import { getThemeLikeCount } from '@/lib/theme-likes';
+import { getTrendingThemes } from '@/lib/trending';
 import { Card, CardBody, CardHeader } from '@/components/UI/Card';
 import { motion } from 'framer-motion';
 import { logger } from '@/lib/logger';
@@ -13,18 +15,49 @@ interface PopularThemesProps {
   onThemeSelect: (theme: Theme) => void;
   selectedTheme?: Theme;
   onBrowseThemes?: () => void;
+  // Server-side preload support
+  initialData?: PopularTheme[];
+  initialLikeCounts?: Record<string, number>;
+  initialTrending?: Set<string>;
 }
 
-export function PopularThemes({ onThemeSelect, selectedTheme, onBrowseThemes }: PopularThemesProps) {
+export function PopularThemes({
+  onThemeSelect,
+  selectedTheme,
+  onBrowseThemes,
+  initialData,
+  initialLikeCounts,
+  initialTrending
+}: PopularThemesProps) {
   const { t } = useTranslation();
-  const [popularThemes, setPopularThemes] = useState<PopularTheme[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [popularThemes, setPopularThemes] = useState<PopularTheme[]>(initialData || []);
+  const [likeCounts, setLikeCounts] = useState<Record<string, number>>(initialLikeCounts || {});
+  const [trendingSet, setTrendingSet] = useState<Set<string>>(initialTrending || new Set());
+  const [loading, setLoading] = useState(!initialData);
 
   useEffect(() => {
+    // Skip client-side fetch if server-side data was provided
+    if (initialData) {
+      return;
+    }
+
     async function fetchPopularThemes() {
       try {
         const themes = await getPopularThemes(6); // Top 6 themes
         setPopularThemes(themes);
+
+        // Fetch like counts and trending status
+        const counts: Record<string, number> = {};
+        await Promise.all(
+          themes.map(async (item) => {
+            counts[item.theme] = await getThemeLikeCount(item.theme);
+          })
+        );
+        setLikeCounts(counts);
+
+        // Fetch trending themes
+        const trending = await getTrendingThemes();
+        setTrendingSet(new Set(trending.map(t => t.theme)));
       } catch (error) {
         logger.error('[PopularThemes] Failed to fetch:', error);
       } finally {
@@ -33,6 +66,7 @@ export function PopularThemes({ onThemeSelect, selectedTheme, onBrowseThemes }: 
     }
 
     fetchPopularThemes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Don't render if no data yet
@@ -59,6 +93,7 @@ export function PopularThemes({ onThemeSelect, selectedTheme, onBrowseThemes }: 
             const isSelected = selectedTheme === item.theme;
             const emoji = THEME_EMOJIS[item.theme] || '🎲';
             const label = THEME_LABELS[item.theme] || item.theme;
+            const isTrending = trendingSet.has(item.theme);
 
             return (
               <motion.div
@@ -77,6 +112,14 @@ export function PopularThemes({ onThemeSelect, selectedTheme, onBrowseThemes }: 
                   {index + 1}
                 </div>
 
+                {/* Trending badge */}
+                {isTrending && (
+                  <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-gradient-to-r from-orange-400 to-red-500 text-white text-[10px] font-bold flex items-center gap-1">
+                    <span>⬆️</span>
+                    <span>TRENDING</span>
+                  </div>
+                )}
+
                 {/* Theme info */}
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-2xl">{emoji}</span>
@@ -84,8 +127,9 @@ export function PopularThemes({ onThemeSelect, selectedTheme, onBrowseThemes }: 
                     <div className="font-medium text-fg text-sm line-clamp-1">
                       {label}
                     </div>
-                    <div className="text-xs text-fg-muted">
-                      {item.count} {item.count === 1 ? t.popularThemesToday.play : t.popularThemesToday.plays}
+                    <div className="flex gap-2 text-xs text-fg-muted">
+                      <span>🔥 {item.count} {item.count === 1 ? t.popularThemesToday.play : t.popularThemesToday.plays}</span>
+                      <span>❤️ {likeCounts[item.theme] || 0}</span>
                     </div>
                   </div>
                 </div>
