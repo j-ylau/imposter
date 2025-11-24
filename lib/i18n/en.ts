@@ -191,14 +191,12 @@ export const en = {
   // Lobby
   lobby: {
     inviteFriends: 'Invite Your Friends',
-    tellFriends: 'Tell your friends to:',
-    step1: 'Visit',
-    step2: 'Enter the room code below',
+    shareLink: 'Share this link with friends:',
+    copyLink: 'Copy Join Link',
+    linkCopied: 'Link Copied!',
+    orUseCode: 'or use room code',
     copyCode: 'Copy Room Code',
     codeCopied: 'Code Copied!',
-    shareTitle: 'Share this link with your friends',
-    copyLink: 'Copy Link',
-    linkCopied: 'Link Copied!',
     share: 'Share',
     shareMessage: "Let's play Imposter Word Game! Join here:",
     players: 'Players',
@@ -208,9 +206,10 @@ export const en = {
     waitingForHost: 'Waiting for host to start...',
     success: {
       codeCopiedToast: 'Code copied!',
+      linkCopied: 'Join link copied to clipboard!',
     },
     errors: {
-      copyFailed: 'Failed to copy code',
+      copyFailed: 'Failed to copy',
     },
   },
 

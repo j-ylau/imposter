@@ -23,8 +23,10 @@ export function Lobby({ room, currentPlayerId, onStartGame }: LobbyProps) {
   const [copied, setCopied] = useState(false);
 
   const joinUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/join`
+    ? `${window.location.origin}/join/${room.id}`
     : '';
+
+  const [copiedLink, setCopiedLink] = useState(false);
 
   const handleCopyCode = async (): Promise<void> => {
     try {
@@ -42,6 +44,22 @@ export function Lobby({ room, currentPlayerId, onStartGame }: LobbyProps) {
     }
   };
 
+  const handleCopyLink = async (): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText(joinUrl);
+      // Haptic feedback
+      if ('vibrate' in navigator) {
+        navigator.vibrate(10);
+      }
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+      toast.success(t.lobby.success.linkCopied);
+    } catch (err) {
+      logger.error('Failed to copy:', err);
+      toast.error(t.lobby.errors.copyFailed);
+    }
+  };
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Share Section - Most Important */}
@@ -52,33 +70,45 @@ export function Lobby({ room, currentPlayerId, onStartGame }: LobbyProps) {
             {t.lobby.inviteFriends}
           </h2>
 
-          {/* Instructions */}
-          <div className="bg-bg-subtle border-2 border-border rounded-lg p-4 text-left transition-colors">
-            <p className="text-sm text-fg mb-3">
-              {t.lobby.tellFriends}
+          {/* Join Link - Prominent */}
+          <div className="bg-primary-subtle border-2 border-primary rounded-lg p-4 transition-colors">
+            <p className="text-sm text-fg-muted mb-2">{t.lobby.shareLink}</p>
+            <p className="text-sm font-mono text-primary break-all">
+              {joinUrl}
             </p>
-            <ol className="text-sm text-fg space-y-2 ml-4 list-decimal">
-              <li>
-                {t.lobby.step1} <span className="font-mono font-bold bg-primary-subtle px-2 py-0.5 rounded text-primary">{joinUrl}</span>
-              </li>
-              <li>
-                {t.lobby.step2}
-              </li>
-            </ol>
           </div>
 
-          {/* Room Code - Prominent */}
-          <div className="bg-primary-subtle border-2 border-primary rounded-lg p-4 transition-colors">
-            <p className="text-sm text-fg-muted mb-1">{t.common.roomCode}</p>
-            <p className="text-3xl font-bold font-mono text-primary tracking-wider">
+          {/* Copy Link Button - Primary Action */}
+          <Button
+            onClick={handleCopyLink}
+            size="lg"
+            className="w-full"
+          >
+            {copiedLink ? `✓ ${t.lobby.linkCopied}` : `🔗 ${t.lobby.copyLink}`}
+          </Button>
+
+          {/* Alternative: Room Code */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border"></div>
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="px-2 bg-card text-fg-muted">{t.lobby.orUseCode}</span>
+            </div>
+          </div>
+
+          <div className="bg-bg-subtle border border-border rounded-lg p-3 transition-colors">
+            <p className="text-xs text-fg-muted mb-1">{t.common.roomCode}</p>
+            <p className="text-2xl font-bold font-mono text-fg tracking-wider">
               {room.id}
             </p>
           </div>
 
-          {/* Copy Code Button */}
+          {/* Copy Code Button - Secondary */}
           <Button
             onClick={handleCopyCode}
-            size="lg"
+            variant="secondary"
+            size="md"
             className="w-full"
           >
             {copied ? `✓ ${t.lobby.codeCopied}` : `📋 ${t.lobby.copyCode}`}
