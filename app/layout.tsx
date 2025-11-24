@@ -7,6 +7,8 @@ import { ThemeProvider } from '@/components/Providers/ThemeProvider';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Footer } from '@/components/Layout/Footer';
+import { PlayCTA } from '@/components/UI/PlayCTA';
+import { ThemeToggle } from '@/components/UI/ThemeToggle';
 import { GAME_SCHEMA } from '@/lib/seo';
 
 export const metadata: Metadata = {
@@ -96,7 +98,13 @@ export default function RootLayout({
             strategy="afterInteractive"
           />
 
-          <main className="pb-16">
+          {/* Fixed Top Nav */}
+          <nav className="fixed top-0 left-0 right-0 z-50 px-4 py-3 flex items-center justify-between">
+            <PlayCTA />
+            <ThemeToggle />
+          </nav>
+
+          <main className="pb-16 pt-16">
             {children}
           </main>
 

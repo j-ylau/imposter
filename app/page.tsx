@@ -12,7 +12,6 @@ import { Theme, GameMode } from '@/schema';
 import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
 import { isValidPlayerName, randomItem } from '@/lib/util';
 import { useTranslation } from '@/lib/i18n';
-import { ThemeToggle } from '@/components/UI/ThemeToggle';
 import { PageTransition } from '@/components/Animations/PageTransition';
 import { toast } from 'react-toastify';
 import { handleError, getErrorTranslationKey } from '@/lib/error';
@@ -116,11 +115,6 @@ export default function HomePage() {
   return (
     <PageTransition>
       <div className="min-h-screen flex items-center justify-center p-4">
-        {/* Theme Toggle - Fixed top right */}
-        <div className="fixed top-4 right-4 z-50">
-          <ThemeToggle />
-        </div>
-
         <div className="max-w-2xl w-full space-y-6">
           {/* Header */}
           <div className="text-center animate-fade-in">

@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/UI/Button';
 import { Input } from '@/components/UI/Input';
 import { Card, CardBody, CardHeader } from '@/components/UI/Card';
-import { ThemeToggle } from '@/components/UI/ThemeToggle';
 import { PageTransition } from '@/components/Animations/PageTransition';
 import { roomApi } from '@/lib/realtime';
 import { addPlayer } from '@/lib/game';
@@ -24,8 +23,8 @@ export default function JoinPage() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleCodeChange = (index: number, value: string): void => {
-    // Only allow alphanumeric characters
-    const sanitized = value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    // Only allow letters
+    const sanitized = value.toUpperCase().replace(/[^A-Z]/g, '');
     if (sanitized.length > 1) return; // Prevent pasting multiple characters
 
     const newCode = [...roomCode];
@@ -51,7 +50,7 @@ export default function JoinPage() {
 
   const handlePaste = (e: React.ClipboardEvent): void => {
     e.preventDefault();
-    const pastedData = e.clipboardData.getData('text').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const pastedData = e.clipboardData.getData('text').toUpperCase().replace(/[^A-Z]/g, '');
     const newCode = pastedData.slice(0, ROOM_ID_LENGTH).split('');
 
     while (newCode.length < ROOM_ID_LENGTH) {
@@ -123,11 +122,6 @@ export default function JoinPage() {
   return (
     <PageTransition>
       <div className="min-h-screen flex items-center justify-center p-4">
-        {/* Theme Toggle - Fixed top right */}
-        <div className="fixed top-4 right-4 z-50">
-          <ThemeToggle />
-        </div>
-
         <div className="max-w-md w-full space-y-6">
           <div className="text-center animate-fade-in">
             <h1 className="text-4xl font-bold text-fg mb-2 transition-colors">Join Game</h1>
