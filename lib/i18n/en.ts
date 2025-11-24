@@ -155,18 +155,6 @@ export const en = {
     browseAll: 'Browse All Themes',
   },
 
-  // Most Loved Themes
-  mostLovedThemes: {
-    title: 'Most Loved Themes',
-    description: 'Themes voted for by players',
-    discoverThemes: 'Discover Themes',
-    randomSelection: 'Random selection for you to explore',
-    playNow: 'Play Now',
-    likes: 'likes',
-    like: 'like',
-    browseAll: 'Browse All Themes',
-  },
-
   // Join Page
   join: {
     title: 'Join Game',

@@ -19,7 +19,6 @@ import { trackThemeUsage } from '@/lib/theme-stats';
 import { PopularThemes } from '@/components/Home/PopularThemes';
 import { likeTheme, hasUserLikedTheme, getThemeLikeCount } from '@/lib/theme-likes';
 import { logger } from '@/lib/logger';
-import { MostLovedThemes } from '@/components/Home/MostLovedThemes';
 
 export default function HomePage() {
   const router = useRouter();
@@ -415,16 +414,6 @@ export default function HomePage() {
 
           {/* Popular Themes Today - Dynamic tracking */}
           <PopularThemes
-            onThemeSelect={(theme) => {
-              setSelectedTheme(theme);
-              handleCreate(false);
-            }}
-            selectedTheme={selectedTheme}
-            onBrowseThemes={() => setShowThemes(true)}
-          />
-
-          {/* Most Loved Themes - Community favorites */}
-          <MostLovedThemes
             onThemeSelect={(theme) => {
               setSelectedTheme(theme);
               handleCreate(false);

@@ -4,16 +4,6 @@ import { supabase } from './supabase';
 import type { Theme } from '@/schema';
 import { logger } from './logger';
 
-export interface LovedTheme {
-  theme: Theme;
-  count: number;
-}
-
-// In-memory cache for loved themes (refreshes every 10 minutes)
-let cachedLovedThemes: LovedTheme[] | null = null;
-let loveCacheTimestamp: number = 0;
-const LOVE_CACHE_DURATION = 10 * 60 * 1000; // 10 minutes
-
 // Session storage to prevent spam (limit 1 like per theme per session)
 const SESSION_STORAGE_KEY = 'theme_likes';
 
@@ -89,54 +79,11 @@ export async function likeTheme(theme: Theme): Promise<{ success: boolean; alrea
     // Mark as liked in session
     markThemeAsLiked(theme);
 
-    // Invalidate cache
-    invalidateLoveCache();
-
     logger.log(`[likeTheme] Liked: ${theme}`);
     return { success: true, alreadyLiked: false };
   } catch (err) {
     logger.error('[likeTheme] Exception:', err);
     return { success: false, alreadyLiked: false };
-  }
-}
-
-/**
- * Get most loved themes (all-time)
- * Uses in-memory cache to reduce database queries
- */
-export async function getMostLovedThemes(limit: number = 10): Promise<LovedTheme[]> {
-  const now = Date.now();
-
-  // Return cached data if still fresh
-  if (cachedLovedThemes && now - loveCacheTimestamp < LOVE_CACHE_DURATION) {
-    logger.log('[getMostLovedThemes] Returning cached data');
-    return cachedLovedThemes.slice(0, limit);
-  }
-
-  try {
-    const { data, error } = await supabase.rpc('get_most_loved_themes', {
-      p_limit: limit,
-    });
-
-    if (error) {
-      logger.error('[getMostLovedThemes] Database error:', error);
-      return [];
-    }
-
-    if (!data || data.length === 0) {
-      logger.log('[getMostLovedThemes] No likes yet');
-      return [];
-    }
-
-    // Update cache
-    cachedLovedThemes = data as LovedTheme[];
-    loveCacheTimestamp = now;
-
-    logger.log(`[getMostLovedThemes] Fetched ${data.length} loved themes`);
-    return cachedLovedThemes;
-  } catch (err) {
-    logger.error('[getMostLovedThemes] Exception:', err);
-    return [];
   }
 }
 
@@ -166,13 +113,4 @@ export async function getThemeLikeCount(theme: Theme): Promise<number> {
  */
 export function hasUserLikedTheme(theme: Theme): boolean {
   return hasLikedTheme(theme);
-}
-
-/**
- * Manually invalidate the cache
- */
-export function invalidateLoveCache(): void {
-  cachedLovedThemes = null;
-  loveCacheTimestamp = 0;
-  logger.log('[invalidateLoveCache] Cache cleared');
 }
