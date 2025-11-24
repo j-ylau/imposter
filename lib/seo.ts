@@ -1,7 +1,7 @@
 // Single source of truth for all SEO configuration
 import type { Metadata } from 'next';
 import type { Theme } from '@/schema';
-import { THEME_LABELS, THEME_DESCRIPTIONS, THEME_EMOJIS } from '@/data/themes';
+import { THEME_LABELS, THEME_DESCRIPTIONS, THEME_EMOJIS, THEME_AUDIENCES } from '@/data/themes';
 import {
   SITE_FULL_NAME,
   SITE_NAME,
@@ -178,25 +178,7 @@ export function generatePageSEO(
 export function generateThemeSchema(theme: Theme) {
   const label = THEME_LABELS[theme];
   const description = THEME_DESCRIPTIONS[theme];
-
-  // Determine audience based on theme
-  const themeAudiences: Record<Theme, string> = {
-    default: 'Everyone',
-    pokemon: 'Teens and Young Adults',
-    nba: 'Sports Fans',
-    memes: 'Teens and Young Adults',
-    movies: 'Movie Enthusiasts',
-    countries: 'Geography Enthusiasts',
-    anime: 'Teens and Young Adults',
-    'video-games': 'Gamers',
-    youtube: 'Content Creators',
-    tiktok: 'Gen Z',
-    music: 'Music Lovers',
-    'tv-shows': 'TV Enthusiasts',
-    food: 'Foodies',
-    brands: 'Everyone',
-    sports: 'Sports Fans',
-  };
+  const audience = THEME_AUDIENCES[theme];
 
   return {
     '@context': 'https://schema.org',
@@ -206,7 +188,7 @@ export function generateThemeSchema(theme: Theme) {
     url: `${SITE.url}/theme/${theme}`,
     applicationCategory: 'Game',
     genre: ['Party Game', 'Word Game', label],
-    audience: themeAudiences[theme],
+    audience,
     inLanguage: 'en',
     gamePlatform: 'Web Browser',
     numberOfPlayers: {

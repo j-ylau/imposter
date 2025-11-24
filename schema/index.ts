@@ -1,5 +1,9 @@
 // All TypeScript types in one file
 
+// Auto-generated Theme type from manifest
+import type { Theme } from './theme-types';
+export type { Theme };
+
 // Enums for game logic (DRY, type-safe)
 export enum GameMode {
   Online = 'online',
@@ -13,23 +17,6 @@ export enum GamePhase {
   Vote = 'vote', // For online mode: digital voting
   Result = 'result',
 }
-
-export type Theme =
-  | 'default'
-  | 'pokemon'
-  | 'nba'
-  | 'memes'
-  | 'movies'
-  | 'countries'
-  | 'anime'
-  | 'video-games'
-  | 'youtube'
-  | 'tiktok'
-  | 'music'
-  | 'tv-shows'
-  | 'food'
-  | 'brands'
-  | 'sports';
 
 export interface Player {
   id: string;

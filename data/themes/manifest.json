@@ -1,0 +1,230 @@
+{
+  "default": {
+    "file": "default.json",
+    "label": "Default",
+    "emoji": "🎲",
+    "description": "Random objects, animals, and places",
+    "audience": "Everyone",
+    "ogColors": {
+      "start": "#667eea",
+      "end": "#764ba2",
+      "accent": "#f093fb"
+    }
+  },
+  "pokemon": {
+    "file": "pokemon.json",
+    "label": "Pokémon",
+    "emoji": "⚡",
+    "description": "Pokémon characters from all generations",
+    "audience": "Teens and Young Adults",
+    "ogColors": {
+      "start": "#FFCB05",
+      "end": "#3D7DCA",
+      "accent": "#CC0000"
+    }
+  },
+  "nba": {
+    "file": "nba.json",
+    "label": "NBA Players",
+    "emoji": "🏀",
+    "description": "NBA players past and present",
+    "audience": "Sports Fans",
+    "ogColors": {
+      "start": "#C9082A",
+      "end": "#17408B",
+      "accent": "#FDB927"
+    }
+  },
+  "memes": {
+    "file": "memes.json",
+    "label": "Memes",
+    "emoji": "😂",
+    "description": "Internet memes and viral trends",
+    "audience": "Teens and Young Adults",
+    "ogColors": {
+      "start": "#FF6B6B",
+      "end": "#4ECDC4",
+      "accent": "#FFE66D"
+    }
+  },
+  "movies": {
+    "file": "movies.json",
+    "label": "Movies",
+    "emoji": "🎬",
+    "description": "Popular movies and cinema",
+    "audience": "Movie Enthusiasts",
+    "ogColors": {
+      "start": "#141E30",
+      "end": "#243B55",
+      "accent": "#FFD700"
+    }
+  },
+  "countries": {
+    "file": "countries.json",
+    "label": "Countries",
+    "emoji": "🌍",
+    "description": "Countries from around the world",
+    "audience": "Geography Enthusiasts",
+    "ogColors": {
+      "start": "#0575E6",
+      "end": "#021B79",
+      "accent": "#00F260"
+    }
+  },
+  "anime": {
+    "file": "anime.json",
+    "label": "Anime",
+    "emoji": "⚔️",
+    "description": "Popular anime characters and series",
+    "audience": "Teens and Young Adults",
+    "ogColors": {
+      "start": "#FF416C",
+      "end": "#FF4B2B",
+      "accent": "#FFE66D"
+    }
+  },
+  "video-games": {
+    "file": "video-games.json",
+    "label": "Video Games",
+    "emoji": "🎮",
+    "description": "Video game characters and franchises",
+    "audience": "Gamers",
+    "ogColors": {
+      "start": "#7F00FF",
+      "end": "#E100FF",
+      "accent": "#00FFA3"
+    }
+  },
+  "youtube": {
+    "file": "youtube.json",
+    "label": "YouTubers",
+    "emoji": "📹",
+    "description": "Famous YouTubers and content creators",
+    "audience": "Content Creators",
+    "ogColors": {
+      "start": "#FF0000",
+      "end": "#282828",
+      "accent": "#FFFFFF"
+    }
+  },
+  "tiktok": {
+    "file": "tiktok.json",
+    "label": "TikTok",
+    "emoji": "🎵",
+    "description": "TikTok stars and trending dances",
+    "audience": "Gen Z",
+    "ogColors": {
+      "start": "#00F2EA",
+      "end": "#FF0050",
+      "accent": "#000000"
+    }
+  },
+  "music": {
+    "file": "music.json",
+    "label": "Music Artists",
+    "emoji": "🎤",
+    "description": "Popular music artists and singers",
+    "audience": "Music Lovers",
+    "ogColors": {
+      "start": "#11998e",
+      "end": "#38ef7d",
+      "accent": "#FFD700"
+    }
+  },
+  "tv-shows": {
+    "file": "tv-shows.json",
+    "label": "TV Shows",
+    "emoji": "📺",
+    "description": "Trending TV shows and series",
+    "audience": "TV Enthusiasts",
+    "ogColors": {
+      "start": "#2C3E50",
+      "end": "#4CA1AF",
+      "accent": "#E74C3C"
+    }
+  },
+  "food": {
+    "file": "food.json",
+    "label": "Food & Drinks",
+    "emoji": "🍕",
+    "description": "Delicious foods and beverages",
+    "audience": "Foodies",
+    "ogColors": {
+      "start": "#F857A6",
+      "end": "#FF5858",
+      "accent": "#FFF176"
+    }
+  },
+  "brands": {
+    "file": "brands.json",
+    "label": "Popular Brands",
+    "emoji": "🏷️",
+    "description": "Well-known brands and companies",
+    "audience": "Everyone",
+    "ogColors": {
+      "start": "#000000",
+      "end": "#434343",
+      "accent": "#FFD700"
+    }
+  },
+  "sports": {
+    "file": "sports.json",
+    "label": "Sports Stars",
+    "emoji": "⚽",
+    "description": "Famous athletes and sports teams",
+    "audience": "Sports Fans",
+    "ogColors": {
+      "start": "#56ab2f",
+      "end": "#a8e063",
+      "accent": "#FFD700"
+    }
+  },
+  "clash-royale": {
+    "file": "clash-royale.json",
+    "label": "Clash Royale",
+    "emoji": "👑",
+    "description": "Clash Royale cards, troops, and spells",
+    "audience": "Mobile Gamers",
+    "ogColors": {
+      "start": "#5B4FFF",
+      "end": "#FF4F7D",
+      "accent": "#FFD700"
+    }
+  },
+  "minecraft": {
+    "file": "minecraft.json",
+    "label": "Minecraft",
+    "emoji": "⛏️",
+    "description": "Minecraft mobs, items, and blocks",
+    "audience": "Gamers and Kids",
+    "ogColors": {
+      "start": "#62C370",
+      "end": "#8B4513",
+      "accent": "#4169E1"
+    }
+  },
+  "animals": {
+    "file": "animals.json",
+    "label": "Animals",
+    "emoji": "🦁",
+    "description": "Wild and domestic animals from around the world",
+    "audience": "Everyone",
+    "ogColors": {
+      "start": "#FF6B35",
+      "end": "#4ECDC4",
+      "accent": "#FFE66D"
+    }
+  },
+  "companies": {
+    "file": "companies.json",
+    "label": "Companies",
+    "emoji": "🏢",
+    "description": "Famous companies and global brands",
+    "audience": "Business Professionals",
+    "ogColors": {
+      "start": "#141E30",
+      "end": "#243B55",
+      "accent": "#00D4FF"
+    }
+  }
+}

@@ -1,28 +1,9 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 import { Theme } from '@/schema';
-import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
+import { THEME_LABELS, THEME_EMOJIS, THEME_OG_COLORS } from '@/data/themes';
 
 export const runtime = 'edge';
-
-// Theme-specific color schemes
-const THEME_COLORS: Record<Theme, { start: string; end: string; accent: string }> = {
-  default: { start: '#667eea', end: '#764ba2', accent: '#f093fb' },
-  pokemon: { start: '#FFCB05', end: '#3D7DCA', accent: '#CC0000' },
-  nba: { start: '#C9082A', end: '#17408B', accent: '#FDB927' },
-  memes: { start: '#FF6B6B', end: '#4ECDC4', accent: '#FFE66D' },
-  movies: { start: '#141E30', end: '#243B55', accent: '#FFD700' },
-  countries: { start: '#0575E6', end: '#021B79', accent: '#00F260' },
-  anime: { start: '#FF416C', end: '#FF4B2B', accent: '#FFE66D' },
-  'video-games': { start: '#7F00FF', end: '#E100FF', accent: '#00FFA3' },
-  youtube: { start: '#FF0000', end: '#282828', accent: '#FFFFFF' },
-  tiktok: { start: '#00F2EA', end: '#FF0050', accent: '#000000' },
-  music: { start: '#11998e', end: '#38ef7d', accent: '#FFD700' },
-  'tv-shows': { start: '#2C3E50', end: '#4CA1AF', accent: '#E74C3C' },
-  food: { start: '#F857A6', end: '#FF5858', accent: '#FFF176' },
-  brands: { start: '#000000', end: '#434343', accent: '#FFD700' },
-  sports: { start: '#56ab2f', end: '#a8e063', accent: '#FFD700' },
-};
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,7 +11,7 @@ export async function GET(request: NextRequest) {
     const theme = (searchParams.get('theme') || 'default') as Theme;
     const room = searchParams.get('room');
 
-    const colors = THEME_COLORS[theme] || THEME_COLORS.default;
+    const colors = THEME_OG_COLORS[theme] || THEME_OG_COLORS.default;
     const emoji = THEME_EMOJIS[theme] || '🕵️';
     const label = THEME_LABELS[theme] || 'Default';
 

@@ -47,6 +47,10 @@ export default function HomePage() {
     'food',
     'brands',
     'sports',
+    'clash-royale',
+    'minecraft',
+    'animals',
+    'companies',
   ];
 
   const quickPlayerCounts = [3, 4, 5, 6, 7, 8, 10, 12];
