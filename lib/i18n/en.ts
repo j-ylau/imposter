@@ -64,6 +64,10 @@ export const en = {
     randomTheme: 'Play Random Theme',
     chooseTheme: 'Choose Theme',
     popularThemes: 'Popular Themes',
+    themeLiked: 'Theme liked!',
+    alreadyLiked: 'You already liked this theme!',
+    likeThisTheme: 'Like this theme',
+    alreadyLikedTitle: 'Already liked',
     gameMode: {
       title: 'Choose Game Mode',
       online: {
@@ -135,6 +139,26 @@ export const en = {
       wasImposter: 'was the imposter!',
     },
     gotIt: 'Got it!',
+  },
+
+  // Popular Themes Today
+  popularThemesToday: {
+    title: 'Popular Themes Today',
+    description: 'Most played themes over the last 24 hours',
+    playNow: 'Play Now',
+    plays: 'plays',
+    play: 'play',
+    browseAll: 'Browse All Themes',
+  },
+
+  // Most Loved Themes
+  mostLovedThemes: {
+    title: 'Most Loved Themes',
+    description: 'Themes voted for by players',
+    playNow: 'Play Now',
+    likes: 'likes',
+    like: 'like',
+    browseAll: 'Browse All Themes',
   },
 
   // Join Page

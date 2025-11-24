@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/UI/Button';
 import { Input } from '@/components/UI/Input';
@@ -17,7 +17,7 @@ import { toast } from 'react-toastify';
 import { handleError, getErrorTranslationKey } from '@/lib/error';
 import { trackThemeUsage } from '@/lib/theme-stats';
 import { PopularThemes } from '@/components/Home/PopularThemes';
-import { likeTheme, hasUserLikedTheme } from '@/lib/theme-likes';
+import { likeTheme, hasUserLikedTheme, getThemeLikeCount } from '@/lib/theme-likes';
 import { MostLovedThemes } from '@/components/Home/MostLovedThemes';
 
 export default function HomePage() {
@@ -35,6 +35,7 @@ export default function HomePage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [likedThemes, setLikedThemes] = useState<Set<Theme>>(new Set());
+  const [themeLikeCounts, setThemeLikeCounts] = useState<Record<string, number>>({});
 
   const themes: Theme[] = [
     'default',
@@ -60,6 +61,28 @@ export default function HomePage() {
 
   const quickPlayerCounts = [3, 4, 5, 6, 7, 8, 10, 12];
 
+  // Load like counts when theme picker opens
+  useEffect(() => {
+    if (showThemes && Object.keys(themeLikeCounts).length === 0) {
+      // Load like counts for all themes
+      const loadLikeCounts = async () => {
+        const results = await Promise.all(
+          themes.map(async (theme) => {
+            const count = await getThemeLikeCount(theme);
+            return { theme, count };
+          })
+        );
+        const counts: Record<string, number> = {};
+        results.forEach(({ theme, count }) => {
+          counts[theme] = count;
+        });
+        setThemeLikeCounts(counts);
+      };
+      loadLikeCounts();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showThemes]);
+
   const handleCustomCountSubmit = () => {
     const count = parseInt(customPlayerCount, 10);
     if (count >= 3) {
@@ -75,16 +98,21 @@ export default function HomePage() {
     e.stopPropagation(); // Prevent theme selection when clicking like button
 
     if (hasUserLikedTheme(theme)) {
-      toast.info('You already liked this theme!');
+      toast.info(t.home.alreadyLiked);
       return;
     }
 
     const result = await likeTheme(theme);
     if (result.success) {
       setLikedThemes(prev => new Set(prev).add(theme));
-      toast.success('❤️ Theme liked!');
+      // Update like count in state
+      setThemeLikeCounts(prev => ({
+        ...prev,
+        [theme]: (prev[theme] || 0) + 1
+      }));
+      toast.success(`❤️ ${t.home.themeLiked}`);
     } else if (result.alreadyLiked) {
-      toast.info('You already liked this theme!');
+      toast.info(t.home.alreadyLiked);
     }
   };
 
@@ -314,19 +342,24 @@ export default function HomePage() {
                           <span className="font-medium text-fg flex-1">
                             {THEME_LABELS[theme]}
                           </span>
-                          {/* Like button */}
-                          <button
-                            onClick={(e) => handleLikeTheme(theme, e)}
-                            disabled={isLiked}
-                            className={`text-xl transition-transform ${
-                              isLiked
-                                ? 'opacity-100 scale-110'
-                                : 'opacity-50 group-hover:opacity-100 hover:scale-125'
-                            }`}
-                            title={isLiked ? 'Already liked' : 'Like this theme'}
-                          >
-                            {isLiked ? '❤️' : '🤍'}
-                          </button>
+                          {/* Like button with count */}
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={(e) => handleLikeTheme(theme, e)}
+                              disabled={isLiked}
+                              className={`text-xl transition-transform ${
+                                isLiked
+                                  ? 'opacity-100 scale-110'
+                                  : 'opacity-50 group-hover:opacity-100 hover:scale-125'
+                              }`}
+                              title={isLiked ? t.home.alreadyLikedTitle : t.home.likeThisTheme}
+                            >
+                              {isLiked ? '❤️' : '🤍'}
+                            </button>
+                            <small className="text-xs text-fg-muted min-w-[20px]">
+                              {themeLikeCounts[theme] ?? 0}
+                            </small>
+                          </div>
                         </div>
                       </button>
                     );
@@ -343,6 +376,7 @@ export default function HomePage() {
               handleCreate(false);
             }}
             selectedTheme={selectedTheme}
+            onBrowseThemes={() => setShowThemes(true)}
           />
 
           {/* Most Loved Themes - Community favorites */}
@@ -352,6 +386,7 @@ export default function HomePage() {
               handleCreate(false);
             }}
             selectedTheme={selectedTheme}
+            onBrowseThemes={() => setShowThemes(true)}
           />
         </div>
       </div>
