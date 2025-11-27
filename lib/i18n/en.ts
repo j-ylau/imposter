@@ -64,7 +64,7 @@ export const en = {
     joinRoom: 'Join a room',
     yourName: 'Your name',
     randomTheme: 'Play Random Theme',
-    chooseTheme: 'Choose Theme',
+    chooseTheme: 'Browse Themes (or create yours!)',
     popularThemes: 'Popular Themes',
     themeLiked: 'Theme liked!',
     alreadyLiked: 'You already liked this theme!',
