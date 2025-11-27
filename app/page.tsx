@@ -19,6 +19,14 @@ import { trackThemeUsage } from '@/lib/theme-stats';
 import { PopularThemes } from '@/components/Home/PopularThemes';
 import { likeTheme, hasUserLikedTheme, getThemeLikeCount } from '@/lib/theme-likes';
 import { logger } from '@/lib/logger';
+import {
+  hasCustomTheme as checkHasCustomTheme,
+  getCustomTheme,
+  saveCustomTheme,
+  parseWords,
+  deleteCustomTheme,
+  getCustomThemeExpiry,
+} from '@/lib/custom-theme';
 
 export default function HomePage() {
   const router = useRouter();
@@ -37,6 +45,10 @@ export default function HomePage() {
   const [likedThemes, setLikedThemes] = useState<Set<Theme>>(new Set());
   const [themeLikeCounts, setThemeLikeCounts] = useState<Record<string, number>>({});
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [showCustomThemeModal, setShowCustomThemeModal] = useState(false);
+  const [customThemeInput, setCustomThemeInput] = useState('');
+  const [customThemeError, setCustomThemeError] = useState('');
+  const [hasCustomTheme, setHasCustomTheme] = useState(false);
 
   const themes: Theme[] = [
     'default',
@@ -61,6 +73,11 @@ export default function HomePage() {
   ];
 
   const quickPlayerCounts = [3, 4, 5, 6, 7, 8, 10, 12];
+
+  // Check for custom theme on mount
+  useEffect(() => {
+    setHasCustomTheme(checkHasCustomTheme());
+  }, []);
 
   // Load like counts when theme picker opens
   useEffect(() => {
@@ -136,6 +153,87 @@ export default function HomePage() {
     } else if (result.alreadyLiked) {
       toast.info(t.home.alreadyLiked);
     }
+  };
+
+  const handleCreateCustomTheme = () => {
+    setCustomThemeError('');
+    const result = parseWords(customThemeInput);
+
+    if (!result.valid) {
+      setCustomThemeError(result.error || 'Invalid input');
+      return;
+    }
+
+    const saved = saveCustomTheme(result.words);
+    if (saved) {
+      setHasCustomTheme(true);
+      setShowCustomThemeModal(false);
+      setCustomThemeInput('');
+      toast.success(`✨ Custom theme created with ${result.words.length} words!`);
+    } else {
+      toast.error('Failed to save custom theme');
+    }
+  };
+
+  const handleUseCustomTheme = async () => {
+    const words = getCustomTheme();
+    if (!words || words.length === 0) {
+      toast.error('Custom theme not found or expired');
+      setHasCustomTheme(false);
+      return;
+    }
+
+    // Use custom words to create the room
+    // For simplicity, we'll treat it as 'default' theme but override the word selection
+    const customWord = randomItem(words);
+
+    // Validate name for online mode
+    if (selectedGameMode === GameMode.Online && !isValidPlayerName(playerName)) {
+      showNameValidationError();
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      if (selectedGameMode === GameMode.PassAndPlay) {
+        let room = createRoom('Player 1', 'default', selectedGameMode);
+        // Override the word with custom word
+        room = { ...room, word: customWord };
+
+        for (let i = 2; i <= playerCount; i++) {
+          room = addPlayer(room, `Player ${i}`);
+        }
+
+        room = startGame(room);
+        await roomApi.createRoom(room);
+
+        toast.success(t.home.success.roomCreated);
+        router.push(`/room/${room.id}`);
+      } else {
+        let room = createRoom(playerName, 'default', selectedGameMode);
+        room = { ...room, word: customWord };
+        await roomApi.createRoom(room);
+
+        localStorage.setItem('currentPlayerId', room.hostId);
+        localStorage.setItem('currentPlayerName', playerName);
+
+        toast.success(t.home.success.roomCreated);
+        router.push(`/room/${room.id}`);
+      }
+    } catch (err) {
+      const appError = handleError(err);
+      const errorKey = getErrorTranslationKey(appError.code);
+      toast.error(t.errors[errorKey]);
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteCustomTheme = () => {
+    deleteCustomTheme();
+    setHasCustomTheme(false);
+    toast.success('Custom theme deleted');
   };
 
   const handleCreate = async (useRandomTheme = false): Promise<void> => {
@@ -381,6 +479,53 @@ export default function HomePage() {
 
                   {/* Theme grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {/* Custom Theme (if exists) */}
+                    {hasCustomTheme && (
+                      <button
+                        onClick={handleUseCustomTheme}
+                        disabled={loading}
+                        className="p-3 rounded-lg border-2 border-primary bg-primary-subtle hover:bg-primary-hover transition-all text-left disabled:opacity-50 relative group"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">✨</span>
+                          <span className="font-medium text-fg flex-1">
+                            Custom Theme
+                          </span>
+                          {/* Delete button */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteCustomTheme();
+                            }}
+                            className="text-sm text-danger hover:text-danger-hover"
+                            title="Delete custom theme"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                        <p className="text-xs text-fg-muted mt-1">
+                          {getCustomThemeExpiry()?.hoursLeft || 0}h remaining
+                        </p>
+                      </button>
+                    )}
+
+                    {/* Create Custom Theme Button */}
+                    <button
+                      onClick={() => setShowCustomThemeModal(true)}
+                      className="p-3 rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-primary-subtle transition-all text-left"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl">➕</span>
+                        <span className="font-medium text-fg">
+                          {hasCustomTheme ? 'Edit Custom' : 'Create Custom'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-fg-muted mt-1">
+                        Add your own words
+                      </p>
+                    </button>
+
+                    {/* Regular Themes */}
                     {themes
                       .filter((theme) => selectedCategory === 'All' || THEME_CATEGORIES[theme] === selectedCategory)
                       .map((theme) => {
@@ -651,6 +796,82 @@ export default function HomePage() {
               className="flex-1"
             >
               {t.common.close}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Custom Theme Modal */}
+      <Modal
+        isOpen={showCustomThemeModal}
+        onClose={() => {
+          setShowCustomThemeModal(false);
+          setCustomThemeInput('');
+          setCustomThemeError('');
+        }}
+        title="✨ Create Custom Theme"
+        className="max-w-2xl"
+      >
+        <div className="space-y-4">
+          <p className="text-fg-muted text-sm">
+            Enter at least 8 words for your custom theme. You can use commas or put each word on a new line.
+          </p>
+
+          {/* Examples */}
+          <div className="bg-bg-subtle rounded-lg p-3 text-xs text-fg-muted">
+            <p className="font-bold mb-1">Examples:</p>
+            <p>• Comma-separated: Apple, Banana, Orange, Grape, ...</p>
+            <p>• One per line (just paste your list)</p>
+          </div>
+
+          <textarea
+            className="w-full h-48 p-3 rounded-lg border-2 border-border bg-bg text-fg focus:border-primary focus:outline-none resize-none font-mono text-sm"
+            placeholder="Enter your words here...&#10;&#10;Example:&#10;Pizza&#10;Burger&#10;Pasta&#10;Sushi&#10;Tacos&#10;Salad&#10;Steak&#10;Ramen"
+            value={customThemeInput}
+            onChange={(e) => {
+              setCustomThemeInput(e.target.value);
+              setCustomThemeError('');
+            }}
+            autoFocus
+          />
+
+          {/* Live word count */}
+          <div className="text-sm text-fg-muted">
+            {(() => {
+              const result = parseWords(customThemeInput);
+              return result.valid
+                ? `✓ ${result.words.length} words ready`
+                : customThemeInput.trim()
+                ? `${result.words.length} words (need at least 8)`
+                : 'Paste or type your words above';
+            })()}
+          </div>
+
+          {customThemeError && (
+            <p className="text-sm text-danger">{customThemeError}</p>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            <Button
+              onClick={handleCreateCustomTheme}
+              variant="primary"
+              size="lg"
+              className="flex-1"
+              disabled={!parseWords(customThemeInput).valid}
+            >
+              Save Custom Theme (24h)
+            </Button>
+            <Button
+              onClick={() => {
+                setShowCustomThemeModal(false);
+                setCustomThemeInput('');
+                setCustomThemeError('');
+              }}
+              variant="ghost"
+              size="lg"
+              className="flex-1"
+            >
+              Cancel
             </Button>
           </div>
         </div>
