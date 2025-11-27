@@ -229,6 +229,7 @@ export const en = {
     },
     continueButton: 'Continue to Vote',
     nextPlayer: 'Next Player',
+    passToNext: 'Pass to',
   },
 
   // Player Transition (Pass & Play)

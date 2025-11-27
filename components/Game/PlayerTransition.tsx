@@ -6,16 +6,43 @@ import { useTranslation } from '@/lib/i18n';
 
 interface PlayerTransitionProps {
   playerName: string;
+  playerNumber?: number;
+  totalPlayers?: number;
   onReady: () => void;
 }
 
-export function PlayerTransition({ playerName, onReady }: PlayerTransitionProps) {
+export function PlayerTransition({ playerName, playerNumber, totalPlayers, onReady }: PlayerTransitionProps) {
   const { t } = useTranslation();
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-bg-start to-bg-end">
       <Card variant="elevated" className="max-w-md w-full">
         <CardBody className="space-y-6 text-center">
+          {/* Player Progress Indicator */}
+          {playerNumber && totalPlayers && (
+            <div className="flex justify-center gap-2 mb-2">
+              {Array.from({ length: totalPlayers }, (_, i) => (
+                <div
+                  key={i}
+                  className={`h-2 rounded-full transition-all ${
+                    i < playerNumber
+                      ? 'w-8 bg-primary'
+                      : i === playerNumber - 1
+                      ? 'w-12 bg-primary'
+                      : 'w-8 bg-bg-subtle'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Player Number Badge */}
+          {playerNumber && totalPlayers && (
+            <div className="inline-block bg-primary text-primary-fg px-4 py-2 rounded-full font-bold text-sm">
+              {playerNumber} of {totalPlayers}
+            </div>
+          )}
+
           {/* Warning Icon */}
           <div className="text-8xl animate-pulse">🔒</div>
 

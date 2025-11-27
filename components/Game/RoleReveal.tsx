@@ -22,13 +22,35 @@ export function RoleReveal({ room, isImposter, word, onContinue }: RoleRevealPro
 
   const isPassAndPlay = room.gameMode === 'pass-and-play';
   const currentPlayer = getCurrentPlayer(room);
-  const buttonText = isPassAndPlay ? t.roleReveal.nextPlayer : t.roleReveal.continueButton;
+
+  // Calculate player progress for pass-and-play
+  const playerNumber = isPassAndPlay && room.currentPlayerIndex !== undefined
+    ? room.currentPlayerIndex + 1
+    : undefined;
+  const totalPlayers = isPassAndPlay ? room.players.length : undefined;
+
+  // Get next player name for button text
+  const nextPlayerIndex = room.currentPlayerIndex !== undefined
+    ? (room.currentPlayerIndex + 1) % room.players.length
+    : undefined;
+  const nextPlayerName = nextPlayerIndex !== undefined && room.players[nextPlayerIndex]
+    ? room.players[nextPlayerIndex].name
+    : undefined;
+
+  // Dynamic button text
+  const buttonText = isPassAndPlay && nextPlayerName
+    ? `${t.roleReveal.passToNext} ${nextPlayerName}`
+    : isPassAndPlay
+    ? t.roleReveal.nextPlayer
+    : t.roleReveal.continueButton;
 
   // Show transition screen in pass-and-play mode
   if (isPassAndPlay && showTransition && currentPlayer) {
     return (
       <PlayerTransition
         playerName={currentPlayer.name}
+        playerNumber={playerNumber}
+        totalPlayers={totalPlayers}
         onReady={() => setShowTransition(false)}
       />
     );
