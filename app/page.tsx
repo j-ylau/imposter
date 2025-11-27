@@ -105,6 +105,17 @@ export default function HomePage() {
     }
   };
 
+  // Show name validation error and focus input (DRY helper)
+  const showNameValidationError = () => {
+    toast.error(t.home.errors.invalidName);
+    const nameInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+    if (nameInput) {
+      nameInput.focus();
+      nameInput.classList.add('shake');
+      setTimeout(() => nameInput.classList.remove('shake'), 500);
+    }
+  };
+
   const handleLikeTheme = async (theme: Theme, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent theme selection when clicking like button
 
@@ -130,7 +141,7 @@ export default function HomePage() {
   const handleCreate = async (useRandomTheme = false): Promise<void> => {
     // For pass-and-play, we don't need a name since players are auto-named
     if (selectedGameMode === GameMode.Online && !isValidPlayerName(playerName)) {
-      toast.error(t.home.errors.invalidName);
+      showNameValidationError();
       return;
     }
 
@@ -314,7 +325,7 @@ export default function HomePage() {
               <div className="flex items-center gap-3">
                 <Button
                   onClick={() => handleCreate(true)}
-                  disabled={loading || (selectedGameMode === GameMode.Online && !playerName.trim())}
+                  disabled={loading}
                   variant="primary"
                   size="lg"
                   className="flex-1"
@@ -323,8 +334,14 @@ export default function HomePage() {
                 </Button>
                 <span className="text-sm font-medium text-gray-500 px-2">or</span>
                 <Button
-                  onClick={() => setShowThemes(!showThemes)}
-                  disabled={selectedGameMode === GameMode.Online && !playerName.trim()}
+                  onClick={() => {
+                    // Validate name before showing themes in online mode
+                    if (selectedGameMode === GameMode.Online && !isValidPlayerName(playerName)) {
+                      showNameValidationError();
+                      return;
+                    }
+                    setShowThemes(!showThemes);
+                  }}
                   variant="secondary"
                   size="lg"
                   className="flex-1"

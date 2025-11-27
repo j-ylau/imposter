@@ -10,6 +10,7 @@ import { Footer } from '@/components/Layout/Footer';
 import { PlayCTA } from '@/components/UI/PlayCTA';
 import { ThemeToggle } from '@/components/UI/ThemeToggle';
 import { GAME_SCHEMA } from '@/lib/seo';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -125,6 +126,9 @@ export default function RootLayout({
           {/* Fixed Footer - Always Visible */}
           <Footer />
         </ThemeProvider>
+
+        {/* Vercel Web Analytics */}
+        <Analytics />
       </body>
     </html>
   );
