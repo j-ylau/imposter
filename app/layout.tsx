@@ -120,7 +120,8 @@ export default function RootLayout({
             pauseOnFocusLoss={false}
             draggable
             pauseOnHover
-            theme="colored"
+            theme="light"
+            limit={3}
           />
 
           {/* Fixed Footer - Always Visible */}
