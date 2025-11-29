@@ -35,3 +35,11 @@ export const DEFAULT_KEYWORDS = [
   'imposter game online',
   'guess the word game',
 ];
+
+// Contact form constants
+export const CONTACT_NAME_MAX_LENGTH = 100;
+export const CONTACT_EMAIL_MAX_LENGTH = 100;
+export const CONTACT_MESSAGE_MAX_LENGTH = 2000;
+export const CONTACT_RATE_LIMIT = 3; // emails per window
+export const CONTACT_RATE_WINDOW = 60 * 60 * 1000; // 1 hour in ms
+export const CONTACT_EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

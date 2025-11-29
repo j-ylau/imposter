@@ -145,8 +145,8 @@ export const en = {
 
   // Popular Themes Today
   popularThemesToday: {
-    title: 'Popular Themes Today',
-    description: 'Most played themes over the last 24 hours',
+    title: 'See what others are playing',
+    description: 'Top themes from the last 24 hours',
     discoverThemes: 'Discover Themes',
     randomSelection: 'Random selection for you to explore',
     playNow: 'Play Now',
@@ -335,6 +335,7 @@ export const en = {
     about: 'About',
     howToPlay: 'How to Play',
     privacy: 'Privacy',
+    contact: 'Contact',
   },
 
   // About Page
