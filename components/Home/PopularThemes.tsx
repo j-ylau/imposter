@@ -1,16 +1,15 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Theme } from '@/schema';
 import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
-import { getPopularThemes, PopularTheme } from '@/lib/theme-stats';
+import { getPopularThemes, getMostPopularThemes, PopularTheme } from '@/lib/theme-stats';
 import { getThemeLikeCount } from '@/lib/theme-likes';
 import { getTrendingThemes } from '@/lib/trending';
 import { Card, CardBody, CardHeader } from '@/components/UI/Card';
 import { motion } from 'framer-motion';
 import { logger } from '@/lib/logger';
 import { useTranslation } from '@/lib/i18n';
-import { randomItem } from '@/lib/util';
 
 interface PopularThemesProps {
   onThemeSelect: (theme: Theme) => void;
@@ -32,20 +31,11 @@ export function PopularThemes({
 }: PopularThemesProps) {
   const { t } = useTranslation();
   const [popularThemes, setPopularThemes] = useState<PopularTheme[]>(initialData || []);
+  const [fallbackThemes, setFallbackThemes] = useState<PopularTheme[]>([]);
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>(initialLikeCounts || {});
   const [trendingSet, setTrendingSet] = useState<Set<string>>(initialTrending || new Set());
   const [loading, setLoading] = useState(!initialData);
   const [hasError, setHasError] = useState(false);
-
-  // Generate random fallback themes when no data is available
-  const fallbackThemes = useMemo(() => {
-    const allThemes = Object.keys(THEME_LABELS) as Theme[];
-    const shuffled = [...allThemes].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 6).map((theme) => ({
-      theme,
-      count: 0,
-    }));
-  }, []);
 
   useEffect(() => {
     // Skip client-side fetch if server-side data was provided
@@ -58,6 +48,10 @@ export function PopularThemes({
         const themes = await getPopularThemes(6); // Top 6 themes
 
         if (!themes || themes.length === 0) {
+          // No play data yet - fetch most popular by combined score
+          logger.log('[PopularThemes] No play data, fetching by combined popularity');
+          const mostPopular = await getMostPopularThemes(6);
+          setFallbackThemes(mostPopular);
           setHasError(true);
           return;
         }
@@ -78,6 +72,13 @@ export function PopularThemes({
         setTrendingSet(new Set(trending.map(t => t.theme)));
       } catch (error) {
         logger.error('[PopularThemes] Failed to fetch:', error);
+        // On error, try to fetch most popular by combined score
+        try {
+          const mostPopular = await getMostPopularThemes(6);
+          setFallbackThemes(mostPopular);
+        } catch (fallbackError) {
+          logger.error('[PopularThemes] Fallback also failed:', fallbackError);
+        }
         setHasError(true);
       } finally {
         setLoading(false);
