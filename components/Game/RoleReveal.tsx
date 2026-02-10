@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Room } from '@/schema';
 import { Button } from '@/components/UI/Button';
 import { Card, CardBody, CardHeader } from '@/components/UI/Card';
@@ -19,10 +19,23 @@ interface RoleRevealProps {
 
 export function RoleReveal({ room, isImposter, word, onContinue }: RoleRevealProps) {
   const { t } = useTranslation();
-  const [showTransition, setShowTransition] = useState(room.gameMode === 'pass-and-play');
+  const [showTransition, setShowTransition] = useState(false);
+  const prevPlayerIndexRef = useRef<number | undefined>(room.currentPlayerIndex);
 
   const isPassAndPlay = room.gameMode === 'pass-and-play';
   const currentPlayer = getCurrentPlayer(room);
+
+  // Detect when currentPlayerIndex changes and show transition screen
+  useEffect(() => {
+    if (!isPassAndPlay || room.currentPlayerIndex === undefined) return;
+
+    // When player index changes, show transition screen
+    if (prevPlayerIndexRef.current !== room.currentPlayerIndex) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setShowTransition(true);
+      prevPlayerIndexRef.current = room.currentPlayerIndex;
+    }
+  }, [room.currentPlayerIndex, isPassAndPlay]);
 
   // Calculate player progress for pass-and-play
   const playerNumber = isPassAndPlay && room.currentPlayerIndex !== undefined
@@ -119,12 +132,7 @@ export function RoleReveal({ room, isImposter, word, onContinue }: RoleRevealPro
           />
 
           <Button
-            onClick={() => {
-              if (isPassAndPlay) {
-                setShowTransition(true);
-              }
-              onContinue();
-            }}
+            onClick={onContinue}
             className="w-full"
             size="lg"
           >
