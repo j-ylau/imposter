@@ -4,17 +4,29 @@ import { Room } from '@/schema';
 import { Button } from '@/components/UI/Button';
 import { Card, CardBody, CardHeader } from '@/components/UI/Card';
 import { useTranslation } from '@/lib/i18n';
+import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
 
 interface InPersonRoundProps {
   room: Room;
   onRevealImposter: () => void;
 }
 
-export function InPersonRound({ onRevealImposter }: InPersonRoundProps) {
+export function InPersonRound({ room, onRevealImposter }: InPersonRoundProps) {
   const { t } = useTranslation();
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto space-y-4">
+      {/* Theme Display */}
+      <Card variant="elevated" className="border-2 border-primary">
+        <CardBody className="text-center py-3">
+          <p className="text-xs text-fg-muted mb-1 uppercase tracking-wide">Theme</p>
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-2xl">{THEME_EMOJIS[room.theme]}</span>
+            <span className="text-xl font-bold text-fg">{THEME_LABELS[room.theme]}</span>
+          </div>
+        </CardBody>
+      </Card>
+
       <Card variant="elevated">
         <CardHeader>
           <h2 className="text-2xl font-bold text-center text-fg transition-colors">

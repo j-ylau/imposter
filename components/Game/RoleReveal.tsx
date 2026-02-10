@@ -9,6 +9,7 @@ import { AdSense } from '@/components/Ads/AdSense';
 import { PlayerTransition } from './PlayerTransition';
 import { SuspenseReveal } from '@/components/Animations/SuspenseReveal';
 import { getCurrentPlayer } from '@/lib/game';
+import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
 
 interface RoleRevealProps {
   room: Room;
@@ -79,7 +80,20 @@ export function RoleReveal({ room, isImposter, word, onContinue }: RoleRevealPro
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto space-y-4">
+      {/* Theme Display - Pass & Play only */}
+      {isPassAndPlay && (
+        <Card variant="elevated" className="border-2 border-primary">
+          <CardBody className="text-center py-3">
+            <p className="text-xs text-fg-muted mb-1 uppercase tracking-wide">Theme</p>
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-2xl">{THEME_EMOJIS[room.theme]}</span>
+              <span className="text-xl font-bold text-fg">{THEME_LABELS[room.theme]}</span>
+            </div>
+          </CardBody>
+        </Card>
+      )}
+
       <Card variant="elevated">
         <CardHeader>
           <h2 className="text-2xl font-bold text-center text-fg transition-colors">
