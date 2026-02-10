@@ -66,10 +66,6 @@ export const en = {
     randomTheme: 'Play Random Theme',
     chooseTheme: 'Themes & Custom',
     popularThemes: 'Popular Themes',
-    themeLiked: 'Theme liked!',
-    alreadyLiked: 'You already liked this theme!',
-    likeThisTheme: 'Like this theme',
-    alreadyLikedTitle: 'Already liked',
     gameMode: {
       title: 'Choose Game Mode',
       online: {

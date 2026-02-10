@@ -4,7 +4,6 @@ import { supabase } from './supabase';
 import type { Theme } from '@/schema';
 import { logger } from './logger';
 import { THEME_LABELS } from '@/data/themes';
-import { getThemeLikeCount } from './theme-likes';
 
 export interface PopularTheme {
   theme: Theme;
@@ -115,44 +114,20 @@ export async function getThemeStatsForDate(date: string): Promise<PopularTheme[]
 }
 
 /**
- * Get most popular themes by combining play count and like count
- * Uses a weighted score: (playCount * 2) + likeCount
- * This ensures themes with actual plays are prioritized over just likes
+ * Get most popular themes by play count
  */
 export async function getMostPopularThemes(limit: number = 6): Promise<PopularTheme[]> {
   try {
+    const playCountsData = await getPopularThemes(limit);
+
+    if (playCountsData.length > 0) {
+      return playCountsData;
+    }
+
+    // No play data — return a random selection so the UI isn't empty
     const allThemes = Object.keys(THEME_LABELS) as Theme[];
-
-    // Get play counts for today
-    const playCountsData = await getPopularThemes(50); // Get all themes with play data
-    const playCountsMap = new Map(playCountsData.map(t => [t.theme, t.count]));
-
-    // Get like counts and calculate combined popularity score
-    const themesWithScores = await Promise.all(
-      allThemes.map(async (theme) => {
-        const playCount = playCountsMap.get(theme) || 0;
-        const likeCount = await getThemeLikeCount(theme);
-
-        // Weighted score: plays are worth 2x likes
-        // This prioritizes themes people actually play vs just like
-        const score = (playCount * 2) + likeCount;
-
-        return {
-          theme,
-          count: playCount,
-          score,
-        };
-      })
-    );
-
-    // Sort by score (descending) and return top N
-    const sorted = themesWithScores
-      .sort((a, b) => b.score - a.score)
-      .slice(0, limit)
-      .map(({ theme, count }) => ({ theme, count }));
-
-    logger.log(`[getMostPopularThemes] Calculated ${sorted.length} popular themes by combined score`);
-    return sorted;
+    const shuffled = allThemes.sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, limit).map((theme) => ({ theme, count: 0 }));
   } catch (err) {
     logger.error('[getMostPopularThemes] Exception:', err);
     return [];

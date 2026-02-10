@@ -1,17 +1,4 @@
 {
-  "default": {
-    "file": "default.json",
-    "label": "Default",
-    "emoji": "🎲",
-    "category": "General",
-    "description": "Random objects, animals, and places",
-    "audience": "Everyone",
-    "ogColors": {
-      "start": "#667eea",
-      "end": "#764ba2",
-      "accent": "#f093fb"
-    }
-  },
   "pokemon": {
     "file": "pokemon.json",
     "label": "Pokémon",
@@ -64,19 +51,6 @@
       "accent": "#FFD700"
     }
   },
-  "countries": {
-    "file": "countries.json",
-    "label": "Countries",
-    "emoji": "🌍",
-    "category": "General",
-    "description": "Countries from around the world",
-    "audience": "Geography Enthusiasts",
-    "ogColors": {
-      "start": "#0575E6",
-      "end": "#021B79",
-      "accent": "#00F260"
-    }
-  },
   "anime": {
     "file": "anime.json",
     "label": "Anime",
@@ -121,7 +95,7 @@
     "label": "TikTok",
     "emoji": "🎵",
     "category": "Social Media",
-    "description": "TikTok stars and trending dances",
+    "description": "TikTok stars and trending creators",
     "audience": "Gen Z",
     "ogColors": {
       "start": "#00F2EA",
@@ -155,45 +129,6 @@
       "accent": "#E74C3C"
     }
   },
-  "food": {
-    "file": "food.json",
-    "label": "Food & Drinks",
-    "emoji": "🍕",
-    "category": "General",
-    "description": "Delicious foods and beverages",
-    "audience": "Foodies",
-    "ogColors": {
-      "start": "#F857A6",
-      "end": "#FF5858",
-      "accent": "#FFF176"
-    }
-  },
-  "brands": {
-    "file": "brands.json",
-    "label": "Popular Brands",
-    "emoji": "🏷️",
-    "category": "Business",
-    "description": "Well-known brands and companies",
-    "audience": "Everyone",
-    "ogColors": {
-      "start": "#000000",
-      "end": "#434343",
-      "accent": "#FFD700"
-    }
-  },
-  "sports": {
-    "file": "sports.json",
-    "label": "Sports Stars",
-    "emoji": "⚽",
-    "category": "Sports",
-    "description": "Famous athletes and sports teams",
-    "audience": "Sports Fans",
-    "ogColors": {
-      "start": "#56ab2f",
-      "end": "#a8e063",
-      "accent": "#FFD700"
-    }
-  },
   "clash-royale": {
     "file": "clash-royale.json",
     "label": "Clash Royale",
@@ -220,30 +155,160 @@
       "accent": "#4169E1"
     }
   },
-  "animals": {
-    "file": "animals.json",
-    "label": "Animals",
-    "emoji": "🦁",
-    "category": "General",
-    "description": "Wild and domestic animals from around the world",
-    "audience": "Everyone",
+  "roblox": {
+    "file": "roblox.json",
+    "label": "Roblox",
+    "emoji": "🧱",
+    "category": "Gaming",
+    "description": "Popular Roblox games, items, and characters",
+    "audience": "Kids and Teens",
     "ogColors": {
-      "start": "#FF6B35",
-      "end": "#4ECDC4",
-      "accent": "#FFE66D"
+      "start": "#E2231A",
+      "end": "#393A3D",
+      "accent": "#00A2FF"
     }
   },
-  "companies": {
-    "file": "companies.json",
-    "label": "Companies",
-    "emoji": "🏢",
-    "category": "Business",
-    "description": "Famous companies and global brands",
-    "audience": "Business Professionals",
+  "valorant": {
+    "file": "valorant.json",
+    "label": "Valorant",
+    "emoji": "🔫",
+    "category": "Gaming",
+    "description": "Valorant agents, maps, and weapons",
+    "audience": "FPS Gamers",
     "ogColors": {
-      "start": "#141E30",
-      "end": "#243B55",
-      "accent": "#00D4FF"
+      "start": "#FF4655",
+      "end": "#0F1923",
+      "accent": "#ECE8E1"
+    }
+  },
+  "fortnite": {
+    "file": "fortnite.json",
+    "label": "Fortnite",
+    "emoji": "🪂",
+    "category": "Gaming",
+    "description": "Fortnite skins, locations, and items",
+    "audience": "Teens and Gamers",
+    "ogColors": {
+      "start": "#2B2E8B",
+      "end": "#6E32C9",
+      "accent": "#FFD700"
+    }
+  },
+  "league-of-legends": {
+    "file": "league-of-legends.json",
+    "label": "League of Legends",
+    "emoji": "⚔️",
+    "category": "Gaming",
+    "description": "League of Legends champions and items",
+    "audience": "MOBA Gamers",
+    "ogColors": {
+      "start": "#C89B3C",
+      "end": "#091428",
+      "accent": "#0397AB"
+    }
+  },
+  "marvel": {
+    "file": "marvel.json",
+    "label": "Marvel",
+    "emoji": "🦸",
+    "category": "Entertainment",
+    "description": "Marvel heroes, villains, and movies",
+    "audience": "Superhero Fans",
+    "ogColors": {
+      "start": "#ED1D24",
+      "end": "#1F1F1F",
+      "accent": "#FFE600"
+    }
+  },
+  "kpop": {
+    "file": "kpop.json",
+    "label": "K-Pop",
+    "emoji": "🎶",
+    "category": "Entertainment",
+    "description": "K-Pop groups, idols, and hits",
+    "audience": "K-Pop Fans",
+    "ogColors": {
+      "start": "#FF6FA3",
+      "end": "#A855F7",
+      "accent": "#FFD700"
+    }
+  },
+  "horror": {
+    "file": "horror.json",
+    "label": "Horror",
+    "emoji": "👻",
+    "category": "Entertainment",
+    "description": "Horror movies, villains, and urban legends",
+    "audience": "Horror Fans",
+    "ogColors": {
+      "start": "#1A1A2E",
+      "end": "#16213E",
+      "accent": "#E94560"
+    }
+  },
+  "slang": {
+    "file": "slang.json",
+    "label": "Slang",
+    "emoji": "💬",
+    "category": "Social Media",
+    "description": "Gen Z slang, internet lingo, and viral phrases",
+    "audience": "Gen Z and Millennials",
+    "ogColors": {
+      "start": "#6366F1",
+      "end": "#EC4899",
+      "accent": "#10B981"
+    }
+  },
+  "disney": {
+    "file": "disney.json",
+    "label": "Disney",
+    "emoji": "🏰",
+    "category": "Entertainment",
+    "description": "Disney characters, movies, and theme parks",
+    "audience": "Everyone",
+    "ogColors": {
+      "start": "#003087",
+      "end": "#1B1464",
+      "accent": "#FFD700"
+    }
+  },
+  "sneakers": {
+    "file": "sneakers.json",
+    "label": "Sneakers",
+    "emoji": "👟",
+    "category": "Fashion",
+    "description": "Sneaker brands, models, and culture",
+    "audience": "Sneakerheads",
+    "ogColors": {
+      "start": "#FF6B35",
+      "end": "#111827",
+      "accent": "#FFFFFF"
+    }
+  },
+  "fast-food": {
+    "file": "fast-food.json",
+    "label": "Fast Food",
+    "emoji": "🍔",
+    "category": "Food",
+    "description": "Fast food chains, menu items, and combos",
+    "audience": "Foodies",
+    "ogColors": {
+      "start": "#DB0007",
+      "end": "#FFC72C",
+      "accent": "#27251F"
+    }
+  },
+  "netflix": {
+    "file": "netflix.json",
+    "label": "Netflix",
+    "emoji": "🎥",
+    "category": "Entertainment",
+    "description": "Netflix originals, characters, and shows",
+    "audience": "Binge Watchers",
+    "ogColors": {
+      "start": "#E50914",
+      "end": "#141414",
+      "accent": "#FFFFFF"
     }
   }
 }

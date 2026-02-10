@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useRoom, roomApi } from '@/lib/realtime';
 import {
@@ -11,6 +11,8 @@ import {
   checkImposterWin,
   resetGame,
   resetGameWithTheme,
+  resetAndStartGame,
+  resetAndStartGameWithTheme,
   getRoomStateForPlayer,
   allVotesSubmitted,
   nextPlayer,
@@ -31,7 +33,9 @@ export default function RoomPage() {
   const router = useRouter();
   const roomId = params.roomId as string;
 
-  const [currentPlayerId, setCurrentPlayerId] = useState<string>('');
+  const [currentPlayerId] = useState<string>(() =>
+    typeof window !== 'undefined' ? localStorage.getItem('currentPlayerId') || '' : ''
+  );
   const { room, loading, error } = useRoom(roomId, currentPlayerId);
   const [playerState, setPlayerState] = useState<{
     word?: string;
@@ -43,14 +47,11 @@ export default function RoomPage() {
     voteCounts: Record<string, number>;
   } | null>(null);
 
-  // Rate limiting for game actions
-  const throttle = useThrottle(2000); // 2 second cooldown between actions
+  // Guard against double-firing the auto-advance
+  const hasAdvancedToResults = useRef(false);
 
-  // Load player ID from localStorage
-  useEffect(() => {
-    const playerId = localStorage.getItem('currentPlayerId') || '';
-    setCurrentPlayerId(playerId);
-  }, []);
+  // Rate limiting for game actions
+  const throttle = useThrottle(2000);
 
   // Update player state when room changes
   useEffect(() => {
@@ -61,6 +62,7 @@ export default function RoomPage() {
       const currentPlayer = room.players[room.currentPlayerIndex];
       if (currentPlayer) {
         const state = getRoomStateForPlayer(room, currentPlayer.id);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPlayerState(state);
       }
     } else if (currentPlayerId) {
@@ -70,22 +72,45 @@ export default function RoomPage() {
     }
   }, [room, currentPlayerId]);
 
-  // Auto-calculate results when all votes submitted
+  // Auto-calculate results when all votes submitted (with race condition guard)
   useEffect(() => {
-    if (room && room.phase === GamePhase.Vote && allVotesSubmitted(room)) {
-      setTimeout(async () => {
-        const results = calculateVoteResults(room);
-        setVoteResults(results);
-        const updated = nextPhase(room);
-        await roomApi.updateRoom(updated);
+    if (room && room.phase === GamePhase.Vote && allVotesSubmitted(room) && !hasAdvancedToResults.current) {
+      hasAdvancedToResults.current = true;
+      const timer = setTimeout(async () => {
+        try {
+          const results = calculateVoteResults(room);
+          setVoteResults(results);
+          const updated = nextPhase(room);
+          await roomApi.updateRoom(updated);
+        } catch (err) {
+          logger.error('[auto-advance] Failed to advance to results:', err);
+          hasAdvancedToResults.current = false;
+        }
       }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [room]);
+
+  // Recompute vote results when entering Result phase without them
+  // (handles page refresh during results)
+  useEffect(() => {
+    if (room && room.phase === GamePhase.Result && !voteResults && room.votes.length > 0) {
+      const results = calculateVoteResults(room);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setVoteResults(results);
+    }
+  }, [room, voteResults]);
+
+  // Reset the advance guard when game resets
+  useEffect(() => {
+    if (room && room.phase === GamePhase.Lobby) {
+      hasAdvancedToResults.current = false;
     }
   }, [room]);
 
   const handleStartGame = throttle(async () => {
     if (!room) return;
 
-    // Use atomic start to prevent race conditions
     const updated = startGame(room);
     const success = await roomApi.startGameAtomic(
       room.id,
@@ -95,28 +120,22 @@ export default function RoomPage() {
 
     if (!success) {
       logger.warn('[handleStartGame] Game already started by another player');
-      // Refresh room state to get latest data
-      const latestRoom = await roomApi.getRoom(room.id);
-      // Room will be updated via realtime subscription
+      await roomApi.getRoom(room.id);
     }
   });
 
   const handleContinue = throttle(async () => {
     if (!room) return;
 
-    // In pass-and-play mode, advance to next player until all have seen roles
     if (room.gameMode === GameMode.PassAndPlay && room.phase === GamePhase.Role) {
-      // Advance to next player
       let updated = nextPlayer(room);
 
-      // If all players have now seen their role, move to in-person-round phase
       if (allPlayersRevealed(updated)) {
         updated = nextPhase(updated);
       }
 
       await roomApi.updateRoom(updated);
     } else {
-      // Online mode: just advance phase
       const updated = nextPhase(room);
       await roomApi.updateRoom(updated);
     }
@@ -130,15 +149,29 @@ export default function RoomPage() {
 
   const handlePlayAgain = throttle(async () => {
     if (!room) return;
-    const updated = resetGame(room);
-    await roomApi.updateRoom(updated);
+
+    // For pass-and-play: reset AND auto-start so players don't get stuck in lobby
+    if (room.gameMode === GameMode.PassAndPlay) {
+      const updated = resetAndStartGame(room);
+      await roomApi.updateRoom(updated);
+    } else {
+      const updated = resetGame(room);
+      await roomApi.updateRoom(updated);
+    }
     setVoteResults(null);
   });
 
   const handlePlayAgainWithTheme = throttle(async (theme: Theme) => {
     if (!room) return;
-    const updated = resetGameWithTheme(room, theme);
-    await roomApi.updateRoom(updated);
+
+    // For pass-and-play: reset AND auto-start
+    if (room.gameMode === GameMode.PassAndPlay) {
+      const updated = resetAndStartGameWithTheme(room, theme);
+      await roomApi.updateRoom(updated);
+    } else {
+      const updated = resetGameWithTheme(room, theme);
+      await roomApi.updateRoom(updated);
+    }
     setVoteResults(null);
   });
 
@@ -149,15 +182,28 @@ export default function RoomPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl text-gray-600">Loading...</p>
+        <div className="text-center">
+          <div className="text-5xl mb-4 animate-pulse">🕵️</div>
+          <p className="text-lg text-fg-muted">Loading game...</p>
+        </div>
       </div>
     );
   }
 
   if (error || !room) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl text-red-600">{error?.message || 'Room not found'}</p>
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center space-y-4">
+          <div className="text-5xl mb-2">😵</div>
+          <h2 className="text-2xl font-bold text-fg">Room Not Found</h2>
+          <p className="text-fg-muted">{error?.message || 'This game room doesn\'t exist or has expired.'}</p>
+          <button
+            onClick={() => router.push('/')}
+            className="px-6 py-3 bg-primary text-primary-fg rounded-lg font-medium hover:bg-primary-hover transition-colors"
+          >
+            Create New Game
+          </button>
+        </div>
       </div>
     );
   }

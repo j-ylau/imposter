@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 import './globals.css';
 import './theme.css';
-import { SITE_URL } from '@/lib/constants';
 import { ThemeProvider } from '@/components/Providers/ThemeProvider';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -11,23 +10,34 @@ import { PlayCTA } from '@/components/UI/PlayCTA';
 import { ThemeToggle } from '@/components/UI/ThemeToggle';
 import { GAME_SCHEMA } from '@/lib/seo';
 import { Analytics } from '@vercel/analytics/next';
+import { FloatingEmojis } from '@/components/Animations/FloatingEmojis';
+import { UpdateBanner } from '@/components/Layout/UpdateBanner';
 
 export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
   ),
-  title: 'Imposter Word Game - Play Online with Friends',
+  title: {
+    default: 'Imposter Word Game - Free Online Party Game | Play with Friends',
+    template: '%s | Imposter Word Game',
+  },
   description:
-    'A fun multiplayer party game where one player is the imposter. Everyone gets a secret word except one person. Give clues, vote, and guess. Play instantly with friends in your browser.',
+    'Free online party game — one player is the imposter! Everyone gets a secret word except one person. Give clues, find the imposter, and guess the word. Play instantly with 3-12 friends. No downloads, no sign-up.',
   keywords: [
     'imposter word game',
+    'imposter game',
+    'imposter game online',
     'word guessing game',
     'party game online',
-    'multiplayer browser game',
-    'group game',
-    'online party game',
+    'multiplayer party game',
     'social deduction game',
     'word game with friends',
+    'free party game',
+    'group game online',
+    'pass and play game',
+    'spy word game',
+    'who is the imposter',
+    'imposter word game free',
   ],
   alternates: {
     canonical: 'https://imposterga.me',
@@ -49,26 +59,38 @@ export const metadata: Metadata = {
   },
   manifest: '/site.webmanifest',
   openGraph: {
-    title: 'Imposter Word Game - Play Online with Friends',
+    title: 'Imposter Word Game - Free Online Party Game',
     description:
-      'A fun multiplayer party game. One player is the imposter. Give clues, vote, and guess the word. Play free in your browser.',
+      'One player is the imposter — can you find them? Give clues, vote, and guess the word. Play free with friends, no downloads needed.',
     url: 'https://imposterga.me',
     siteName: 'Imposter Word Game',
     type: 'website',
+    locale: 'en_US',
     images: [
       {
         url: 'https://imposterga.me/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Imposter Word Game',
+        alt: 'Imposter Word Game - Find the Imposter, Guess the Word',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Imposter Word Game',
-    description: 'Multiplayer word guessing party game. Play free online.',
+    title: 'Imposter Word Game - Free Online Party Game',
+    description: 'One player is the imposter. Give clues, vote, and guess the word. Play free with friends!',
     images: ['https://imposterga.me/og-image.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
   other: {
     'google-adsense-account': 'ca-pub-4975735342482892',
@@ -89,7 +111,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(GAME_SCHEMA) }}
         />
       </head>
-      <body className="min-h-screen bg-gradient-to-br from-[var(--color-bg-start)] to-[var(--color-bg-end)] transition-colors duration-300">
+      <body className="min-h-screen bg-bg transition-colors duration-300">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           {/* Google AdSense */}
           <Script
@@ -99,13 +121,19 @@ export default function RootLayout({
             strategy="afterInteractive"
           />
 
+          {/* Floating imposter-themed background emojis */}
+          <FloatingEmojis count={14} />
+
+          {/* Update Banner */}
+          <UpdateBanner />
+
           {/* Fixed Top Nav */}
-          <nav className="fixed top-0 left-0 right-0 z-50 px-4 py-3 flex items-center justify-between">
+          <nav className="sticky top-0 z-50 px-4 py-3 flex items-center justify-between">
             <PlayCTA />
             <ThemeToggle />
           </nav>
 
-          <main className="pb-16 pt-16">
+          <main className="relative z-10 pb-16">
             {children}
           </main>
 

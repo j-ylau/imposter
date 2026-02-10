@@ -1,9 +1,8 @@
 // ALL realtime multiplayer logic in one file
 
-import { useEffect, useState, useCallback } from 'react';
-import { RealtimeChannel } from '@supabase/supabase-js';
+import { useEffect, useState } from 'react';
 import { supabase } from './supabase';
-import type { Room } from '@/schema';
+import type { Room, Player, Vote, Theme, GamePhase, GameMode } from '@/schema';
 import {
   AppError,
   RoomNotFoundError,
@@ -116,7 +115,7 @@ export const roomApi = {
   },
 
   // Start game with race condition protection
-  async startGameAtomic(roomId: string, players: any[], imposterId: string): Promise<boolean> {
+  async startGameAtomic(roomId: string, players: Player[], imposterId: string): Promise<boolean> {
     const { data, error } = await supabase.rpc('start_game_atomic', {
       p_room_id: roomId,
       p_players: players,
@@ -131,14 +130,31 @@ export const roomApi = {
   },
 };
 
+interface DbRoom {
+  id: string;
+  word: string | null;
+  theme: string;
+  phase: string;
+  game_mode: string;
+  players: Player[];
+  votes: Vote[];
+  imposter_id: string | null;
+  host_id: string;
+  locked: boolean;
+  created_at: string;
+  expires_at: string;
+  updated_at: string;
+  current_player_index: number | null;
+}
+
 // Map database row to Room type
-function mapDbToRoom(data: any): Room {
+function mapDbToRoom(data: DbRoom): Room {
   return {
     id: data.id,
-    word: data.word,
-    theme: data.theme,
-    phase: data.phase,
-    gameMode: data.game_mode || 'online',
+    word: data.word ?? '',
+    theme: data.theme as Theme,
+    phase: data.phase as GamePhase,
+    gameMode: (data.game_mode || 'online') as GameMode,
     players: data.players || [],
     votes: data.votes || [],
     imposterId: data.imposter_id,
@@ -147,7 +163,7 @@ function mapDbToRoom(data: any): Room {
     createdAt: new Date(data.created_at).getTime(),
     expiresAt: new Date(data.expires_at).getTime(),
     updatedAt: new Date(data.updated_at).getTime(),
-    currentPlayerIndex: data.current_player_index,
+    currentPlayerIndex: data.current_player_index ?? undefined,
   };
 }
 
@@ -159,8 +175,6 @@ export function useRoom(roomId: string, currentPlayerId?: string) {
 
   useEffect(() => {
     if (!roomId) return;
-
-    let channel: RealtimeChannel;
 
     // Load initial room data
     const loadRoom = async (): Promise<void> => {
@@ -179,7 +193,7 @@ export function useRoom(roomId: string, currentPlayerId?: string) {
     loadRoom();
 
     // Subscribe to realtime updates with presence tracking
-    channel = supabase
+    const channel = supabase
       .channel(`room:${roomId}`, {
         config: {
           broadcast: { self: true },
@@ -197,7 +211,7 @@ export function useRoom(roomId: string, currentPlayerId?: string) {
         (payload) => {
           logger.debug('[useRoom] Realtime update received:', payload.eventType);
           if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
-            setRoom(mapDbToRoom(payload.new));
+            setRoom(mapDbToRoom(payload.new as DbRoom));
           } else if (payload.eventType === 'DELETE') {
             setRoom(null);
           }

@@ -1,16 +1,24 @@
 'use client';
 
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { motion } from 'framer-motion';
 
-export function ThemeToggle(): JSX.Element {
-  const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
+function subscribe() {
+  return () => {};
+}
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+function getSnapshot() {
+  return true;
+}
+
+function getServerSnapshot() {
+  return false;
+}
+
+export function ThemeToggle(): JSX.Element {
+  const mounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const { theme, setTheme } = useTheme();
 
   if (!mounted) {
     return (

@@ -7,6 +7,7 @@ import { Card, CardBody, CardHeader } from '@/components/UI/Card';
 import { useTranslation } from '@/lib/i18n';
 import { AdSense } from '@/components/Ads/AdSense';
 import { PlayerTransition } from './PlayerTransition';
+import { SuspenseReveal } from '@/components/Animations/SuspenseReveal';
 import { getCurrentPlayer } from '@/lib/game';
 
 interface RoleRevealProps {
@@ -66,9 +67,9 @@ export function RoleReveal({ room, isImposter, word, onContinue }: RoleRevealPro
         </CardHeader>
         <CardBody className="space-y-6">
           {isImposter ? (
-            <>
+            <SuspenseReveal isImposter delay={0.3}>
               <div className="text-center py-8">
-                <div className="text-6xl mb-4">🕵️</div>
+                <div className="text-7xl mb-4">🕵️</div>
                 <h3 className="text-3xl font-bold text-danger mb-2 transition-colors">
                   {t.roleReveal.imposter.title}
                 </h3>
@@ -76,7 +77,7 @@ export function RoleReveal({ room, isImposter, word, onContinue }: RoleRevealPro
                   {t.roleReveal.imposter.subtitle}
                 </p>
               </div>
-              <div className="bg-danger-subtle border-2 border-danger rounded-lg p-4 transition-colors">
+              <div className="bg-danger-subtle border-2 border-danger rounded-lg p-4 transition-colors imposter-glow">
                 <h4 className="font-bold text-danger-fg mb-2 transition-colors">{t.common.yourGoal}</h4>
                 <ul className="text-sm text-danger-fg space-y-1">
                   {t.roleReveal.imposter.goals.map((goal, index) => (
@@ -84,18 +85,18 @@ export function RoleReveal({ room, isImposter, word, onContinue }: RoleRevealPro
                   ))}
                 </ul>
               </div>
-            </>
+            </SuspenseReveal>
           ) : (
-            <>
+            <SuspenseReveal delay={0.2}>
               <div className="text-center py-8">
-                <div className="text-6xl mb-4">👥</div>
+                <div className="text-7xl mb-4">👥</div>
                 <h3 className="text-3xl font-bold text-primary mb-2 transition-colors">
                   {t.roleReveal.player.title}
                 </h3>
                 <p className="text-fg-muted mb-4 transition-colors">
                   {t.roleReveal.player.subtitle}
                 </p>
-                <div className="text-5xl font-bold text-fg bg-primary-subtle border-4 border-primary rounded-lg py-6 px-8 inline-block transition-colors">
+                <div className="text-5xl font-bold text-fg bg-primary-subtle border-4 border-primary rounded-xl py-6 px-8 inline-block transition-colors shadow-lg">
                   {word}
                 </div>
               </div>
@@ -107,7 +108,7 @@ export function RoleReveal({ room, isImposter, word, onContinue }: RoleRevealPro
                   ))}
                 </ul>
               </div>
-            </>
+            </SuspenseReveal>
           )}
 
           {/* Ad - In-between Rounds */}

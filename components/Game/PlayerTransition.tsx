@@ -1,5 +1,6 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { Button } from '@/components/UI/Button';
 import { Card, CardBody } from '@/components/UI/Card';
 import { useTranslation } from '@/lib/i18n';
@@ -15,7 +16,7 @@ export function PlayerTransition({ playerName, playerNumber, totalPlayers, onRea
   const { t } = useTranslation();
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-bg-start to-bg-end">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-bg">
       <Card variant="elevated" className="max-w-md w-full">
         <CardBody className="space-y-6 text-center">
           {/* Player Progress Indicator */}
@@ -44,20 +45,43 @@ export function PlayerTransition({ playerName, playerNumber, totalPlayers, onRea
           )}
 
           {/* Warning Icon */}
-          <div className="text-8xl animate-pulse">🔒</div>
+          <motion.div
+            className="text-8xl"
+            animate={{
+              scale: [1, 1.15, 1],
+              rotate: [0, -5, 5, 0],
+            }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          >
+            🔒
+          </motion.div>
 
           {/* Instructions */}
-          <div className="space-y-2">
+          <motion.div
+            className="space-y-2"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
             <h2 className="text-3xl font-bold text-danger">
               {t.playerTransition.dontPeek}
             </h2>
             <p className="text-xl text-fg">
               {t.playerTransition.passTo}
             </p>
-            <p className="text-4xl font-bold text-primary mt-4">
+            <motion.p
+              className="text-4xl font-bold text-primary mt-4"
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.4, type: 'spring', stiffness: 200 }}
+            >
               {playerName}
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
           {/* Ready Button */}
           <div className="pt-6">

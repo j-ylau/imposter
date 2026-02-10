@@ -17,8 +17,8 @@ import {
 export const SITE = {
   name: SITE_FULL_NAME,
   shortName: SITE_NAME,
-  domain: SITE_URL,
-  url: SITE_DOMAIN,
+  domain: SITE_DOMAIN,
+  url: SITE_URL,
   description: SITE_DESCRIPTION,
   tagline: SITE_TAGLINE,
 } as const;

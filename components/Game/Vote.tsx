@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Room, Player } from '@/schema';
+import { Room } from '@/schema';
 import { Button } from '@/components/UI/Button';
 import { Card, CardBody, CardHeader } from '@/components/UI/Card';
 import { useTranslation } from '@/lib/i18n';
@@ -57,15 +57,22 @@ export function Vote({ room, currentPlayerId, onVote }: VoteProps) {
                     <button
                       key={player.id}
                       onClick={() => setSelectedPlayerId(player.id)}
-                      className={`w-full px-4 py-3 rounded-lg border-2 transition-all ${
+                      aria-label={`Vote for ${player.name}`}
+                      aria-pressed={selectedPlayerId === player.id}
+                      className={`w-full px-4 py-3 rounded-lg border-2 transition-all hover-wiggle ${
                         selectedPlayerId === player.id
-                          ? 'border-primary bg-primary-subtle'
-                          : 'border-border hover:border-border-hover'
+                          ? 'border-primary bg-primary-subtle scale-[1.02] shadow-md'
+                          : 'border-border hover:border-border-hover hover:bg-bg-subtle'
                       }`}
                     >
-                      <span className="font-medium text-fg">
-                        {player.name}
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl" aria-hidden="true">
+                          {selectedPlayerId === player.id ? '👉' : '🤔'}
+                        </span>
+                        <span className="font-medium text-fg">
+                          {player.name}
+                        </span>
+                      </div>
                     </button>
                   ))}
               </div>

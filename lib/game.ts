@@ -16,8 +16,8 @@ import {
 } from './error';
 
 // Generate a random word from the selected theme
-export function generateWord(theme: Theme = 'default'): string {
-  const wordList = THEMES[theme] || THEMES.default;
+export function generateWord(theme: Theme = 'pokemon'): string {
+  const wordList = THEMES[theme] || THEMES.pokemon;
   return randomItem(wordList);
 }
 
@@ -245,8 +245,9 @@ export function resetGame(room: Room): Room {
     phase: GamePhase.Lobby,
     votes: [],
     imposterId: null,
-    locked: false, // Unlock room on restart
+    locked: false,
     players: room.players.map((p) => ({ ...p, isImposter: false })),
+    currentPlayerIndex: room.gameMode === GameMode.PassAndPlay ? 0 : undefined,
   };
 }
 
@@ -261,9 +262,23 @@ export function resetGameWithTheme(room: Room, newTheme: Theme): Room {
     phase: GamePhase.Lobby,
     votes: [],
     imposterId: null,
-    locked: false, // Unlock room on restart
+    locked: false,
     players: room.players.map((p) => ({ ...p, isImposter: false })),
+    currentPlayerIndex: room.gameMode === GameMode.PassAndPlay ? 0 : undefined,
   };
+}
+
+// Reset AND start game in one step (for pass-and-play "Play Again")
+// This prevents the broken state where pass-and-play goes to Lobby with no host
+export function resetAndStartGame(room: Room): Room {
+  const reset = resetGame(room);
+  return startGame(reset);
+}
+
+// Reset with new theme AND start game in one step (for pass-and-play)
+export function resetAndStartGameWithTheme(room: Room, newTheme: Theme): Room {
+  const reset = resetGameWithTheme(room, newTheme);
+  return startGame(reset);
 }
 
 // Get sanitized room state for a specific player

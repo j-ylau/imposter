@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unescaped-entities */
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { generatePageSEO, GAME_SCHEMA } from '@/lib/seo';
@@ -224,7 +223,7 @@ export default function HowToPlayPage() {
             </section>
 
             {/* Call to Action */}
-            <section className="text-center py-8 bg-gradient-to-r from-primary-subtle to-secondary-subtle rounded-lg">
+            <section className="text-center py-8 bg-primary-subtle rounded-lg">
               <h2 className="text-2xl font-bold text-fg mb-4">
                 {t.howToPlayPage.cta.title}
               </h2>

@@ -44,19 +44,15 @@ ${themeUnion};
 // Generate themes.ts configuration
 const imports = themeKeys
   .map((key) => {
-    let varName = key.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
-    // Handle reserved keywords
-    if (varName === 'default') varName = 'defaultWords';
+    const varName = key.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
     return `import ${varName} from './${manifest[key].file}';`;
   })
   .join('\n');
 
 const themesObject = themeKeys
   .map((key) => {
-    let varName = key.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
-    // Handle reserved keywords
-    if (varName === 'default') varName = 'defaultWords';
-    return key.includes('-') || key === 'default'
+    const varName = key.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+    return key.includes('-')
       ? `  '${key}': ${varName},`
       : `  ${key}: ${varName},`;
   })
@@ -113,7 +109,7 @@ export async function getThemeWords(theme: Theme): Promise<string[]> {
   switch (theme) {
 ${lazyLoadCases}
     default:
-      return (await import('./default.json')).default;
+      return (await import('./pokemon.json')).default;
   }
 }
 

@@ -1,13 +1,29 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Room, Theme, GameMode } from '@/schema';
 import { Button } from '@/components/UI/Button';
 import { Card, CardBody, CardHeader } from '@/components/UI/Card';
 import { useTranslation } from '@/lib/i18n';
 import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
 import { AdSense } from '@/components/Ads/AdSense';
+import { SITE_URL } from '@/lib/constants';
 import confetti from 'canvas-confetti';
+import { toast } from 'react-toastify';
+
+// Session streak tracking
+function getSessionStreak(): number {
+  if (typeof window === 'undefined') return 1;
+  const raw = sessionStorage.getItem('imposter_round_count');
+  return raw ? parseInt(raw, 10) : 0;
+}
+
+function incrementStreak(): number {
+  if (typeof window === 'undefined') return 1;
+  const next = getSessionStreak() + 1;
+  sessionStorage.setItem('imposter_round_count', String(next));
+  return next;
+}
 
 interface ResultsProps {
   room: Room;
@@ -30,11 +46,42 @@ export function Results({
 }: ResultsProps) {
   const { t } = useTranslation();
   const [showThemes, setShowThemes] = useState(false);
+  const [roundNumber] = useState(() => incrementStreak());
   const isPassAndPlay = room.gameMode === GameMode.PassAndPlay;
-  const mostVotedPlayer = mostVotedPlayerId ? room.players.find((p) => p.id === mostVotedPlayerId) : null;
   const imposter = room.players.find((p) => p.id === room.imposterId);
 
-  const themes: Theme[] = ['default', 'pokemon', 'nba', 'memes', 'movies', 'countries'];
+  // Use all available themes (not a hardcoded subset)
+  const themes = (Object.keys(THEME_LABELS) as Theme[]).filter(t => t !== room.theme);
+
+  // Build share text
+  const shareText = useMemo(() => {
+    const imposterName = imposter?.name || 'unknown';
+    const outcome = imposterWon ? 'The imposter won!' : 'We caught the imposter!';
+    return `${outcome} The word was "${room.word}" and ${imposterName} was the imposter. 🕵️\n\nPlay Imposter Word Game free: ${SITE_URL}`;
+  }, [room, imposter, imposterWon]);
+
+  const handleShare = async () => {
+    // Try native Web Share API first (works great on mobile)
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Imposter Word Game',
+          text: shareText,
+          url: SITE_URL,
+        });
+        return;
+      } catch {
+        // User cancelled or API unavailable — fall through to clipboard
+      }
+    }
+    // Fallback: copy to clipboard
+    try {
+      await navigator.clipboard.writeText(shareText);
+      toast.success('Copied to clipboard! Share it with friends.');
+    } catch {
+      toast.error('Could not copy. Try sharing manually!');
+    }
+  };
 
   useEffect(() => {
     // Trigger confetti celebration on mount
@@ -98,12 +145,14 @@ export function Results({
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      {/* Ad - Top Banner */}
-      <AdSense
-        slot="RESULTS_TOP_SLOT"
-        format="horizontal"
-        className="mb-4"
-      />
+      {/* Round counter badge */}
+      {roundNumber > 1 && (
+        <div className="text-center">
+          <span className="inline-block px-4 py-1.5 bg-primary-subtle text-primary rounded-full text-sm font-bold">
+            Round {roundNumber}
+          </span>
+        </div>
+      )}
 
       {/* Game Result */}
       <Card variant="elevated">
@@ -131,6 +180,15 @@ export function Results({
           <p className="text-lg text-fg-muted transition-colors">
             {t.results.imposterWas} <strong>{imposter?.name}</strong>
           </p>
+
+          {/* Share button - inline under the result */}
+          <button
+            onClick={handleShare}
+            className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-bg-subtle hover:bg-primary-subtle text-fg-muted hover:text-primary rounded-full text-sm font-semibold transition-all border border-border hover:border-primary"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Share Result
+          </button>
         </CardBody>
       </Card>
 
@@ -245,12 +303,15 @@ export function Results({
         </CardBody>
       </Card>
 
-      {/* Ad - Bottom Banner */}
-      <AdSense
-        slot="RESULTS_BOTTOM_SLOT"
-        format="horizontal"
-        className="mt-6"
-      />
+      {/* Streak encouragement */}
+      {roundNumber >= 3 && (
+        <div className="text-center text-sm text-fg-muted">
+          You&apos;re on a roll — {roundNumber} rounds this session!
+        </div>
+      )}
+
+      {/* Ad - Bottom (Auto Ads will fill this area) */}
+      <AdSense slot="RESULTS_BOTTOM" format="horizontal" className="mt-6" />
     </div>
   );
 }

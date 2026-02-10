@@ -25,7 +25,7 @@ export function hasCustomTheme(): boolean {
     const expiresAt = new Date(theme.expiresAt).getTime();
 
     return now < expiresAt;
-  } catch (error) {
+  } catch {
     // Invalid data, clean up
     localStorage.removeItem(STORAGE_KEY);
     return false;
@@ -44,7 +44,7 @@ export function getCustomTheme(): string[] | null {
 
     const theme: CustomTheme = JSON.parse(stored);
     return theme.words;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -106,7 +106,7 @@ export function saveCustomTheme(words: string[]): boolean {
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(theme));
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -135,7 +135,7 @@ export function getCustomThemeExpiry(): { expiresAt: Date; hoursLeft: number } |
     const hoursLeft = Math.max(0, Math.round((expiresAt.getTime() - now.getTime()) / (60 * 60 * 1000)));
 
     return { expiresAt, hoursLeft };
-  } catch (error) {
+  } catch {
     return null;
   }
 }

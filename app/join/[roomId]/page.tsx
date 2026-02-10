@@ -4,11 +4,18 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/UI/Button';
 import { Input } from '@/components/UI/Input';
-import { Card, CardBody, CardHeader } from '@/components/UI/Card';
+import { Card, CardBody } from '@/components/UI/Card';
 import { roomApi } from '@/lib/realtime';
 import { addPlayer } from '@/lib/game';
-import { isValidPlayerName, generatePlayerId } from '@/lib/util';
+import { isValidPlayerName } from '@/lib/util';
 import { useTranslation } from '@/lib/i18n';
+
+function generateRandomName(): string {
+  const randomNames = ['Player', 'Gamer', 'Pro', 'Legend', 'Star', 'Ace', 'Hero'];
+  const nameIndex = Math.floor(Math.random() * randomNames.length);
+  const nameNumber = Math.floor(Math.random() * 1000);
+  return `${randomNames[nameIndex]}${nameNumber}`;
+}
 
 export default function QuickJoinPage() {
   const params = useParams();
@@ -40,8 +47,7 @@ export default function QuickJoinPage() {
 
     if (!trimmedName) {
       // Generate random name if empty
-      const randomNames = ['Player', 'Gamer', 'Pro', 'Legend', 'Star', 'Ace', 'Hero'];
-      const randomName = `${randomNames[Math.floor(Math.random() * randomNames.length)]}${Math.floor(Math.random() * 1000)}`;
+      const randomName = generateRandomName();
       setPlayerName(randomName);
       await joinRoom(randomName);
       return;
@@ -83,7 +89,7 @@ export default function QuickJoinPage() {
       localStorage.setItem('currentPlayerName', name);
 
       router.push(`/room/${roomId}`);
-    } catch (err) {
+    } catch {
       setError(t.join.errors.joinFailed);
       setLoading(false);
     }

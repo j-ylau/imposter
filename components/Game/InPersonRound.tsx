@@ -10,7 +10,7 @@ interface InPersonRoundProps {
   onRevealImposter: () => void;
 }
 
-export function InPersonRound({ room, onRevealImposter }: InPersonRoundProps) {
+export function InPersonRound({ onRevealImposter }: InPersonRoundProps) {
   const { t } = useTranslation();
 
   return (
@@ -23,7 +23,7 @@ export function InPersonRound({ room, onRevealImposter }: InPersonRoundProps) {
         </CardHeader>
         <CardBody className="space-y-6">
           <div className="text-center py-8">
-            <div className="text-6xl mb-4">🗣️</div>
+            <div className="text-6xl mb-4 animate-pulse-slow">🗣️</div>
             <p className="text-lg text-fg mb-4 transition-colors">
               {t.inPersonRound.subtitle}
             </p>

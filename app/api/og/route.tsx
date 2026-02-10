@@ -8,12 +8,12 @@ export const runtime = 'edge';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const theme = (searchParams.get('theme') || 'default') as Theme;
+    const theme = (searchParams.get('theme') || 'pokemon') as Theme;
     const room = searchParams.get('room');
 
-    const colors = THEME_OG_COLORS[theme] || THEME_OG_COLORS.default;
+    const colors = THEME_OG_COLORS[theme] || THEME_OG_COLORS.pokemon;
     const emoji = THEME_EMOJIS[theme] || '🕵️';
-    const label = THEME_LABELS[theme] || 'Default';
+    const label = THEME_LABELS[theme] || 'Pokémon';
 
     const title = room ? `Room ${room}` : `${label} Theme`;
     const subtitle = room

@@ -1,11 +1,12 @@
 // All application constants in one place
 
 // Site constants
-export const SITE_URL = 'imposterga.me';
+// NOTE: SITE_URL is the full URL, SITE_DOMAIN is just the domain
+export const SITE_DOMAIN = 'imposterga.me';
+export const SITE_URL = 'https://imposterga.me';
 export const SITE_NAME = 'Imposter';
 export const SITE_FULL_NAME = 'Imposter Word Game';
-export const SITE_DOMAIN = 'https://imposterga.me';
-export const SITE_DESCRIPTION = 'A fun multiplayer party game where one player is the imposter. Everyone gets a secret word except one person. Give clues, vote, and guess. Play instantly with friends in your browser.';
+export const SITE_DESCRIPTION = 'Free online party game — one player is the imposter! Everyone gets a secret word except one person. Give clues, find the imposter, and guess the word. Play instantly with friends — no downloads, no sign-up.';
 export const SITE_TAGLINE = 'Find the Imposter. Guess the Word.';
 export const TWITTER_HANDLE = '@imposterga_me';
 

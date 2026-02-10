@@ -52,7 +52,7 @@ export function ContactModal({ isOpen, onClose }: ContactModalProps) {
       setEmail('');
       setMessage('');
       onClose();
-    } catch (error) {
+    } catch {
       toast.error('Failed to send message. Please try again.');
     } finally {
       setLoading(false);

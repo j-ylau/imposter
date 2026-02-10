@@ -1,116 +1,109 @@
-// Most Loved Themes - Like tracking system
+// Theme likes — Supabase-backed social proof
+// Reads/writes like counts. Rate-limited to 1 like per theme per session via sessionStorage.
 
 import { supabase } from './supabase';
 import type { Theme } from '@/schema';
 import { logger } from './logger';
 
-// Session storage to prevent spam (limit 1 like per theme per session)
-const SESSION_STORAGE_KEY = 'theme_likes';
+const SESSION_KEY = 'imposter_liked_themes';
 
-/**
- * Get session ID for like tracking
- * Creates one if it doesn't exist
- */
-function getSessionId(): string {
-  if (typeof window === 'undefined') return '';
+// ── Session-based spam prevention ──────────────────────────────
 
-  let sessionId = sessionStorage.getItem('session_id');
-  if (!sessionId) {
-    sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-    sessionStorage.setItem('session_id', sessionId);
+function getLikedThemes(): Theme[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
   }
-  return sessionId;
 }
 
-/**
- * Check if user has already liked a theme in this session
- */
-function hasLikedTheme(theme: Theme): boolean {
-  if (typeof window === 'undefined') return false;
-
-  const liked = sessionStorage.getItem(SESSION_STORAGE_KEY);
-  if (!liked) return false;
-
-  const likedThemes: Theme[] = JSON.parse(liked);
-  return likedThemes.includes(theme);
-}
-
-/**
- * Mark theme as liked in session
- */
-function markThemeAsLiked(theme: Theme): void {
+function markAsLiked(theme: Theme): void {
   if (typeof window === 'undefined') return;
-
-  const liked = sessionStorage.getItem(SESSION_STORAGE_KEY);
-  const likedThemes: Theme[] = liked ? JSON.parse(liked) : [];
-
-  if (!likedThemes.includes(theme)) {
-    likedThemes.push(theme);
-    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(likedThemes));
+  const liked = getLikedThemes();
+  if (!liked.includes(theme)) {
+    liked.push(theme);
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(liked));
   }
 }
 
-/**
- * Like a theme
- * Rate limited to 1 like per theme per session
- */
-export async function likeTheme(theme: Theme): Promise<{ success: boolean; alreadyLiked: boolean }> {
-  // Check if already liked in this session
-  if (hasLikedTheme(theme)) {
-    logger.log(`[likeTheme] Already liked: ${theme}`);
-    return { success: false, alreadyLiked: true };
-  }
+export function hasLikedInSession(theme: Theme): boolean {
+  return getLikedThemes().includes(theme);
+}
+
+// ── Write: send a like ─────────────────────────────────────────
+
+/** Like a theme. No-ops if already liked this session. */
+export async function likeTheme(theme: Theme): Promise<void> {
+  if (hasLikedInSession(theme)) return;
 
   try {
-    const sessionId = getSessionId();
-
     const { error } = await supabase
       .from('theme_likes')
-      .insert({
-        theme,
-        session_id: sessionId,
-      });
+      .insert({ theme, session_id: getSessionId() });
 
     if (error) {
-      logger.error('[likeTheme] Failed to like theme:', error);
-      return { success: false, alreadyLiked: false };
+      logger.error('[likeTheme] DB error:', error);
+      return;
     }
 
-    // Mark as liked in session
-    markThemeAsLiked(theme);
-
-    logger.log(`[likeTheme] Liked: ${theme}`);
-    return { success: true, alreadyLiked: false };
+    markAsLiked(theme);
+    // Invalidate cached counts so next fetch is fresh
+    cachedCounts = null;
   } catch (err) {
     logger.error('[likeTheme] Exception:', err);
-    return { success: false, alreadyLiked: false };
   }
 }
 
-/**
- * Get like count for a specific theme
- */
-export async function getThemeLikeCount(theme: Theme): Promise<number> {
+// ── Read: fetch like counts ────────────────────────────────────
+
+interface ThemeLikeCount {
+  theme: string;
+  count: number;
+}
+
+let cachedCounts: Record<string, number> | null = null;
+let cacheTime = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+/** Get like counts for all themes (cached). */
+export async function getAllLikeCounts(): Promise<Record<string, number>> {
+  const now = Date.now();
+  if (cachedCounts && now - cacheTime < CACHE_TTL) {
+    return cachedCounts;
+  }
+
   try {
-    const { data, error } = await supabase.rpc('get_theme_like_count', {
-      p_theme: theme,
-    });
+    const { data, error } = await supabase.rpc('get_most_loved_themes', { p_limit: 100 });
 
     if (error) {
-      logger.error('[getThemeLikeCount] Database error:', error);
-      return 0;
+      logger.error('[getAllLikeCounts] DB error:', error);
+      return cachedCounts || {};
     }
 
-    return data || 0;
+    const counts: Record<string, number> = {};
+    for (const row of (data as ThemeLikeCount[]) || []) {
+      counts[row.theme] = Number(row.count);
+    }
+
+    cachedCounts = counts;
+    cacheTime = now;
+    return counts;
   } catch (err) {
-    logger.error('[getThemeLikeCount] Exception:', err);
-    return 0;
+    logger.error('[getAllLikeCounts] Exception:', err);
+    return cachedCounts || {};
   }
 }
 
-/**
- * Check if user has liked a theme (exported for UI)
- */
-export function hasUserLikedTheme(theme: Theme): boolean {
-  return hasLikedTheme(theme);
+// ── Helpers ────────────────────────────────────────────────────
+
+function getSessionId(): string {
+  if (typeof window === 'undefined') return 'server';
+  let id = sessionStorage.getItem('imposter_session_id');
+  if (!id) {
+    id = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    sessionStorage.setItem('imposter_session_id', id);
+  }
+  return id;
 }

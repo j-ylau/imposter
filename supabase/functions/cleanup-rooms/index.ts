@@ -6,7 +6,12 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0';
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-Deno.serve(async (req) => {
+interface RoomData {
+  id: string;
+  players: unknown[];
+}
+
+Deno.serve(async () => {
   try {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -31,9 +36,9 @@ Deno.serve(async (req) => {
       .select('id, players');
 
     if (allRooms) {
-      const emptyRoomIds = allRooms
-        .filter((room: any) => !room.players || room.players.length === 0)
-        .map((room: any) => room.id);
+      const emptyRoomIds = (allRooms as RoomData[])
+        .filter((room) => !room.players || room.players.length === 0)
+        .map((room) => room.id);
 
       if (emptyRoomIds.length > 0) {
         const { error: emptyError } = await supabase
@@ -60,9 +65,13 @@ Deno.serve(async (req) => {
       console.error('Error deleting old games:', oldError);
     }
 
+    const emptyRoomsCount = allRooms
+      ? (allRooms as RoomData[]).filter((r) => !r.players || r.players.length === 0).length
+      : 0;
+
     const totalDeleted =
       (expiredRooms?.length || 0) +
-      (allRooms?.filter((r: any) => !r.players || r.players.length === 0).length || 0) +
+      emptyRoomsCount +
       (oldGames?.length || 0);
 
     console.log(`Cleanup complete. Deleted ${totalDeleted} rooms.`);
@@ -72,7 +81,7 @@ Deno.serve(async (req) => {
         success: true,
         deleted: totalDeleted,
         expired: expiredRooms?.length || 0,
-        empty: allRooms?.filter((r: any) => !r.players || r.players.length === 0).length || 0,
+        empty: emptyRoomsCount,
         oldGames: oldGames?.length || 0,
       }),
       {
@@ -82,8 +91,9 @@ Deno.serve(async (req) => {
     );
   } catch (error) {
     console.error('Cleanup error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: errorMessage }),
       {
         headers: { 'Content-Type': 'application/json' },
         status: 500,

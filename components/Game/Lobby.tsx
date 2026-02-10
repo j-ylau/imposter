@@ -1,13 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Room } from '@/schema';
 import { Button } from '@/components/UI/Button';
 import { Card, CardBody, CardHeader } from '@/components/UI/Card';
 import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
 import { useTranslation } from '@/lib/i18n';
 import { AdSense } from '@/components/Ads/AdSense';
-import { logger } from '@/lib/logger';
 import { toast } from 'react-toastify';
 
 interface LobbyProps {
@@ -32,6 +31,12 @@ export function Lobby({ room, currentPlayerId, onStartGame }: LobbyProps) {
 
   const [copiedLink, setCopiedLink] = useState(false);
 
+  const minutesUntilExpiry = useMemo(() => {
+    if (!room.expiresAt) return 0;
+    // eslint-disable-next-line react-hooks/purity
+    return Math.max(0, Math.round((room.expiresAt - Date.now()) / 60000));
+  }, [room.expiresAt]);
+
   const handleCopyCode = async (): Promise<void> => {
     try {
       await navigator.clipboard.writeText(room.id);
@@ -43,7 +48,7 @@ export function Lobby({ room, currentPlayerId, onStartGame }: LobbyProps) {
       setTimeout(() => setCopied(false), 2000);
       toast.success(t.lobby.success.codeCopiedToast);
     } catch (err) {
-      logger.error('Failed to copy:', err);
+      console.error('Failed to copy:', err);
       toast.error(t.lobby.errors.copyFailed);
     }
   };
@@ -59,7 +64,7 @@ export function Lobby({ room, currentPlayerId, onStartGame }: LobbyProps) {
       setTimeout(() => setCopiedLink(false), 2000);
       toast.success(t.lobby.success.linkCopied);
     } catch (err) {
-      logger.error('Failed to copy:', err);
+      console.error('Failed to copy:', err);
       toast.error(t.lobby.errors.copyFailed);
     }
   };
@@ -126,7 +131,7 @@ export function Lobby({ room, currentPlayerId, onStartGame }: LobbyProps) {
           {/* Room Expiration Notice */}
           {room.expiresAt && (
             <p className="text-xs text-fg-subtle mt-2 transition-colors">
-              Room expires in {Math.max(0, Math.round((room.expiresAt - Date.now()) / 60000))} minutes
+              Room expires in {minutesUntilExpiry} minutes
             </p>
           )}
         </CardBody>
@@ -134,7 +139,7 @@ export function Lobby({ room, currentPlayerId, onStartGame }: LobbyProps) {
 
       {/* Theme */}
       <div className="relative">
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-primary via-primary-hover to-primary rounded-lg opacity-75 blur animate-pulse"></div>
+        <div className="absolute -inset-0.5 bg-primary rounded-lg opacity-75 blur animate-pulse"></div>
         <Card variant="elevated" className="relative">
           <CardBody className="text-center py-4">
             <p className="text-2xl mb-1">{THEME_EMOJIS[room.theme]}</p>

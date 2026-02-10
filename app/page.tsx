@@ -10,106 +10,67 @@ import { Modal } from '@/components/UI/Modal';
 import { createRoom, addPlayer, startGame } from '@/lib/game';
 import { roomApi } from '@/lib/realtime';
 import { Theme, GameMode } from '@/schema';
-import { THEME_LABELS, THEME_EMOJIS, THEME_CATEGORIES, CATEGORIES } from '@/data/themes';
+import { THEME_LABELS, THEME_EMOJIS } from '@/data/themes';
 import { isValidPlayerName, randomItem } from '@/lib/util';
 import { useTranslation } from '@/lib/i18n';
 import { PageTransition } from '@/components/Animations/PageTransition';
 import { toast } from 'react-toastify';
 import { handleError, getErrorTranslationKey } from '@/lib/error';
 import { trackThemeUsage } from '@/lib/theme-stats';
-import { PopularThemes } from '@/components/Home/PopularThemes';
-import { likeTheme, hasUserLikedTheme, getThemeLikeCount } from '@/lib/theme-likes';
-import { logger } from '@/lib/logger';
+import { getFavorites, toggleFavorite } from '@/lib/favorites';
+import { getAllLikeCounts, likeTheme } from '@/lib/theme-likes';
+import { AdSense } from '@/components/Ads/AdSense';
 import {
   hasCustomTheme as checkHasCustomTheme,
   getCustomTheme,
   saveCustomTheme,
   parseWords,
   deleteCustomTheme,
-  getCustomThemeExpiry,
 } from '@/lib/custom-theme';
 
 export default function HomePage() {
   const router = useRouter();
   const { t } = useTranslation();
   const [playerName, setPlayerName] = useState('');
-  const [selectedTheme, setSelectedTheme] = useState<Theme>('default');
-  const [selectedGameMode, setSelectedGameMode] = useState<GameMode>(GameMode.Online);
-  const [playerCount, setPlayerCount] = useState(4); // For pass-and-play
+  const [selectedGameMode, setSelectedGameMode] = useState<GameMode>(GameMode.PassAndPlay);
+  const [playerCount, setPlayerCount] = useState(4);
   const [customPlayerCount, setCustomPlayerCount] = useState('');
   const [showCustomCount, setShowCustomCount] = useState(false);
-  const [showGameModes, setShowGameModes] = useState(false);
-  const [showThemes, setShowThemes] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [likedThemes, setLikedThemes] = useState<Set<Theme>>(new Set());
-  const [themeLikeCounts, setThemeLikeCounts] = useState<Record<string, number>>({});
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [showCustomThemeModal, setShowCustomThemeModal] = useState(false);
   const [customThemeInput, setCustomThemeInput] = useState('');
   const [customThemeError, setCustomThemeError] = useState('');
-  const [hasCustomTheme, setHasCustomTheme] = useState(false);
+  const [hasCustomTheme, setHasCustomTheme] = useState(() =>
+    typeof window !== 'undefined' ? checkHasCustomTheme() : false
+  );
+  const [favorites, setFavorites] = useState<Set<Theme>>(() =>
+    typeof window !== 'undefined' ? new Set(getFavorites()) : new Set()
+  );
+  const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
 
-  const themes: Theme[] = [
-    'default',
-    'pokemon',
-    'nba',
-    'memes',
-    'movies',
-    'countries',
-    'anime',
-    'video-games',
-    'youtube',
-    'tiktok',
-    'music',
-    'tv-shows',
-    'food',
-    'brands',
-    'sports',
-    'clash-royale',
-    'minecraft',
-    'animals',
-    'companies',
-  ];
+  const themes: Theme[] = Object.keys(THEME_LABELS) as Theme[];
+  const quickPlayerCounts = [3, 4, 5, 6, 7, 8];
 
-  const quickPlayerCounts = [3, 4, 5, 6, 7, 8, 10, 12];
-
-  // Check for custom theme on mount
   useEffect(() => {
-    setHasCustomTheme(checkHasCustomTheme());
+    getAllLikeCounts().then(setLikeCounts);
   }, []);
 
-  // Load like counts when theme picker opens
-  useEffect(() => {
-    if (showThemes && Object.keys(themeLikeCounts).length === 0) {
-      // Load like counts for all themes
-      const loadLikeCounts = async () => {
-        try {
-          const results = await Promise.all(
-            themes.map(async (theme) => {
-              try {
-                const count = await getThemeLikeCount(theme);
-                return { theme, count };
-              } catch (error) {
-                // Fail gracefully for individual themes
-                return { theme, count: 0 };
-              }
-            })
-          );
-          const counts: Record<string, number> = {};
-          results.forEach(({ theme, count }) => {
-            counts[theme] = count;
-          });
-          setThemeLikeCounts(counts);
-        } catch (error) {
-          // Fail silently - like counts are supplementary info
-          logger.error('[HomePage] Failed to load like counts:', error);
-        }
-      };
-      loadLikeCounts();
+  const handleToggleFavorite = (theme: Theme, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const nowFavorited = toggleFavorite(theme);
+    setFavorites(new Set(getFavorites()));
+
+    if (nowFavorited) {
+      // Also send a like to Supabase for social proof
+      likeTheme(theme);
+      // Optimistic update for the count
+      setLikeCounts((prev) => ({ ...prev, [theme]: (prev[theme] || 0) + 1 }));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showThemes]);
+
+    toast.success(nowFavorited ? `${THEME_LABELS[theme]} added to favorites` : `${THEME_LABELS[theme]} removed from favorites`, { autoClose: 1500 });
+  };
 
   const handleCustomCountSubmit = () => {
     const count = parseInt(customPlayerCount, 10);
@@ -122,7 +83,6 @@ export default function HomePage() {
     }
   };
 
-  // Show name validation error and focus input (DRY helper)
   const showNameValidationError = () => {
     toast.error(t.home.errors.invalidName);
     const nameInput = document.querySelector('input[type="text"]') as HTMLInputElement;
@@ -133,43 +93,19 @@ export default function HomePage() {
     }
   };
 
-  const handleLikeTheme = async (theme: Theme, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent theme selection when clicking like button
-
-    if (hasUserLikedTheme(theme)) {
-      toast.info(t.home.alreadyLiked);
-      return;
-    }
-
-    const result = await likeTheme(theme);
-    if (result.success) {
-      setLikedThemes(prev => new Set(prev).add(theme));
-      // Update like count in state
-      setThemeLikeCounts(prev => ({
-        ...prev,
-        [theme]: (prev[theme] || 0) + 1
-      }));
-      toast.success(`❤️ ${t.home.themeLiked}`);
-    } else if (result.alreadyLiked) {
-      toast.info(t.home.alreadyLiked);
-    }
-  };
-
   const handleCreateCustomTheme = () => {
     setCustomThemeError('');
     const result = parseWords(customThemeInput);
-
     if (!result.valid) {
       setCustomThemeError(result.error || 'Invalid input');
       return;
     }
-
     const saved = saveCustomTheme(result.words);
     if (saved) {
       setHasCustomTheme(true);
       setShowCustomThemeModal(false);
       setCustomThemeInput('');
-      toast.success(`✨ Custom theme created with ${result.words.length} words!`);
+      toast.success(`Custom theme created with ${result.words.length} words!`);
     } else {
       toast.error('Failed to save custom theme');
     }
@@ -182,44 +118,29 @@ export default function HomePage() {
       setHasCustomTheme(false);
       return;
     }
-
-    // Use custom words to create the room
-    // For simplicity, we'll treat it as 'default' theme but override the word selection
     const customWord = randomItem(words);
-
-    // Validate name for online mode
     if (selectedGameMode === GameMode.Online && !isValidPlayerName(playerName)) {
       showNameValidationError();
       return;
     }
-
     setLoading(true);
     setError('');
-
     try {
       if (selectedGameMode === GameMode.PassAndPlay) {
-        let room = createRoom('Player 1', 'default', selectedGameMode);
-        // Override the word with custom word
+        let room = createRoom('Player 1', 'pokemon', selectedGameMode);
         room = { ...room, word: customWord };
-
         for (let i = 2; i <= playerCount; i++) {
           room = addPlayer(room, `Player ${i}`);
         }
-
         room = startGame(room);
         await roomApi.createRoom(room);
-
-        toast.success(t.home.success.roomCreated);
         router.push(`/room/${room.id}`);
       } else {
-        let room = createRoom(playerName, 'default', selectedGameMode);
+        let room = createRoom(playerName, 'pokemon', selectedGameMode);
         room = { ...room, word: customWord };
         await roomApi.createRoom(room);
-
         localStorage.setItem('currentPlayerId', room.hostId);
         localStorage.setItem('currentPlayerName', playerName);
-
-        toast.success(t.home.success.roomCreated);
         router.push(`/room/${room.id}`);
       }
     } catch (err) {
@@ -236,52 +157,29 @@ export default function HomePage() {
     toast.success('Custom theme deleted');
   };
 
-  const handleCreate = async (useRandomTheme = false): Promise<void> => {
-    // For pass-and-play, we don't need a name since players are auto-named
+  const handleCreate = async (theme: Theme): Promise<void> => {
     if (selectedGameMode === GameMode.Online && !isValidPlayerName(playerName)) {
       showNameValidationError();
       return;
     }
-
     setLoading(true);
     setError('');
-
     try {
-      const theme = useRandomTheme ? randomItem(themes) : selectedTheme;
-
-      // For pass-and-play: Create room with auto-named players
       if (selectedGameMode === GameMode.PassAndPlay) {
-        // Create room with Player 1 as host
         let room = createRoom('Player 1', theme, selectedGameMode);
-
-        // Add remaining players (Player 2, Player 3, etc.)
         for (let i = 2; i <= playerCount; i++) {
           room = addPlayer(room, `Player ${i}`);
         }
-
-        // Auto-start the game
         room = startGame(room);
-
         await roomApi.createRoom(room);
-
-        // Track theme usage for popular themes
         trackThemeUsage(theme);
-
-        // Don't need to store player ID for pass-and-play
-        toast.success(t.home.success.roomCreated);
         router.push(`/room/${room.id}`);
       } else {
-        // Online mode: Use entered player name
         const room = createRoom(playerName, theme, selectedGameMode);
         await roomApi.createRoom(room);
-
-        // Track theme usage for popular themes
         trackThemeUsage(theme);
-
         localStorage.setItem('currentPlayerId', room.hostId);
         localStorage.setItem('currentPlayerName', playerName);
-
-        toast.success(t.home.success.roomCreated);
         router.push(`/room/${room.id}`);
       }
     } catch (err) {
@@ -292,27 +190,36 @@ export default function HomePage() {
     }
   };
 
+  const filteredThemes = (() => {
+    if (selectedCategory === 'Favorites') return themes.filter((t) => favorites.has(t));
+    if (selectedCategory === 'Popular') {
+      return [...themes].sort((a, b) => (likeCounts[b] || 0) - (likeCounts[a] || 0));
+    }
+    return themes; // "All" — manifest order
+  })();
+
   return (
     <PageTransition>
       <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full space-y-6">
-          {/* Header */}
-          <div className="text-center animate-fade-in">
-            <div className="text-6xl mb-4 animate-bounce-subtle">🕵️</div>
-            <h1 className="text-4xl md:text-5xl font-bold text-fg mb-2 transition-colors">
+        <div className="max-w-2xl w-full space-y-5">
+
+          {/* Hero */}
+          <div className="text-center">
+            <div className="text-7xl mb-3 animate-bounce-subtle">🕵️</div>
+            <h1 className="text-4xl md:text-5xl font-black text-fg mb-2 tracking-tight">
               {t.home.title}
             </h1>
-            <p className="text-fg-muted mb-3 transition-colors">
+            <p className="text-lg text-fg-muted max-w-md mx-auto">
               {t.home.subtitle}
             </p>
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-4 mt-3">
               <Link
                 href="/how-to-play"
                 className="text-primary hover:text-primary-hover font-medium text-sm underline transition-colors"
               >
                 {t.home.howToPlay}
               </Link>
-              <span className="text-fg-subtle">•</span>
+              <span className="text-fg-subtle">|</span>
               <button
                 onClick={() => router.push('/join')}
                 className="text-primary hover:text-primary-hover font-medium text-sm underline transition-colors"
@@ -322,7 +229,31 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Name Input - Only for online mode */}
+          {/* Game Mode Toggle - compact */}
+          <div className="flex items-center justify-center gap-1 bg-bg-subtle rounded-full p-1 max-w-xs mx-auto">
+            <button
+              onClick={() => setSelectedGameMode(GameMode.PassAndPlay)}
+              className={`flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-all ${
+                selectedGameMode === GameMode.PassAndPlay
+                  ? 'bg-primary text-primary-fg shadow-md'
+                  : 'text-fg-muted hover:text-fg'
+              }`}
+            >
+              📱 Pass & Play
+            </button>
+            <button
+              onClick={() => setSelectedGameMode(GameMode.Online)}
+              className={`flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-all ${
+                selectedGameMode === GameMode.Online
+                  ? 'bg-primary text-primary-fg shadow-md'
+                  : 'text-fg-muted hover:text-fg'
+              }`}
+            >
+              🌐 Online
+            </button>
+          </div>
+
+          {/* Name Input - Online only */}
           {selectedGameMode === GameMode.Online && (
             <Card variant="elevated">
               <CardBody>
@@ -331,7 +262,7 @@ export default function HomePage() {
                   placeholder={t.home.yourName}
                   value={playerName}
                   onChange={(e) => setPlayerName(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && !showGameModes && !showThemes && handleCreate(true)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleCreate(randomItem(themes))}
                   error={error}
                   maxLength={20}
                   autoFocus
@@ -340,248 +271,161 @@ export default function HomePage() {
             </Card>
           )}
 
-          {/* Game Mode Selection */}
-          <Card variant="elevated">
-            <CardBody className="space-y-3">
-              <h3 className="text-lg font-bold text-fg text-center">{t.home.gameMode.title}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <button
-                  onClick={() => setSelectedGameMode(GameMode.Online)}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
-                    selectedGameMode === GameMode.Online
-                      ? 'border-primary bg-primary-subtle'
-                      : 'border-border hover:border-primary hover:bg-primary-subtle'
-                  }`}
-                >
-                  <div className="text-3xl mb-2">🌐</div>
-                  <div className="font-bold text-fg mb-1">{t.home.gameMode.online.title}</div>
-                  <div className="text-sm text-fg-muted">{t.home.gameMode.online.description}</div>
-                </button>
-                <button
-                  onClick={() => setSelectedGameMode(GameMode.PassAndPlay)}
-                  className={`p-4 rounded-lg border-2 transition-all text-left ${
-                    selectedGameMode === GameMode.PassAndPlay
-                      ? 'border-primary bg-primary-subtle'
-                      : 'border-border hover:border-primary hover:bg-primary-subtle'
-                  }`}
-                >
-                  <div className="text-3xl mb-2">📱</div>
-                  <div className="font-bold text-fg mb-1">{t.home.gameMode.passAndPlay.title}</div>
-                  <div className="text-sm text-fg-muted">{t.home.gameMode.passAndPlay.description}</div>
-                </button>
-              </div>
-            </CardBody>
-          </Card>
-
-          {/* Player Count Selection - Only for pass-and-play */}
+          {/* Player Count - Pass & Play only */}
           {selectedGameMode === GameMode.PassAndPlay && (
-            <Card variant="elevated">
-              <CardBody className="space-y-3">
-                <h3 className="text-lg font-bold text-fg text-center">
-                  {t.home.gameMode.passAndPlay.playerCount}
-                </h3>
-                <div className="flex gap-2 justify-center flex-wrap">
-                  {quickPlayerCounts.map((count) => (
-                    <button
-                      key={count}
-                      onClick={() => setPlayerCount(count)}
-                      className={`w-12 h-12 rounded-lg border-2 transition-all font-bold ${
-                        playerCount === count && !showCustomCount
-                          ? 'border-primary bg-primary text-primary-fg'
-                          : 'border-border hover:border-primary hover:bg-primary-subtle text-fg'
-                      }`}
-                    >
-                      {count}
-                    </button>
-                  ))}
+            <div className="text-center space-y-2">
+              <p className="text-sm font-medium text-fg-muted">{t.home.gameMode.passAndPlay.playerCount}</p>
+              <div className="flex gap-2 justify-center flex-wrap">
+                {quickPlayerCounts.map((count) => (
                   <button
-                    onClick={() => setShowCustomCount(true)}
-                    className={`px-4 h-12 rounded-lg border-2 transition-all font-bold ${
-                      !quickPlayerCounts.includes(playerCount) || showCustomCount
-                        ? 'border-primary bg-primary text-primary-fg'
-                        : 'border-border hover:border-primary hover:bg-primary-subtle text-fg'
+                    key={count}
+                    onClick={() => setPlayerCount(count)}
+                    className={`w-11 h-11 rounded-xl border-2 transition-all font-bold text-sm ${
+                      playerCount === count
+                        ? 'border-primary bg-primary text-primary-fg scale-110'
+                        : 'border-border hover:border-primary text-fg'
                     }`}
                   >
-                    {t.home.gameMode.passAndPlay.customCount.button}
+                    {count}
                   </button>
-                </div>
-                <p className="text-sm text-center text-fg-muted">
-                  {t.home.gameMode.passAndPlay.playerNaming}
-                </p>
-                {!quickPlayerCounts.includes(playerCount) && !showCustomCount && (
-                  <p className="text-sm text-center text-primary font-medium">
-                    {playerCount} {t.home.gameMode.passAndPlay.customCount.playersSelected}
-                  </p>
-                )}
-              </CardBody>
-            </Card>
+                ))}
+                <button
+                  onClick={() => setShowCustomCount(true)}
+                  className={`px-3 h-11 rounded-xl border-2 transition-all font-bold text-sm ${
+                    !quickPlayerCounts.includes(playerCount)
+                      ? 'border-primary bg-primary text-primary-fg'
+                      : 'border-border hover:border-primary text-fg'
+                  }`}
+                >
+                  {!quickPlayerCounts.includes(playerCount) ? playerCount : '+'}
+                </button>
+              </div>
+            </div>
           )}
 
-          {/* Theme Selection */}
+          {/* Quick Play Button */}
+          <Button
+            onClick={() => handleCreate(randomItem(themes))}
+            disabled={loading}
+            variant="primary"
+            size="lg"
+            className="w-full text-lg py-4"
+          >
+            {loading ? 'Creating...' : '🎲 Quick Play — Random Theme'}
+          </Button>
+
+          {/* Ad between CTA and themes — Auto Ads will fill if enabled */}
+          <AdSense
+            slot="HOME_MID"
+            format="horizontal"
+            className="my-2"
+          />
+
+          {/* Theme Selection - Always visible */}
           <Card variant="elevated">
             <CardBody className="space-y-3">
-              <div className="flex items-center gap-3">
-                <Button
-                  onClick={() => handleCreate(true)}
-                  disabled={loading}
-                  variant="primary"
-                  size="lg"
-                  className="flex-1"
-                >
-                  🎲 {t.home.randomTheme}
-                </Button>
-                <span className="text-sm font-medium text-gray-500 px-2">or</span>
-                <Button
-                  onClick={() => {
-                    // Validate name before showing themes in online mode
-                    if (selectedGameMode === GameMode.Online && !isValidPlayerName(playerName)) {
-                      showNameValidationError();
-                      return;
-                    }
-                    setShowThemes(!showThemes);
-                  }}
-                  variant="secondary"
-                  size="lg"
-                  className="flex-1"
-                >
-                  {showThemes ? `✕ ${t.common.close}` : `🎨 ${t.home.chooseTheme}`}
-                </Button>
-              </div>
+              <h3 className="text-base font-bold text-fg text-center">Or pick a theme</h3>
 
-              {showThemes && (
-                <>
-                  {/* Category filter */}
-                  <div className="flex flex-wrap gap-2 pt-3 pb-2 border-t border-border">
+              {/* Filter tabs */}
+              <div className="flex gap-1.5 justify-center">
+                {(['All', 'Popular', ...(favorites.size > 0 ? ['Favorites'] : [])] as const).map((tab) => {
+                  const labels: Record<string, string> = { All: 'All', Popular: '🔥 Popular', Favorites: '❤️ Favorites' };
+                  return (
                     <button
-                      onClick={() => setSelectedCategory('All')}
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                        selectedCategory === 'All'
+                      key={tab}
+                      onClick={() => setSelectedCategory(tab)}
+                      className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                        selectedCategory === tab
                           ? 'bg-primary text-primary-fg'
-                          : 'bg-bg-subtle text-fg-muted hover:bg-bg-hover'
+                          : 'bg-bg-subtle text-fg-muted hover:text-fg'
                       }`}
                     >
-                      All
+                      {labels[tab]}
                     </button>
-                    {CATEGORIES.map((category) => (
+                  );
+                })}
+              </div>
+
+              {/* Theme grid */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {/* Custom theme buttons */}
+                {hasCustomTheme && (
+                  <button
+                    onClick={handleUseCustomTheme}
+                    disabled={loading}
+                    className="p-3 rounded-xl border-2 border-primary bg-primary-subtle hover:scale-[1.02] transition-all text-left disabled:opacity-50 relative"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">✨</span>
+                      <span className="font-semibold text-fg text-sm flex-1">Custom</span>
                       <button
-                        key={category}
-                        onClick={() => setSelectedCategory(category)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                          selectedCategory === category
-                            ? 'bg-primary text-primary-fg'
-                            : 'bg-bg-subtle text-fg-muted hover:bg-bg-hover'
-                        }`}
+                        onClick={(e) => { e.stopPropagation(); handleDeleteCustomTheme(); }}
+                        className="text-xs text-danger hover:text-danger-hover"
                       >
-                        {category}
+                        ✕
                       </button>
-                    ))}
+                    </div>
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setShowCustomThemeModal(true)}
+                  className="p-3 rounded-xl border-2 border-dashed border-border hover:border-primary transition-all text-left"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">➕</span>
+                    <span className="font-semibold text-fg-muted text-sm">
+                      {hasCustomTheme ? 'Edit' : 'Custom'}
+                    </span>
                   </div>
+                </button>
 
-                  {/* Theme grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {/* Custom Theme (if exists) */}
-                    {hasCustomTheme && (
-                      <button
-                        onClick={handleUseCustomTheme}
-                        disabled={loading}
-                        className="p-3 rounded-lg border-2 border-primary bg-primary-subtle hover:bg-primary-hover transition-all text-left disabled:opacity-50 relative group"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl">✨</span>
-                          <span className="font-medium text-fg flex-1">
-                            Custom Theme
-                          </span>
-                          {/* Delete button */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteCustomTheme();
-                            }}
-                            className="text-sm text-danger hover:text-danger-hover"
-                            title="Delete custom theme"
-                          >
-                            🗑️
-                          </button>
-                        </div>
-                        <p className="text-xs text-fg-muted mt-1">
-                          {getCustomThemeExpiry()?.hoursLeft || 0}h remaining
-                        </p>
-                      </button>
-                    )}
-
-                    {/* Create Custom Theme Button */}
-                    <button
-                      onClick={() => setShowCustomThemeModal(true)}
-                      className="p-3 rounded-lg border-2 border-dashed border-border hover:border-primary hover:bg-primary-subtle transition-all text-left"
+                {/* Theme buttons */}
+                {filteredThemes.map((theme) => {
+                  const count = likeCounts[theme] || 0;
+                  return (
+                    <div
+                      key={theme}
+                      className={`p-3 rounded-xl border-2 hover:border-primary hover:bg-primary-subtle hover:scale-[1.03] hover-wiggle transition-all text-left ${
+                        loading ? 'opacity-50 pointer-events-none' : ''
+                      } ${
+                        favorites.has(theme) ? 'border-primary/40 bg-primary-subtle/30' : 'border-border'
+                      }`}
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-2xl">➕</span>
-                        <span className="font-medium text-fg">
-                          {hasCustomTheme ? 'Edit Custom' : 'Create Custom'}
-                        </span>
-                      </div>
-                      <p className="text-xs text-fg-muted mt-1">
-                        Add your own words
-                      </p>
-                    </button>
-
-                    {/* Regular Themes */}
-                    {themes
-                      .filter((theme) => selectedCategory === 'All' || THEME_CATEGORIES[theme] === selectedCategory)
-                      .map((theme) => {
-                    const isLiked = hasUserLikedTheme(theme) || likedThemes.has(theme);
-
-                    return (
-                      <button
-                        key={theme}
-                        onClick={() => {
-                          setSelectedTheme(theme);
-                          handleCreate(false);
-                        }}
-                        disabled={loading}
-                        className="p-3 rounded-lg border-2 border-border hover:border-primary hover:bg-primary-subtle transition-all text-left disabled:opacity-50 relative group"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-2xl">{THEME_EMOJIS[theme]}</span>
-                          <span className="font-medium text-fg flex-1">
+                        <button
+                          type="button"
+                          onClick={() => handleCreate(theme)}
+                          disabled={loading}
+                          className="flex items-center gap-2 flex-1 min-w-0 bg-transparent border-none p-0 cursor-pointer text-left"
+                        >
+                          <span className="text-xl">{THEME_EMOJIS[theme]}</span>
+                          <span className="font-semibold text-fg text-sm flex-1">
                             {THEME_LABELS[theme]}
                           </span>
-                          {/* Like button with count */}
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={(e) => handleLikeTheme(theme, e)}
-                              disabled={isLiked}
-                              className={`text-xl transition-transform ${
-                                isLiked
-                                  ? 'opacity-100 scale-110'
-                                  : 'opacity-50 group-hover:opacity-100 hover:scale-125'
-                              }`}
-                              title={isLiked ? t.home.alreadyLikedTitle : t.home.likeThisTheme}
-                            >
-                              {isLiked ? '❤️' : '🤍'}
-                            </button>
-                            <small className="text-xs text-fg-muted min-w-[20px]">
-                              {themeLikeCounts[theme] ?? 0}
-                            </small>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                  </div>
-                </>
-              )}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => handleToggleFavorite(theme, e)}
+                          className="flex items-center gap-1 text-sm opacity-60 hover:opacity-100 transition-opacity"
+                          aria-label={favorites.has(theme) ? `Remove ${THEME_LABELS[theme]} from favorites` : `Add ${THEME_LABELS[theme]} to favorites`}
+                        >
+                          {favorites.has(theme) ? '❤️' : '🤍'}
+                          {count > 0 && <span className="text-[10px] text-fg-muted font-medium">{count}</span>}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </CardBody>
           </Card>
 
-          {/* Popular Themes Today - Dynamic tracking */}
-          <PopularThemes
-            onThemeSelect={(theme) => {
-              setSelectedTheme(theme);
-              handleCreate(false);
-            }}
-            selectedTheme={selectedTheme}
-            onBrowseThemes={() => setShowThemes(true)}
+          {/* Bottom Ad — Auto Ads will fill if enabled */}
+          <AdSense
+            slot="HOME_BOTTOM"
+            format="auto"
+            className="mt-4"
           />
         </div>
       </div>
@@ -589,17 +433,12 @@ export default function HomePage() {
       {/* Custom Player Count Modal */}
       <Modal
         isOpen={showCustomCount}
-        onClose={() => {
-          setShowCustomCount(false);
-          setCustomPlayerCount('');
-        }}
+        onClose={() => { setShowCustomCount(false); setCustomPlayerCount(''); }}
         title={t.home.gameMode.passAndPlay.customCount.title}
         className="max-w-md"
       >
         <div className="space-y-4">
-          <p className="text-fg-muted text-sm">
-            {t.home.gameMode.passAndPlay.customCount.description}
-          </p>
+          <p className="text-fg-muted text-sm">{t.home.gameMode.passAndPlay.customCount.description}</p>
           <Input
             type="number"
             min="3"
@@ -620,10 +459,7 @@ export default function HomePage() {
               {t.home.gameMode.passAndPlay.customCount.confirm}
             </Button>
             <Button
-              onClick={() => {
-                setShowCustomCount(false);
-                setCustomPlayerCount('');
-              }}
+              onClick={() => { setShowCustomCount(false); setCustomPlayerCount(''); }}
               variant="ghost"
               size="lg"
               className="flex-1"
@@ -637,53 +473,32 @@ export default function HomePage() {
       {/* Custom Theme Modal */}
       <Modal
         isOpen={showCustomThemeModal}
-        onClose={() => {
-          setShowCustomThemeModal(false);
-          setCustomThemeInput('');
-          setCustomThemeError('');
-        }}
-        title="✨ Create Custom Theme"
+        onClose={() => { setShowCustomThemeModal(false); setCustomThemeInput(''); setCustomThemeError(''); }}
+        title="Create Custom Theme"
         className="max-w-2xl"
       >
         <div className="space-y-4">
           <p className="text-fg-muted text-sm">
-            Enter at least 8 words for your custom theme. You can use commas or put each word on a new line.
+            Enter at least 8 words. Use commas or one word per line.
           </p>
-
-          {/* Examples */}
-          <div className="bg-bg-subtle rounded-lg p-3 text-xs text-fg-muted">
-            <p className="font-bold mb-1">Examples:</p>
-            <p>• Comma-separated: Apple, Banana, Orange, Grape, ...</p>
-            <p>• One per line (just paste your list)</p>
-          </div>
-
           <textarea
-            className="w-full h-48 p-3 rounded-lg border-2 border-border bg-bg text-fg focus:border-primary focus:outline-none resize-none font-mono text-sm"
-            placeholder="Enter your words here...&#10;&#10;Example:&#10;Pizza&#10;Burger&#10;Pasta&#10;Sushi&#10;Tacos&#10;Salad&#10;Steak&#10;Ramen"
+            className="w-full h-40 p-3 rounded-xl border-2 border-border bg-bg text-fg focus:border-primary focus:outline-none resize-none font-mono text-sm"
+            placeholder="Pizza, Burger, Pasta, Sushi, Tacos, Salad, Steak, Ramen"
             value={customThemeInput}
-            onChange={(e) => {
-              setCustomThemeInput(e.target.value);
-              setCustomThemeError('');
-            }}
+            onChange={(e) => { setCustomThemeInput(e.target.value); setCustomThemeError(''); }}
             autoFocus
           />
-
-          {/* Live word count */}
           <div className="text-sm text-fg-muted">
             {(() => {
               const result = parseWords(customThemeInput);
               return result.valid
-                ? `✓ ${result.words.length} words ready`
+                ? `${result.words.length} words ready`
                 : customThemeInput.trim()
                 ? `${result.words.length} words (need at least 8)`
                 : 'Paste or type your words above';
             })()}
           </div>
-
-          {customThemeError && (
-            <p className="text-sm text-danger">{customThemeError}</p>
-          )}
-
+          {customThemeError && <p className="text-sm text-danger">{customThemeError}</p>}
           <div className="flex gap-3 pt-2">
             <Button
               onClick={handleCreateCustomTheme}
@@ -692,14 +507,10 @@ export default function HomePage() {
               className="flex-1"
               disabled={!parseWords(customThemeInput).valid}
             >
-              Save Custom Theme (24h)
+              Save Theme (24h)
             </Button>
             <Button
-              onClick={() => {
-                setShowCustomThemeModal(false);
-                setCustomThemeInput('');
-                setCustomThemeError('');
-              }}
+              onClick={() => { setShowCustomThemeModal(false); setCustomThemeInput(''); setCustomThemeError(''); }}
               variant="ghost"
               size="lg"
               className="flex-1"

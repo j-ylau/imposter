@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Theme } from '@/schema';
-import { THEME_LABELS, THEME_DESCRIPTIONS, THEME_EMOJIS, THEMES } from '@/data/themes';
+import { THEME_LABELS, THEME_DESCRIPTIONS, THEME_EMOJIS, THEMES, THEME_AUDIENCES } from '@/data/themes';
 import { generateThemeSEO, generateThemeSchema } from '@/lib/seo';
 import { getTranslation } from '@/lib/i18n';
 
@@ -10,6 +10,23 @@ interface ThemePageProps {
   params: {
     slug: string;
   };
+}
+
+// Deterministic shuffle based on seed string
+function deterministicShuffle<T>(array: T[], seed: string): T[] {
+  const arr = [...array];
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+    hash = hash & hash; // Convert to 32bit integer
+  }
+
+  for (let i = arr.length - 1; i > 0; i--) {
+    hash = (hash * 9301 + 49297) % 233280; // Simple LCG
+    const j = Math.floor((hash / 233280) * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
 }
 
 // Generate metadata for each theme page
@@ -136,26 +153,64 @@ export default function ThemePage({ params }: ThemePageProps) {
             </div>
           </div>
 
-          {/* Internal Links */}
-          <div className="mt-8 text-center">
-            <p className="text-fg-muted mb-4">
+          {/* FAQ Section - rich text content for SEO and Auto Ads */}
+          <div className="bg-card rounded-lg p-6 mt-8 border border-border">
+            <h2 className="text-2xl font-bold text-fg mb-4">
+              Frequently Asked Questions
+            </h2>
+            <div className="space-y-4 text-fg-muted">
+              <div>
+                <h3 className="font-semibold text-fg mb-1">How many players do I need for the {label} theme?</h3>
+                <p>You need at least 3 players and can play with up to 12. The {label.toLowerCase()} theme works great with any group size — more players means more suspects and more fun!</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-fg mb-1">Can I play {label} Imposter on my phone?</h3>
+                <p>Yes! Imposter Word Game is fully mobile-friendly. You can play online with each person on their own device, or use Pass &amp; Play mode to share a single phone. No app download needed.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-fg mb-1">Who is the {label} theme best for?</h3>
+                <p>The {label.toLowerCase()} theme is perfect for {THEME_AUDIENCES[theme]?.toLowerCase() || 'everyone'}. It has {words.length} carefully curated words that fans will recognize and enjoy debating over.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-fg mb-1">Is Imposter Word Game free?</h3>
+                <p>Completely free! No downloads, no sign-ups, no paywalls. Create a room, share the code, and start playing in seconds.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Related Themes - dynamic cross-links */}
+          <div className="mt-8">
+            <h2 className="text-xl font-bold text-fg text-center mb-4">
               {t.themePage.exploreMore}
-            </p>
-            <div className="flex gap-3 justify-center flex-wrap">
-              <Link href="/theme/pokemon" className="text-primary hover:text-primary-hover underline">
-                Pokémon
-              </Link>
-              <Link href="/theme/anime" className="text-primary hover:text-primary-hover underline">
-                Anime
-              </Link>
-              <Link href="/theme/video-games" className="text-primary hover:text-primary-hover underline">
-                Video Games
-              </Link>
-              <Link href="/theme/music" className="text-primary hover:text-primary-hover underline">
-                Music
-              </Link>
-              <Link href="/how-to-play" className="text-primary hover:text-primary-hover underline">
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {deterministicShuffle(
+                (Object.keys(THEMES) as Theme[]).filter((t) => t !== theme),
+                theme
+              )
+                .slice(0, 8)
+                .map((relatedTheme) => (
+                  <Link
+                    key={relatedTheme}
+                    href={`/theme/${relatedTheme}`}
+                    className="flex items-center gap-2 p-3 rounded-lg border border-border hover:border-primary hover:bg-primary-subtle transition-all"
+                  >
+                    <span className="text-xl">{THEME_EMOJIS[relatedTheme]}</span>
+                    <span className="font-medium text-fg text-sm">{THEME_LABELS[relatedTheme]}</span>
+                  </Link>
+                ))}
+            </div>
+            <div className="text-center mt-4">
+              <Link href="/how-to-play" className="text-primary hover:text-primary-hover font-medium text-sm underline transition-colors">
                 {t.footer.howToPlay}
+              </Link>
+              <span className="text-fg-subtle mx-2">·</span>
+              <Link href="/about" className="text-primary hover:text-primary-hover font-medium text-sm underline transition-colors">
+                {t.footer.about}
+              </Link>
+              <span className="text-fg-subtle mx-2">·</span>
+              <Link href="/" className="text-primary hover:text-primary-hover font-medium text-sm underline transition-colors">
+                All Themes
               </Link>
             </div>
           </div>

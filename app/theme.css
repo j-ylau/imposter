@@ -19,14 +19,10 @@
  *
  * ⚠️ POTENTIAL PITFALLS TO WATCH FOR:
  *
- * 1. DUAL BACKGROUND GRADIENT TOKENS
- *    The theme uses TWO background variables for gradients:
- *    - --color-bg-start
- *    - --color-bg-end
- *
- *    If you change background colors, remember to update BOTH tokens
- *    in BOTH :root and .dark sections. They're used in layout.tsx:
- *    className="bg-gradient-to-br from-[var(--color-bg-start)] to-[var(--color-bg-end)]"
+ * 1. BACKGROUND COLOR TOKENS
+ *    The theme uses --color-bg as the main background.
+ *    Legacy gradient tokens (--color-bg-start, --color-bg-end)
+ *    are kept for backwards compatibility but the app uses solid bg.
  *
  * 2. DARK MODE SHADOWS MAY FEEL HEAVY ON MOBILE
  *    Dark mode shadows are intentionally stronger for proper elevation.
