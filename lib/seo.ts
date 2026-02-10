@@ -61,7 +61,7 @@ export function generateThemeSEO(theme: Theme): Metadata {
   const url = `${SITE.url}/theme/${theme}`;
 
   const title = `${emoji} ${label} - ${SITE.name}`;
-  const fullDescription = `Play Imposter Word Game with ${label.toLowerCase()} theme. ${description}. Find the imposter, guess the word, and have fun with friends online!`;
+  const fullDescription = `Play the Imposter Game with ${label.toLowerCase()} theme. ${description}. Find the imposter, guess the word, and have fun with friends online — free, no download!`;
 
   const keywords = [
     ...DEFAULT_KEYWORDS,
@@ -108,7 +108,7 @@ export function generateThemeSEO(theme: Theme): Metadata {
 export function generateRoomSEO(roomId: string): Metadata {
   const url = `${SITE.url}/room/${roomId}`;
   const title = `Room ${roomId} - ${SITE.name}`;
-  const description = `Join room ${roomId} to play Imposter Word Game with your friends. Find the imposter and guess the secret word!`;
+  const description = `Join room ${roomId} to play the Imposter Game with your friends. Find the imposter and guess the secret word — free, no download!`;
 
   return {
     title,
@@ -184,7 +184,7 @@ export function generateThemeSchema(theme: Theme) {
     '@context': 'https://schema.org',
     '@type': 'Game',
     name: `${label} - ${SITE.name}`,
-    description: `Play Imposter Word Game with ${label.toLowerCase()} theme. ${description}`,
+    description: `Play the Imposter Game with ${label.toLowerCase()} theme. ${description}`,
     url: `${SITE.url}/theme/${theme}`,
     applicationCategory: 'Game',
     genre: ['Party Game', 'Word Game', label],

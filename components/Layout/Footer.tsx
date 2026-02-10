@@ -14,7 +14,7 @@ export function Footer() {
 
   return (
     <>
-      <footer className="fixed bottom-0 left-0 right-0 py-3 bg-card/80 backdrop-blur-sm border-t border-border transition-colors">
+      <footer className="fixed bottom-0 left-0 right-0 py-3 bg-card/80 backdrop-blur-sm border-t border-border transition-colors z-40">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-2">
             <p className="text-xs text-fg-muted">
@@ -29,6 +29,9 @@ export function Footer() {
               </a>
             </p>
             <div className="flex gap-4 text-xs">
+              <Link href="/imposter-game" className="text-fg-muted hover:text-primary transition-colors font-medium">
+                Imposter Game
+              </Link>
               <Link href="/about" className="text-fg-muted hover:text-primary transition-colors">
                 {t.footer.about}
               </Link>

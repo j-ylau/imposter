@@ -150,12 +150,12 @@ export default function AboutPage() {
                   <div className="text-sm text-fg-muted">{t.about.popularThemes.music}</div>
                 </Link>
                 <Link
-                  href="/theme/food"
+                  href="/theme/fortnite"
                   className="p-4 bg-primary-subtle border-2 border-primary rounded-lg hover:scale-105 transition-transform"
                 >
-                  <div className="text-3xl mb-2">🍕</div>
-                  <div className="font-semibold text-fg">Food</div>
-                  <div className="text-sm text-fg-muted">{t.about.popularThemes.food}</div>
+                  <div className="text-3xl mb-2">🪂</div>
+                  <div className="font-semibold text-fg">Fortnite</div>
+                  <div className="text-sm text-fg-muted">Land, loot, and find the imposter</div>
                 </Link>
               </div>
             </section>
@@ -187,6 +187,9 @@ export default function AboutPage() {
             {/* Footer Links */}
             <div className="text-center pt-8 border-t border-border">
               <div className="flex gap-6 justify-center flex-wrap text-sm">
+                <Link href="/imposter-game" className="text-primary hover:text-primary-hover underline font-medium">
+                  Imposter Game
+                </Link>
                 <Link href="/privacy" className="text-primary hover:text-primary-hover underline">
                   {t.footer.privacy}
                 </Link>

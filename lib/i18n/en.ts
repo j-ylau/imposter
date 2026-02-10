@@ -58,8 +58,8 @@ export const en = {
 
   // Home Page
   home: {
-    title: 'Imposter Word Game',
-    subtitle: "One player doesn't know the word. Find the imposter!",
+    title: 'Imposter Game',
+    subtitle: "The free online imposter word game — one player doesn't know the secret word. Find the imposter!",
     howToPlay: 'How to play?',
     joinRoom: 'Join a room',
     yourName: 'Your name',
@@ -187,7 +187,7 @@ export const en = {
     copyCode: 'Copy Room Code',
     codeCopied: 'Code Copied!',
     share: 'Share',
-    shareMessage: "Let's play Imposter Word Game! Join here:",
+    shareMessage: "Let's play the Imposter Game! Join here:",
     players: 'Players',
     waitingForPlayers: 'Waiting for {count} more player{plural}...',
     startGame: 'Start Game',
@@ -336,28 +336,28 @@ export const en = {
 
   // About Page
   about: {
-    title: 'About Imposter Word Game',
-    subtitle: 'The ultimate social deduction word guessing party game',
+    title: 'About Imposter Game',
+    subtitle: 'The free online imposter word game for parties and game nights',
     seo: {
-      title: 'About - Imposter Word Game',
-      description: 'Learn about Imposter Word Game, the free online multiplayer party game that brings friends together for social deduction and word guessing fun.',
+      title: 'About - Imposter Game',
+      description: 'Learn about Imposter Game, the free online multiplayer imposter word game that brings friends together for social deduction and word guessing fun.',
     },
     whatIsIt: {
-      title: 'What is Imposter Word Game?',
-      p1: "Imposter Word Game is a free online multiplayer party game that combines social deduction with word guessing. It's perfect for game nights, parties, virtual hangouts, or any time you want to have fun with friends!",
+      title: 'What is the Imposter Game?',
+      p1: "Imposter Game is a free online multiplayer party game that combines social deduction with word guessing. It's the imposter word game perfect for game nights, parties, virtual hangouts, or any time you want to have fun with friends!",
       p2: "The premise is simple but addictive: one player is secretly the imposter while everyone else receives the same secret word. Players give clues without saying the word directly, and the challenge is to figure out who doesn't actually know what everyone is talking about.",
-      p3: "With over 15 different themes ranging from Pokémon to TikTok trends, there's something for everyone. Play instantly in your browser - no downloads, no sign-ups required!",
+      p3: "With over 24 different themes ranging from Pokémon to Fortnite, Marvel to K-Pop, there's something for everyone. Play this imposter game instantly in your browser — no downloads, no sign-ups required!",
     },
     whyWeBuilt: {
       title: 'Why We Built This',
-      p1: 'We created Imposter Word Game because we believe the best games bring people together. In a world where online gaming often feels isolating, we wanted to build something that creates real social moments - laughter, suspicion, clever wordplay, and friendly competition.',
+      p1: 'We created this imposter game because we believe the best games bring people together. In a world where online gaming often feels isolating, we wanted to build something that creates real social moments - laughter, suspicion, clever wordplay, and friendly competition.',
       p2: "The game was inspired by classic party games like Spyfall and Chameleon, but with a unique twist that makes it accessible to players of all ages and interests. Whether you're into anime, sports, music, or food, there's a theme that speaks to you.",
     },
     features: {
       title: 'Features That Make Us Different',
       themes: {
-        title: '15+ Unique Themes',
-        desc: 'From Pokémon to TikTok, anime to NBA - find your perfect theme',
+        title: '24+ Unique Themes',
+        desc: 'From Pokémon to Fortnite, Marvel to K-Pop — find your perfect theme',
       },
       instant: {
         title: 'Instant Play',
@@ -395,11 +395,11 @@ export const en = {
 
   // How to Play Page (Full)
   howToPlayPage: {
-    title: 'How to Play Imposter Word Game',
+    title: 'How to Play the Imposter Game',
     subtitle: 'Master the art of deduction and deception',
     seo: {
-      title: 'How to Play - Imposter Word Game',
-      description: 'Learn how to play Imposter Word Game. Complete guide with rules, strategies, and tips for the ultimate multiplayer party game experience.',
+      title: 'How to Play - Imposter Game',
+      description: 'Learn how to play the Imposter Game online for free. Complete guide with rules, strategies, and tips for the ultimate multiplayer imposter word game experience.',
     },
     quickStart: {
       title: '🚀 Quick Start (30 seconds)',
@@ -540,8 +540,8 @@ export const en = {
     title: 'Privacy Policy',
     lastUpdated: 'Last updated: November 23, 2024',
     seo: {
-      title: 'Privacy Policy - Imposter Word Game',
-      description: 'Read our privacy policy to learn how we collect, use, and protect your data when you play Imposter Word Game.',
+      title: 'Privacy Policy - Imposter Game',
+      description: 'Read our privacy policy to learn how we collect, use, and protect your data when you play the Imposter Game.',
     },
     intro: {
       title: 'Introduction',

@@ -18,15 +18,18 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
   ),
   title: {
-    default: 'Imposter Word Game - Free Online Party Game | Play with Friends',
-    template: '%s | Imposter Word Game',
+    default: 'Imposter Game - Play Free Online with Friends | Imposter Word Game',
+    template: '%s | Imposter Game',
   },
   description:
-    'Free online party game — one player is the imposter! Everyone gets a secret word except one person. Give clues, find the imposter, and guess the word. Play instantly with 3-12 friends. No downloads, no sign-up.',
+    'Imposter Game — the free online party word game where one player is the imposter! Everyone gets a secret word except one person. Give clues, find the imposter, and guess the word. Play instantly with 3-12 friends. No downloads, no sign-up.',
   keywords: [
-    'imposter word game',
     'imposter game',
     'imposter game online',
+    'imposter word game',
+    'free imposter game',
+    'play imposter game',
+    'imposter game browser',
     'word guessing game',
     'party game online',
     'multiplayer party game',
@@ -38,6 +41,7 @@ export const metadata: Metadata = {
     'spy word game',
     'who is the imposter',
     'imposter word game free',
+    'imposter game no download',
   ],
   alternates: {
     canonical: 'https://imposterga.me',
@@ -59,11 +63,11 @@ export const metadata: Metadata = {
   },
   manifest: '/site.webmanifest',
   openGraph: {
-    title: 'Imposter Word Game - Free Online Party Game',
+    title: 'Imposter Game - Play Free Online with Friends',
     description:
-      'One player is the imposter — can you find them? Give clues, vote, and guess the word. Play free with friends, no downloads needed.',
+      'Imposter Game — one player is the imposter. Can you find them? Give clues, vote, and guess the word. Play free with friends, no downloads needed.',
     url: 'https://imposterga.me',
-    siteName: 'Imposter Word Game',
+    siteName: 'Imposter Game',
     type: 'website',
     locale: 'en_US',
     images: [
@@ -71,14 +75,14 @@ export const metadata: Metadata = {
         url: 'https://imposterga.me/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Imposter Word Game - Find the Imposter, Guess the Word',
+        alt: 'Imposter Game - Find the Imposter, Guess the Word',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Imposter Word Game - Free Online Party Game',
-    description: 'One player is the imposter. Give clues, vote, and guess the word. Play free with friends!',
+    title: 'Imposter Game - Play Free Online with Friends',
+    description: 'Imposter Game — one player is the imposter. Give clues, vote, and guess the word. Play free with friends!',
     images: ['https://imposterga.me/og-image.png'],
   },
   robots: {

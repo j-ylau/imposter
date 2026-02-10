@@ -15,6 +15,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
+      url: `${SITE.url}/imposter-game`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.95,
+    },
+    {
       url: `${SITE.url}/about`,
       lastModified: new Date(),
       changeFrequency: 'monthly' as const,

@@ -5,8 +5,8 @@
 export const SITE_DOMAIN = 'imposterga.me';
 export const SITE_URL = 'https://imposterga.me';
 export const SITE_NAME = 'Imposter';
-export const SITE_FULL_NAME = 'Imposter Word Game';
-export const SITE_DESCRIPTION = 'Free online party game — one player is the imposter! Everyone gets a secret word except one person. Give clues, find the imposter, and guess the word. Play instantly with friends — no downloads, no sign-up.';
+export const SITE_FULL_NAME = 'Imposter Game';
+export const SITE_DESCRIPTION = 'Imposter Game — the free online party word game where one player is the imposter! Everyone gets a secret word except one person. Give clues, find the imposter, and guess the word. Play instantly with friends — no downloads, no sign-up.';
 export const SITE_TAGLINE = 'Find the Imposter. Guess the Word.';
 export const TWITTER_HANDLE = '@imposterga_me';
 
@@ -25,7 +25,12 @@ export const CLUE_MAX_WORDS = 1;
 
 // SEO constants
 export const DEFAULT_KEYWORDS = [
+  'imposter game',
+  'imposter game online',
   'imposter word game',
+  'free imposter game',
+  'play imposter game',
+  'imposter game browser',
   'word guessing game',
   'party game online',
   'multiplayer browser game',
@@ -33,8 +38,8 @@ export const DEFAULT_KEYWORDS = [
   'online party game',
   'social deduction game',
   'word game with friends',
-  'imposter game online',
   'guess the word game',
+  'imposter game no download',
 ];
 
 // Contact form constants
