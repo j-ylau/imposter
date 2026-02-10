@@ -20,7 +20,8 @@ interface RoleRevealProps {
 export function RoleReveal({ room, isImposter, word, onContinue }: RoleRevealProps) {
   const { t } = useTranslation();
   const [showTransition, setShowTransition] = useState(false);
-  const prevPlayerIndexRef = useRef<number | undefined>(room.currentPlayerIndex);
+  const prevPlayerIndexRef = useRef<number | undefined>(undefined);
+  const isInitialMount = useRef(true);
 
   const isPassAndPlay = room.gameMode === 'pass-and-play';
   const currentPlayer = getCurrentPlayer(room);
@@ -28,6 +29,13 @@ export function RoleReveal({ room, isImposter, word, onContinue }: RoleRevealPro
   // Detect when currentPlayerIndex changes and show transition screen
   useEffect(() => {
     if (!isPassAndPlay || room.currentPlayerIndex === undefined) return;
+
+    // On initial mount, just record the current index without showing transition
+    if (isInitialMount.current) {
+      prevPlayerIndexRef.current = room.currentPlayerIndex;
+      isInitialMount.current = false;
+      return;
+    }
 
     // When player index changes, show transition screen
     if (prevPlayerIndexRef.current !== room.currentPlayerIndex) {
